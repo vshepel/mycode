@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /core/
+Disallow: /user/
+Disallow: /messages/
+

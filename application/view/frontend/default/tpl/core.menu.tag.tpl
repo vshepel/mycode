@@ -1,0 +1,1 @@
+<li><a href="{link}"><span class="fa fa-lg fa-{icon}"></span> {title}</a></li>

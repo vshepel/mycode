@@ -1,0 +1,57 @@
+body {
+	padding-top: 20px;
+	background: #f4f6f7;
+}
+
+main.container {
+	padding: 20px;
+	border: 1px solid rgba(0,0,0,0.15);
+	border-radius: 4px;
+	background: #ffffff;
+	box-shadow: 0px 0px 6px rgba(0,0,0,0.05);
+}
+
+.calendar {
+    width: 100%;
+}
+
+.calendar td, .calendar th {
+    padding: 5px 0;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.weekday-active-v, .day-active-v, .weekday-active, .day-active {
+    font-weight: bold;
+}
+
+.weekday {
+    color: red;
+}
+
+.calendar a {
+	text-decoration: underline;
+}
+
+th.workday, th.weekday {
+    background-color: #FCFCFC;
+	font-weight: bold;
+}
+
+.monthselect {
+    font-size: 1.15em;
+	font-weight: bold;
+}
+
+.monthselect a {
+	text-decoration: none;
+}
+
+.day-current {
+    background-color: #3f4b51;
+    color: #fff;
+}
+
+.day-current a {
+    color: #fff;
+}

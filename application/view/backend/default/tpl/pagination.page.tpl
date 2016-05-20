@@ -1,0 +1,1 @@
+<li[current] class="active"[/current]><a href="{link}">{num}</a></li>

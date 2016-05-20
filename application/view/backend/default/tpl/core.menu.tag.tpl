@@ -1,0 +1,1 @@
+<a href="{link}" class="list-group-item"><span class="fa fa-fw fa-{icon}"></span>&nbsp; {title}</a>
