@@ -1,2 +1,2 @@
 # mycode.pro
-MYCODE.PRO | Powered Harmony CMS
+MYCODE.PRO | Powered HarmonyCMS
