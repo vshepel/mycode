@@ -96,6 +96,8 @@ class Messages extends AppModel {
 				 * Make messages list
 				 */
 				else {
+					$rows = [];
+
 					foreach ($array as $row) {
 						$message = mb_substr($row["message"], 0, $this->_config->get("messages", "list.messageLength", 32), "UTF-8");
 						if (Strings::length($message) < Strings::length($row["message"])) $message .= "...";
@@ -103,7 +105,7 @@ class Messages extends AppModel {
 						/**
 						 * Tags
 						 */
-						$tags = [
+						$rows[] = [
 							"id" => $row["id"],
 							"url" => SITE_PATH . "messages/" . $row["id"],
 							"topic" => $row["topic"],
@@ -127,16 +129,24 @@ class Messages extends AppModel {
 							"readed" => ($row["readed"] > 0),
 							"not-readed" => ($row["readed"]  == 0)
 						];
-
-						$this->_view->add("messages.list.row", $tags);
 					}
 
 					$response->code = 0;
-					$response->view = "messages.list.page";
+					$response->view = "messages.list";
+
+					// New messages num
+					$newpm_num = $this->_db
+						->select("count(*)")
+						->from(DBPREFIX . "messages")
+						->where("user", "=", $this->_user->get("id"))
+						->and_where("to", "=", $this->_user->get("id"))
+						->and_where("readed", "=", 0)
+						->result_array();
 
 					$response->tags = array(
 						"num" => $num,
-						"rows" => $this->_view->get("messages.list.row"),
+						"new-count" => isset($newpm_num[0][0]) ? $newpm_num[0][0] : 0,
+						"rows" => $rows,
 						"type" => $type,
 						"pagination" => $pagination
 					);
@@ -208,7 +218,7 @@ class Messages extends AppModel {
 					->result();
 
 				$response->code = 0;
-				$response->view = "messages.read.page";
+				$response->view = "messages.read";
 
 				/**
 				 * Tags
@@ -282,7 +292,7 @@ class Messages extends AppModel {
 			$response->type = "danger";
 			$response->message = $this->_lang->get("core", "accessDenied");
 		} else {
-			$response->view = "messages.send.page";
+			$response->view = "messages.send";
 			$response->tags = $this->_sendPageTags;
 		}
 
@@ -447,7 +457,7 @@ class Messages extends AppModel {
 				->result_array();
 
 			if (isset($query[0]) && $query[0][0] > 0) {
-				$response->view = "messages.remove.page";
+				$response->view = "messages.remove";
 				$response->tags["id"] = $id;
 			} else {
 				$response->code = 2;
