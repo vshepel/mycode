@@ -263,6 +263,7 @@ class UserModule extends AppModel {
 
 							"edit-link" => ADMIN_PATH . "user/edit/" . $row["id"],
 							"remove-link" => ADMIN_PATH . "user/remove/" . $row["id"],
+							"message-send-link" => SITE_PATH . "messages/send/" . $row["login"],
 
 							"online" => $online,
 							"offline" => !$online,
