@@ -68,21 +68,15 @@ class Blog extends AppController {
 		
 		// Add Blog Module Script
 		$this->_core->addJS(PATH . "js/blog.js");
+	}
 
-		// Add Blog Categories for layout template
-		$this->_view->addMainTag("blog-categories",
-			Categories::getInstance()->getList()
-		);
-		
-		// Add Blog Archive for layout template
-		$this->_view->addMainTag("blog-archive",
-			$this->_posts->getArchive()
-		);
-		
-		// Add Blog Calendar for layout template
-		$this->_view->addMainTag("blog-calendar",
-			$this->_posts->getCalendar()
-		);
+	public function getProperty($name) {
+		switch ($name) {
+			case "categories" : return Categories::getInstance()->getList();
+			case "archive": return $this->_posts->getArchive();
+			case "calendar": return $this->_posts->getCalendar();
+			default: return parent::getProperty($name);
+		}
 	}
 
 	public function action_list($args) {
