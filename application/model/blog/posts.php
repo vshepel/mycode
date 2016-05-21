@@ -172,11 +172,11 @@ class Posts extends AppModel {
 				$response->type = "danger";
 				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
 			} else {
-				$noRows = (count($array) == 0);
-
 				// Posts make
-				foreach ($array as $row)
-					$this->_view->add("blog.list.post", array(
+				$rows = [];
+
+				foreach ($array as $row) {
+					$rows[] = [
 						"id" => $row["id"],
 						"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
 						"title" => $row["title"],
@@ -185,8 +185,7 @@ class Posts extends AppModel {
 						"author-login" => $this->_user->getUserLogin($row["author"]),
 						"author-name" => $this->_user->getUserName($row["author"]),
 						"author-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["author"]),
-
-						"avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
+						"author-avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
 
 						"short-text" => BBCodeParser::parse($row["short_text"]),
 						"full-text" => BBCodeParser::parse((empty($row["full-text"]) ? $row["short_text"] : $row["full_text"])),
@@ -206,19 +205,20 @@ class Posts extends AppModel {
 						"comments-num" => $row["comments_num"],
 						"views-num" => $row["views_num"],
 						"rating" => $row["rating"],
-						
+
 						"show" => ($row["show"] > 0),
 						"not-show" => ($row["show"] < 1),
-						
+
 						"show-main" => ($row["show_main"] > 0),
 						"not-show-main" => ($row["show_main"] < 1),
-						
+
 						"show-category" => ($row["show_category"] > 0),
 						"not-show-category" => ($row["show_category"] < 1),
-						
+
 						"edit" => $this->_user->hasPermission("admin.blog.posts.edit"),
 						"remove" => $this->_user->hasPermission("admin.blog.posts.remove"),
-					));
+					];
+				}
 
 				// Add category breadcrumbs if exist
 				if ($category !== null)
@@ -226,10 +226,10 @@ class Posts extends AppModel {
 
 				// Formation response
 				$response->code = 0;
-				$response->view = "blog.list.page";
+				$response->view = "blog.list";
 				$response->tags = array (
 					"num" => $num,
-					"posts" => $this->_view->get("blog.list.post"),
+					"rows" => $rows,
 					"pagination" => $pagination
 				);
 			}
@@ -244,6 +244,7 @@ class Posts extends AppModel {
 	 * @param int $commentsPage Comments page
 	 * @param Comments $comments_model Comments model
 	 * @return Response
+	 * @throws NotFoundException
 	 */
 	public function page($id, $commentsPage, $comments_model) {
 		$this->_core->addBreadcrumbs($this->_lang->get("blog", "moduleName"), "blog");
@@ -308,7 +309,7 @@ class Posts extends AppModel {
 				$comments = $this->_view->getAlert($comments->type, $comments->message);
 
 			$response->code = 0;
-			$response->view = "blog.post.page";
+			$response->view = "blog.post";
 
 			/**
 			 * Add tags
@@ -337,8 +338,7 @@ class Posts extends AppModel {
 				"author-login" => $this->_user->getUserLogin($row["author"]),
 				"author-name" => $this->_user->getUserName($row["author"]),
 				"author-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["author"]),
-
-				"avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
+				"author-avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
 
 				"comments-num" => $row["comments_num"],
 				"views-num" => $row["views_num"],
@@ -403,7 +403,7 @@ class Posts extends AppModel {
 
 		$response = new Response();
 
-		$response->view = "blog.edit.page";
+		$response->view = "blog.edit";
 
 		if ($this->exists($postId, false)) {
 			if (!$this->_editQuery) {
@@ -443,17 +443,17 @@ class Posts extends AppModel {
 				}
 			}
 
+			$categories = [];
 			foreach (Categories::getInstance()->get() as $id => $row)
-				$this->_view->add("blog.add.category", [
+				$categories[] = [
 					"id" => $id,
 					"name" => $row["name"],
 					"num" => $row["num"],
-					
 					"current" => ($this->_addTags["category"] == $id)
-				]);
+				];
 
 			$response->tags = array_merge($this->_addTags["tags"], array (
-				"categories" => $this->_view->get("blog.add.category")
+				"categories" => $categories
 			));
 		} else {
 			$response->code = 3;
@@ -474,9 +474,10 @@ class Posts extends AppModel {
 	 * @param bool $allowComments Allow comments?
 	 * @param bool $show Show posts?
 	 * @param bool $showMain Show posts on main?
-	 * @param bool $showCaregory Show posts on category?
+	 * @param bool $showCategory Show posts in category page?
 	 * @param int $postId = null Edit post ID
 	 * @return Response
+	 * @internal param bool $showCaregory Show posts on category?
 	 */
 	public function add($title, $url, $category, $shortText, $fullText, $allowComments, $show, $showMain, $showCategory, $postId = null) {
 		if (!$this->_user->hasPermission("blog.posts.edit") && $postId === null) 
@@ -570,19 +571,19 @@ class Posts extends AppModel {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 
 		$response = new Response();
+		$response->view = "blog.add";
 
-		$response->view = "blog.add.page";
-
+		$categories = [];
 		foreach (Categories::getInstance()->get() as $id => $row)
-			$this->_view->add("blog.add.category", [
+			$categories[] = [
 				"id" => $id,
 				"name" => $row["name"],
 				"num" => $row["num"],
 				"current" => ($this->_addTags["category"] == $id)
-			]);
+			];
 
 		$response->tags = array_merge($this->_addTags["tags"], array (
-			"categories" => $this->_view->get("blog.add.category")
+			"categories" => $categories
 		));
 
 		return $response;
@@ -642,7 +643,7 @@ class Posts extends AppModel {
 		$id = intval($id);
 
 		if ($this->exists($id, false)) {
-			$response->view = "blog.remove.page";
+			$response->view = "blog.remove";
 
 			$response->tags["id"] = $id;
 		} else {
@@ -738,13 +739,11 @@ class Posts extends AppModel {
 				$response->type = "danger";
 				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
 			} else {
-				$noRows = (count($array) == 0);
-
-				/**
-				 * Posts make
-				 */
+				// Posts list
+				$rows = [];
+				
 				foreach ($array as $row)
-					$this->_view->add("blog.archive.post", [
+					$rows[] = [
 						"id" => $row["id"],
 						"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
 						"title" => $row["title"],
@@ -753,8 +752,7 @@ class Posts extends AppModel {
 						"author-login" => $this->_user->getUserLogin($row["author"]),
 						"author-name" => $this->_user->getUserName($row["author"]),
 						"author-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["author"]),
-
-						"avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
+						"author-avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
 
 						"short-text" => BBCodeParser::parse($row["short_text"]),
 						"full-text" => BBCodeParser::parse((empty($row["full-text"]) ? $row["short_text"] : $row["full_text"])),
@@ -786,16 +784,16 @@ class Posts extends AppModel {
 						
 						"edit" => $this->_user->hasPermission("admin.blog.posts.edit"),
 						"remove" => $this->_user->hasPermission("admin.blog.posts.remove"),
-					]);
+					];
 
 				/**
 				 * Formation response
 				 */
 				$response->code = 0;
-				$response->view = "blog.archive.page";
+				$response->view = "blog.archive";
 				$response->tags = array (
 					"num" => $num,
-					"posts" => $this->_view->get("blog.archive.post"),
+					"rows" => $rows,
 					"pagination" => $pagination
 				);
 			}

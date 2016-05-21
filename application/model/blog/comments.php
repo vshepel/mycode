@@ -196,19 +196,17 @@ class Comments extends AppModel {
 				$response->type = "danger";
 				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
 			} else {
-				$noRows = (count($array) == 0);
+				$rows = [];
 
 				foreach ($array as $row) {
 					$online = $this->_user->checkOnline($this->_user->getUser($row["user"], "active"));
-
-					$this->_view->add("blog.comments.row", array(
+					$rows[] = [
 						"id" => $row["id"],
 
 						"author-login" => $this->_user->getUserLogin($row["user"]),
 						"author-name" => $this->_user->getUserName($row["user"]),
 						"author-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["user"]),
-
-						"avatar-link" => $this->_user->getAvatarLinkById($row["user"]),
+						"author-avatar-link" => $this->_user->getAvatarLinkById($row["user"]),
 
 						"date" => $this->_core->getDate($row["timestamp"]),
 						"time" => $this->_core->getTime($row["timestamp"]),
@@ -218,7 +216,7 @@ class Comments extends AppModel {
 						"remove" => false,
 						"online" => $online,
 						"offline" => !$online
-					));
+					];
 				}
 
 				$canAdd = $allow ? $this->_user->hasPermission("blog.comments.add") : false;
@@ -230,14 +228,13 @@ class Comments extends AppModel {
 							"comment" => $this->_comment
 						));
 				else
-					$addform = $this->_view
-						->getAlert("danger", $this->_lang->get("blog", "comments.cantAdd"));
+					$addform = $this->_view->getAlert("danger", $this->_lang->get("blog", "comments.cantAdd"));
 
 				$response->code = 0;
 				$response->view = "blog.comments.page";
 				$response->tags = array (
 					"num" => $num,
-					"rows" => $this->_view->get("blog.comments.row"),
+					"rows" => $rows,
 					"pagination" => (string) $pagination,
 					"addform" => $addform,
 					"can-add" => $canAdd,

@@ -5,7 +5,7 @@
 
 <form method="post" class="form-horizontal">
 	<div class="form-group">
-		<label class="control-label col-sm-3">[f:blog:edit.form.title] *</label>
+		<label class="control-label col-sm-3">[f:blog:add.form.title] *</label>
 		<div class="col-sm-9">
 			<input class="form-control" type="text" name="title" value="{title}">
 		</div>
@@ -19,49 +19,51 @@
 	</div>
 
 	<div class="form-group">
-		<label class="control-label col-sm-3">[f:blog:edit.form.category] *</label>
+		<label class="control-label col-sm-3">[f:blog:add.form.category] *</label>
 		<div class="col-sm-9">
-			<select class="form-control" name="category">{categories}</select>
+			<select class="form-control" name="category">[foreach categories]
+				<option value="{id}"[current] selected[/current]>{name}</option>
+			[/foreach]</select>
 		</div>
 	</div>
 
 	<div class="form-group">
-		<label class="control-label col-sm-3">[f:blog:edit.form.shortText] *</label>
+		<label class="control-label col-sm-3">[f:blog:add.form.shortText] *</label>
 		<div class="col-sm-9">
 			<textarea class="form-control" name="short_text" id="editor" rows="6">{short-text}</textarea>
 		</div>
 	</div>
 
 	<div class="form-group">
-		<label class="control-label col-sm-3">[f:blog:edit.form.fullText]</label>
+		<label class="control-label col-sm-3">[f:blog:add.form.fullText]</label>
 		<div class="col-sm-9">
 			<textarea class="form-control" name="full_text" id="editor-full" rows="6">{full-text}</textarea>
 		</div>
 	</div>
 
 	<div class="form-group">
-		<label class="control-label col-sm-3">[f:blog:edit.form.allowComments]</label>
+		<label class="control-label col-sm-3">[f:blog:add.form.allowComments]</label>
 		<div class="col-sm-9">
 			<input class="form-control" type="checkbox" name="allow_comments"[allow-comments] checked[/allow-comments]>
 		</div>
 	</div>
 
 	<div class="form-group">
-		<label class="control-label col-sm-3">[f:blog:edit.form.show]</label>
+		<label class="control-label col-sm-3">[f:blog:add.form.show]</label>
 		<div class="col-sm-9">
 			<input class="form-control" type="checkbox" name="show"[show] checked[/show]>
 		</div>
 	</div>
 	
 	<div class="form-group">
-		<label class="control-label col-sm-3">[f:blog:edit.form.showOnMain]</label>
+		<label class="control-label col-sm-3">[f:blog:add.form.showOnMain]</label>
 		<div class="col-sm-9">
 			<input class="form-control" type="checkbox" name="show_main"[show-main] checked[/show-main]>
 		</div>
 	</div>
 	
 	<div class="form-group">
-		<label class="control-label col-sm-3">[f:blog:edit.form.showOnCategory]</label>
+		<label class="control-label col-sm-3">[f:blog:add.form.showOnCategory]</label>
 		<div class="col-sm-9">
 			<input class="form-control" type="checkbox" name="show_category"[show-category] checked[/show-category]>
 		</div>
@@ -70,7 +72,7 @@
 	<div class="form-group">
 		<label class="control-label col-sm-3"></label>
 		<div class="col-sm-9">
-			<button class="btn btn-primary">[f:blog:edit.form.submit]</button>
+			<button class="btn btn-primary">[f:blog:add.form.submit]</button>
 		</div>
 	</div>
 </form>

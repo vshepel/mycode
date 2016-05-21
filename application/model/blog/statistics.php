@@ -33,7 +33,7 @@ class Statistics extends AppModel {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		
 		$response = new Response();
-		$response->view = "blog.statistics.page";
+		$response->view = "blog.statistics";
 
 		$this->_core
 			->addBreadcrumbs($this->_lang->get("blog", "moduleName"), "blog")

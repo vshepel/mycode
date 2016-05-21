@@ -220,25 +220,23 @@ class Categories extends AppModel {
 			$response->type = "danger";
 			$response->message = $this->_lang->get("core", "accessDenied");
 		} else {
-			$response->view = "blog.categories.page";
+			$response->view = "blog.categories";
 			$categories = self::get();
 			$tags = array ();
 	
 			$tags["num"] = count($categories);
+			$rows = [];
 	
 			foreach ($categories as $id => $row) {
-				$this->_view
-					->add("blog.categories.row", array (
-						"id" => $id,
-						"name" => $row["name"],
-						"posts-num" => $row["num"],
-	
-						"category-link" => ADMIN_PATH . "blog/posts/cat/" . $id,
-					));
+				$rows[] = [
+					"id" => $id,
+					"name" => $row["name"],
+					"posts-num" => $row["num"],
+					"category-link" => ADMIN_PATH . "blog/posts/cat/" . $id,
+				];
 			}
 	
-			$tags["categories"] = $this->_view->get("blog.categories.row");
-	
+			$tags["rows"] = $rows;
 			$response->tags = $tags;
 		}
 		

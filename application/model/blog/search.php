@@ -95,13 +95,10 @@ class Search extends AppModel {
 					$response->type = "danger";
 					$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
 				} else {
-					$noRows = (count($array) == 0);
-
-					/**
-					 * Posts make
-					 */
+					// Posts make
+					$rows = [];
 					foreach ($array as $row)
-						$this->_view->add("blog.search.post", array(
+						$rows[] = [
 							"id" => $row["id"],
 							"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
 							"title" => $row["title"],
@@ -110,8 +107,7 @@ class Search extends AppModel {
 							"author-login" => $this->_user->getUserLogin($row["author"]),
 							"author-name" => $this->_user->getUserName($row["author"]),
 							"author-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["author"]),
-
-							"avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
+							"author-avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
 
 							"short-text" => BBCodeParser::parse($row["short_text"]),
 							"full-text" => BBCodeParser::parse((empty($row["full-text"]) ? $row["short_text"] : $row["full_text"])),
@@ -137,17 +133,17 @@ class Search extends AppModel {
 							
 							"edit" => $this->_user->hasPermission("admin.blog.posts.edit"),
 							"remove" => $this->_user->hasPermission("admin.blog.posts.remove")
-						));
+						];
 
 					/**
 					 * Formation response
 					 */
 					$response->code = 0;
-					$response->view = "blog.search.page";
+					$response->view = "blog.search";
 					$response->tags = array(
 						"query" => $query,
 						"num" => $num,
-						"posts" => $this->_view->get("blog.search.post"),
+						"rows" => $rows,
 						"pagination" => $pagination
 					);
 				}
