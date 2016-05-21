@@ -17,8 +17,8 @@
 				<td>{url}</td>
 				<td style="padding: 3px">
 					<div class="btn-group btn-group-sm btn-group-justified">
-						[perm page.edit]<a href="{edit-link}" class="btn btn-success"><span class="glyphicon glyphicon-pencil"></span></a>[/perm]
-						[perm page.remove]<a href="{remove-link}" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></a>[/perm]
+						[if has-permission:page.edit]<a href="{edit-link}" class="btn btn-success"><span class="glyphicon glyphicon-pencil"></span></a>[/if]
+						[if has-permission:page.remove]<a href="{remove-link}" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></a>[/if]
 					</div>
 				</td>
 			</tr>

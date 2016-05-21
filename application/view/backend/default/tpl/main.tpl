@@ -38,27 +38,27 @@
 
 		<nav class="collapse navbar-collapse">
 			<ul class="nav navbar-nav">
-				[perm core.main]<li><a href="{ADMIN_PATH}"><span class="fa fa-lg fa-home"></span> [b:core:main.moduleName]</a></li>[/perm]
-				[perm core.statistics]<li><a href="{ADMIN_PATH}core/statistics" title="[b:core:statistics.moduleName]">
+				[if has-permission:core.main]<li><a href="{ADMIN_PATH}"><span class="fa fa-lg fa-home"></span> [b:core:main.moduleName]</a></li>[/if]
+				[if has-permission:core.statistics]<li><a href="{ADMIN_PATH}core/statistics" title="[b:core:statistics.moduleName]">
 					<span class="fa fa-lg fa-dashboard"></span>
 					<span class="visible-xs-inline">[b:core:statistics.moduleName]</span>
-				</a></li>[/perm]
-				[perm core.settings]<li><a href="{ADMIN_PATH}core/settings" title="[b:core:settings.moduleName]">
+				</a></li>[/if]
+				[if has-permission:core.settings]<li><a href="{ADMIN_PATH}core/settings" title="[b:core:settings.moduleName]">
 					<span class="fa fa-lg fa-cog"></span>
 					<span class="visible-xs-inline">[b:core:settings.moduleName]</span>
-				</a></li>[/perm]
-				[perm core.packages]<li><a href="{ADMIN_PATH}core/packages" title="[b:core:packages.moduleName]">
+				</a></li>[/if]
+				[if has-permission:core.packages]<li><a href="{ADMIN_PATH}core/packages" title="[b:core:packages.moduleName]">
 					<span class="fa fa-lg fa-archive"></span>
 					<span class="visible-xs-inline">[b:core:packages.moduleName]</span>
-				</a></li>[/perm]
-				[perm core.menu]<li><a href="{ADMIN_PATH}core/menu" title="[b:core:menu.moduleName]">
+				</a></li>[/if]
+				[if has-permission:core.menu]<li><a href="{ADMIN_PATH}core/menu" title="[b:core:menu.moduleName]">
 					<span class="fa fa-lg fa-list"></span>
 					<span class="visible-xs-inline">[b:core:menu.moduleName]</span>
-				</a></li>[/perm]
-				[perm core.media]<li><a href="{ADMIN_PATH}core/media" title="[b:core:media.moduleName]">
+				</a></li>[/if]
+				[if has-permission:core.media]<li><a href="{ADMIN_PATH}core/media" title="[b:core:media.moduleName]">
 					<span class="fa fa-lg fa-image"></span>
 					<span class="visible-xs-inline">[b:core:media.moduleName]</span>
-				</a></li>[/perm]
+				</a></li>[/if]
 			</ul>
 
 			<ul class="nav navbar-nav navbar-right">

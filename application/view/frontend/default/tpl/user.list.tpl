@@ -9,7 +9,7 @@
 	</a>
 	<div class="media-body">
 		<div class="pull-left">
-			<h4 class="media-heading"><a href="{profile-link}">{username}</a><small> [online][f:user:list.user.online][/online][offline][f:user:list.user.offline] {last-online-date} в {last-online-time}[/offline]</small></h4>
+			<h4 class="media-heading"><a href="{profile-link}">{username}</a><small> [if name!=""]({name})[/if] [online][f:user:list.user.online][/online][offline][f:user:list.user.offline] {last-online-date} в {last-online-time}[/offline]</small></h4>
 			{group}
 		</div>
 		<div class="pull-right"><a href="{message-send-link}" style="font-size:30px"><span class="fa fa-envelope"></span></a></div>

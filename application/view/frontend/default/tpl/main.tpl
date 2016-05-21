@@ -78,17 +78,17 @@
 				<a class="list-group-item" href="{logout-link}"><span class="fa fa-fw fa-sign-out"></span>&nbsp; [f:main:user.logout]</a>[/logged]
 			</div>
 
-			[if MODULE="blog"]<div class="well well-sm">
+			[if installed-module:blog]<div class="well well-sm">
 				<h4>[b:blog:categories.moduleName]</h4>
-				<div class="list-group">{blog-categories}</div>
+				<div class="list-group">{blog:categories}</div>
 			</div>
 			<div class="well well-sm">
 				<h4>[b:blog:calendar.moduleName]</h4>
-				{blog-calendar}
+				{blog:calendar}
 			</div>
 			<div class="well well-sm">
 				<h4>[b:blog:archive.moduleName]</h4>
-				<div class="list-group">{blog-archive}</div>
+				<div class="list-group">{blog:archive}</div>
 			</div>
 			[/if]
 		</aside>

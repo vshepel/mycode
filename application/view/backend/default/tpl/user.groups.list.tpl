@@ -15,14 +15,14 @@
 				<td>{extends}</td>
 				<td style="padding: 3px">
 					<div class="btn-group btn-group-sm btn-group-justified">
-						[perm user.groups.edit]<a href="{edit-link}" class="btn btn-success"><span class="glyphicon glyphicon-pencil"></span></a>[/perm]
-						[perm user.groups.remove][remove]<a href="{remove-link}" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></a>[/remove][/perm]
+						[if has-permission:user.groups.edit]<a href="{edit-link}" class="btn btn-success"><span class="glyphicon glyphicon-pencil"></span></a>[/if]
+						[if has-permission:user.groups.remove][remove]<a href="{remove-link}" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></a>[/remove][/if]
 					</div>
 				</td>
 			</tr>
 		[/foreach]
 
-		[perm user.groups.add]<tr><form method="post">
+		[if has-permission:user.groups.add]<tr><form method="post">
 			<td colspan="3" style="padding: 3px">
 				<input type="text" class="form-control input-sm" name="add[name]">
 			</td>
@@ -30,7 +30,7 @@
 				<button class="btn btn-primary btn-sm" style="width:100%"><span class="glyphicon glyphicon-ok"></span></button>
 			</td>
 
-		</form></tr>[/perm]
+		</form></tr>[/if]
 	</tbody>
 </table>
 

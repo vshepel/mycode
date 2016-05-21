@@ -50,6 +50,15 @@ abstract class AppController {
 	public $__routes = null;
 
 	/**
+	 * Get property value
+	 * @param string $name Property name
+	 * @return string Property value
+     */
+	public function getProperty($name) {
+		return "Property '{$name}' not found";
+	}
+
+	/**
 	 * Constructor
 	 * @throws \Exception
 	 */

@@ -142,7 +142,14 @@ class Router {
 		}
 	}
 
-	private function _check($module, $type) {
+
+	/**
+	 * Check controller for exists
+	 * @param string $module Module name
+	 * @param string $type Side type
+	 * @throws NotFoundException
+     */
+	public function existsController($module, $type) {
 		$path = CON . DS . strtolower($type) . DS . $module . ".php";
 		if (!file_exists($path)) throw new NotFoundException();
 	}
@@ -183,7 +190,7 @@ class Router {
 	public function start() {
 		try {
 			$this->_init();
-			$this->_check($this->_module, $this->_type);
+			$this->existsController($this->_module, $this->_type);
 	
 			$controller_class = "\\controller\\{$this->_type}\\" . $this->_module;
 			$controller = new $controller_class;

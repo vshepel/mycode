@@ -21,6 +21,8 @@
 namespace harmony\view\parser;
 
 use Exception;
+use model\core\Packages;
+use NotFoundException;
 use Registry;
 
 use harmony\strings\StringConverters;
@@ -124,7 +126,7 @@ class HarmonyCMS extends Parser {
 	}
 	
 	private function _ifTag($view, $tags) {
-		return preg_replace_callback("#\\[if ([A-Za-z0-9._-]+)(\\!=|=)\"(.*)\"\\](.*)\\[/if\\]#isU", function ($args) use ($tags) {
+		$view = preg_replace_callback("#\\[if ([A-Za-z0-9._-]+)(\\!=|=)\"(.*)\"\\](.*)\\[/if\\]#isU", function ($args) use ($tags) {
 			if (!isset($tags[$args[1]]))
 				return false;
 	
@@ -133,12 +135,42 @@ class HarmonyCMS extends Parser {
 	
 			return $check ? $args[4] : "";
 		}, $view);
-	}
-	
-	private function _permTag($view) {
-		return preg_replace_callback("#\\[perm ([A-Za-z0-9._-]+)\\](.*)\\[/perm\\]#Uis", function ($args) {
-			return $this->_user->hasPermission($args[1]) ? $args[2] : "";
+
+		$view = preg_replace_callback("#\\[if ([A-Za-z0-9._-]+)\\:(.*)](.*)\\[/if\\]#isU", function ($args) use ($tags) {
+			$func = $args[1];
+			$arg = $args[2];
+			$value = $args[3];
+
+			switch ($func) {
+				case "installed-module":
+					$pkg = new Packages();
+					return $pkg->exists($arg) ? $value : "";
+
+				case "has-permission":
+					$arg = preg_replace_callback("#\\{([A-Za-z0-9._-]+)\\}#i", function ($args) use ($tags) {
+						return isset($tags[$args[1]]) ? $tags[$args[1]] : "";
+					}, $arg);
+
+					return $this->_user->hasPermission($arg) ? $value : "";
+			}
+
+			return "";
 		}, $view);
+
+		return $view;
+	}
+
+	private function _propertyTag($tag) {
+		return preg_replace_callback("#\\{([A-Za-z0-9._-]+):([A-Za-z0-9._-]+)\\}#i", function ($args) {
+			try {
+				$this->_router->existsController($args[1], "frontend");
+				$cname = "controller\\frontend\\" . $args[1];
+				$cc = new $cname;
+				return $cc->getProperty($args[2]);
+			} catch (NotFoundException $e) {
+				return "Module '{$args[1]}' not found";
+			}
+		}, $tag);
 	}
 
 	private function _tag($tag, $value, $view) {
@@ -146,24 +178,24 @@ class HarmonyCMS extends Parser {
 			if ($value === true) {
 				$view = str_replace("[{$tag}]", "", $view);
 				return str_replace("[/{$tag}]", "", $view);
-			} elseif ($value === false) {
+			} else {
 				return preg_replace("#\\[({$tag})\\](.*?)\\[/({$tag})\\]#is", "", $view);
 			}
 		} elseif (is_array($value)) {
-			return preg_replace_callback("#\\[(foreach) ({$tag})\\](.*?)\\[/(foreach)\\]#is", function($args) use ($value) {
+			return preg_replace_callback("#\\[(foreach) ({$tag})\\](.*?)\\[/(foreach)\\]#is", function ($args) use ($value) {
 				$rowTemplate = $args[3];
 				$content = "";
-				
-				foreach($value as $row) {
+
+				foreach ($value as $row) {
 					$rowContent = $this->_ifTag($rowTemplate, $row);
-					
-					foreach($row as $rowName => $rowValue) {
+
+					foreach ($row as $rowName => $rowValue) {
 						$rowContent = $this->_tag($rowName, $rowValue, $rowContent);
 					}
-					
+
 					$content .= $rowContent;
 				}
-				
+
 				return $content;
 			}, $view);
 		} else {
@@ -243,7 +275,7 @@ class HarmonyCMS extends Parser {
 		}
 		
 		$view = $this->_ifTag($view, array_merge($this->_globalTags, $tags));
-		$view = $this->_permTag($view);
+		$view = $this->_propertyTag($view);
 
 		return $view;
 	}

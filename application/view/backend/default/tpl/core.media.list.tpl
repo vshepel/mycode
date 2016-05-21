@@ -1,6 +1,6 @@
 <ul class="nav nav-tabs" role="tablist">
 	<li class="active"><a href="{ADMIN_PATH}core/media/list"><span class="glyphicon glyphicon-picture"></span> [b:core:media.list.moduleName]</a></li>
-	[perm core.media.upload]<li><a href="{ADMIN_PATH}core/media/upload"><span class="glyphicon glyphicon-upload"></span> [b:core:media.upload.moduleName]</a></li>[/perm]
+	[if has-permission:core.media.upload]<li><a href="{ADMIN_PATH}core/media/upload"><span class="glyphicon glyphicon-upload"></span> [b:core:media.upload.moduleName]</a></li>[/if]
 </ul><br>
 
 [if num!="0"][foreach rows]
@@ -14,8 +14,8 @@
 		<h4 class="media-heading">
 			<text title="{filename}" data-toggle="tooltip" data-placement="bottom">{name}</text>
 			<small>{filesize}</small>
-			[perm core.media.edit]<a href="{edit-link}"><i class="glyphicon glyphicon-pencil"></i></a>[/perm]
-			[perm core.media.remove]<a href="{remove-link}"><i class="glyphicon glyphicon-trash"></i></a>[/perm]
+			[if has-permission:core.media.edit]<a href="{edit-link}"><i class="glyphicon glyphicon-pencil"></i></a>[/if]
+			[if has-permission:core.media.remove]<a href="{remove-link}"><i class="glyphicon glyphicon-trash"></i></a>[/if]
 		</h4>
 		<p>{description}</p>
 	</div>

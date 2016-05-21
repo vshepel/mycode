@@ -19,8 +19,8 @@
 				<td>{group}</td>
 				<td style="padding: 3px">
 					<div class="btn-group btn-group-sm btn-group-justified">
-						[perm user.edit]<a href="{edit-link}" class="btn btn-success"><span class="glyphicon glyphicon-pencil"></span></a>[/perm]
-						[perm user.remove]<a href="{remove-link}" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></a>[/perm]
+						[if has-permission:user.edit]<a href="{edit-link}" class="btn btn-success"><span class="glyphicon glyphicon-pencil"></span></a>[/if]
+						[if has-permission:user.remove]<a href="{remove-link}" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></a>[/if]
 					</div>
 				</td>
 			</tr>
