@@ -94,6 +94,21 @@ class Posts extends AppModel {
 	}
 
 	/**
+	 * Get User posts count by User ID
+	 * @param int $uid User ID
+	 * @return int
+     */
+	public function getUserPostsCount($uid) {
+		$count = $this->_db
+			->select("count(*)")
+			->from(DBPREFIX . "blog_posts")
+			->where("author", "=", intval($uid))
+			->result_array();
+
+		return isset($count[0][0]) ? $count[0][0] : 0;
+	}
+
+	/**
 	 * Get posts by category and page
 	 * @param int $category Posts category (NULL, for all categories)
 	 * @param int $page Posts page

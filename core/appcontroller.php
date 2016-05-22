@@ -52,10 +52,11 @@ abstract class AppController {
 	/**
 	 * Get property value
 	 * @param string $name Property name
+	 * @param string $arg Property argument
 	 * @return string Property value
      */
-	public function getProperty($name) {
-		return "Property '{$name}' not found";
+	public function getProperty($name, $arg) {
+		return "Property '{$name}' with argument '{$arg}' not exists";
 	}
 
 	/**

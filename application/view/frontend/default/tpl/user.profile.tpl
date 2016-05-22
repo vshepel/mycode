@@ -13,6 +13,15 @@
 	</div>
 </div>
 
+[if installed-module:blog]
+<hr>
+
+<ul class="nav nav-pills" role="tablist">
+	<li role="presentation"><a href="#">Posts count <span class="badge">{blog:user-posts-count:{id}}</span></a></li>
+	<li role="presentation"><a href="#">Comments count <span class="badge">{blog:user-comments-count:{id}}</span></a></li>
+</ul>
+[/if]
+
 <hr>
 
 <dl class="dl-horizontal">

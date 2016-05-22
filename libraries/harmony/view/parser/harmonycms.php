@@ -160,13 +160,25 @@ class HarmonyCMS extends Parser {
 		return $view;
 	}
 
+	private $_models = [];
+
 	private function _propertyTag($tag) {
-		return preg_replace_callback("#\\{([A-Za-z0-9._-]+):([A-Za-z0-9._-]+)\\}#i", function ($args) {
+		return preg_replace_callback([
+			"#\\{([A-Za-z0-9._-]+):([A-Za-z0-9._-]+)\\}#i",
+			"#\\{([A-Za-z0-9._-]+):([A-Za-z0-9._-]+):(.*)\\}#i"
+		], function ($args) {
 			try {
-				$this->_router->existsController($args[1], "frontend");
-				$cname = "controller\\frontend\\" . $args[1];
-				$cc = new $cname;
-				return $cc->getProperty($args[2]);
+				$cc = null;
+				if (isset($this->_models[$args[1]])) {
+					$cc = $this->_models[$args[1]];
+				} else {
+					$this->_router->existsController($args[1], "frontend");
+					$cname = "controller\\frontend\\" . $args[1];
+					$cc = new $cname;
+					$this->_models[$args[1]] = $cc;
+				}
+
+				return $cc->getProperty($args[2], (isset($args[3]) ? $args[3] : null));
 			} catch (NotFoundException $e) {
 				return "Module '{$args[1]}' not found";
 			}

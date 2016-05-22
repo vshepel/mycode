@@ -70,12 +70,18 @@ class Blog extends AppController {
 		$this->_core->addJS(PATH . "js/blog.js");
 	}
 
-	public function getProperty($name) {
+	public function getProperty($name, $arg) {
 		switch ($name) {
 			case "categories" : return Categories::getInstance()->getList();
 			case "archive": return $this->_posts->getArchive();
 			case "calendar": return $this->_posts->getCalendar();
-			default: return parent::getProperty($name);
+			case "user-posts-count": return $this->_posts->getUserPostsCount($arg);
+			case "user-comments-count":
+				$comments_model = new Comments();
+				return $comments_model->getUserCommentsCount($arg);
+
+			default:
+				return parent::getProperty($name, $arg);
 		}
 	}
 
