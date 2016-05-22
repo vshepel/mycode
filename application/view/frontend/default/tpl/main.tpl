@@ -83,14 +83,24 @@
 				<div class="list-group">{blog:categories}</div>
 			</div>
 			<div class="well well-sm">
-				<h4>[b:blog:calendar.moduleName]</h4>
-				{blog:calendar}
+				<h4>[b:blog:popular.moduleName]</h4>
+				<div class="list-group">{blog:popular}</div>
 			</div>
 			<div class="well well-sm">
-				<h4>[b:blog:archive.moduleName]</h4>
-				<div class="list-group">{blog:archive}</div>
-			</div>
-			[/if]
+				<ul class="nav nav-pills" role="tablist">
+					<li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">
+						<span class="fa fa-calendar"></span> [b:blog:calendar.moduleName]
+					</a></li>
+					<li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">
+						<span class="fa fa-archive"></span> [b:blog:archive.moduleName]
+					</a></li>
+				</ul><br>
+
+				<div class="tab-content">
+					<div role="tabpanel" class="tab-pane fade in active" id="home">{blog:calendar}</div>
+					<div role="tabpanel" class="tab-pane fade" id="profile">{blog:archive}</div>
+				</div>
+			</div>[/if]
 		</aside>
 
 		<section class="col-md-9 col-sm-9">

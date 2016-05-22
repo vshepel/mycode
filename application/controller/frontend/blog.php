@@ -42,7 +42,6 @@ class Blog extends AppController {
 		"(cat)/([0-9]+)/page/([0-9]+)" => "list",
 		"(cat)/([0-9]+)" => "list",
 		"page/([0-9]+)" => "list",
-		"addcomment" => null,
 		"search/(.*)/page/([0-9]+)" => "search",
 		"search/(.*)" => "search",
 		"search" => null,
@@ -75,6 +74,7 @@ class Blog extends AppController {
 			case "categories" : return Categories::getInstance()->getList();
 			case "archive": return $this->_posts->getArchive();
 			case "calendar": return $this->_posts->getCalendar();
+			case "popular": return $this->_posts->getPopular();
 			case "user-posts-count": return $this->_posts->getUserPostsCount($arg);
 			case "user-comments-count":
 				$comments_model = new Comments();
@@ -120,27 +120,6 @@ class Blog extends AppController {
 		);
 
 		$this->_view->responseRender($post);
-	}
-
-	public function action_addcomment() {
-		if ($this->_ajax) {
-			$comments_model = new Comments();
-
-			if (isset($_POST["post"], $_POST["comment"])) {
-				$add = $comments_model->add($_POST["post"], $_POST["comment"]);
-				$rows = $comments_model->get($_POST["post"], 1, true);
-
-				$this->_view
-					->jsonRender(array(
-						"add" => $add,
-						"comments" => array (
-							"num" => $rows->tags["num"],
-							"rows" => $rows->tags["rows"],
-							"pagination" => $rows->tags["pagination"]
-						)
-					));
-			}
-		}
 	}
 
 	public function action_archive($args) {

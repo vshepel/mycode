@@ -821,6 +821,36 @@ class Posts extends AppModel {
 	 * Get archive list
 	 * @return string
 	 */
+	public function getPopular() {
+		$list = "";
+		$array = $this->_db
+			->select(["id", "title", "rating"])
+			->from(DBPREFIX . "blog_posts")
+			->order_by("rating")->desc()
+			->limit([0, $this->_config->get("blog", "popular.count", 10)])
+			->result_array();
+		
+		if (is_array($array)) {
+			foreach($array as $row) {
+				$link = SITE_PATH . "blog/" . $row["id"];
+				$list .= $this->_view->parse("blog.tag.popular", [
+					"link" => $link,
+					"id" => $row["id"],
+					"rating" => $row["rating"],
+					"title" => $row["title"]
+				]);
+			}
+		} else {
+			$list = $this->_db->getError();
+		}
+
+		return $list;
+	}
+
+	/**
+	 * Get archive list
+	 * @return string
+	 */
 	public function getArchive() {
 		$list = "";
 		$cache_name = "archive." . $this->_lang->getLang();

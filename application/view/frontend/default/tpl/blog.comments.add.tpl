@@ -1,6 +1,6 @@
 <h3>[f:blog:comments.form]</h3>
 
-<form method="post" class="form-horizontal" onsubmit="app.blog.addComment(this); return false;">
+<form method="post" class="form-horizontal">
 	<input type="hidden" name="post" value="{post-id}">
 
 	<div class="form-group">
