@@ -13,15 +13,6 @@
 	</div>
 </div>
 
-[if installed-module:blog]
-<hr>
-
-<ul class="nav nav-pills" role="tablist">
-	<li role="presentation"><a href="#">Posts count <span class="badge">{blog:user-posts-count:{id}}</span></a></li>
-	<li role="presentation"><a href="#">Comments count <span class="badge">{blog:user-comments-count:{id}}</span></a></li>
-</ul>
-[/if]
-
 <hr>
 
 <dl class="dl-horizontal">
@@ -33,3 +24,12 @@
 	[if public-email!=""]<dt>[b:user:fields.publicEmail]</dt> <dd><a href="mailto:{public-email}">{public-email}</a></dd>[/if]
 	<dt>[b:user:fields.group]</dt> <dd>{group}</dd>
 </dl>
+
+[if installed-module:blog]
+<hr>
+<h3><span class="fa fa-newspaper-o"></span> [b:blog:moduleName]</h3>
+<ul class="nav nav-pills" role="tablist">
+	<li role="presentation"><a href="#">[f:user:profile.blog.postsCount] <span class="badge">{blog:user-posts-count:{id}}</span></a></li>
+	<li role="presentation"><a href="#">[f:user:profile.blog.commentsCount] <span class="badge">{blog:user-comments-count:{id}}</span></a></li>
+</ul>
+[/if]
