@@ -157,7 +157,7 @@ class Search extends AppModel {
 				$response->message = $this->_lang->get("blog", "search.posts.shortQuery") . " - " . $minLength;
 			}
 
-			$response->view = "blog.search.page";
+			$response->view = "blog.search";
 			$response->tags = array(
 				"query" => $query
 			);
