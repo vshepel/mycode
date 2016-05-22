@@ -272,7 +272,7 @@ class Packages extends AppModel {
 		
 		// Upload file
 		$files = new UploadFiles(TMP);
-		$upload = $files->upload($file, "core.packages.install", "package.tar");
+		$upload = $files->upload($file, "core.packages.install", "package.zip");
 		
 		if ($upload->code != 0)
 			return $upload;
@@ -288,9 +288,10 @@ class Packages extends AppModel {
 	public function install($file = null) {		
 		// Set default file path
 		if ($file === null) $file = TMP . DS . "core.packages.install" . DS . "package.zip";
-		
+
 		// Exctract file
 		$dir = TMP . DS . "core.packages.install" . DS . "files";
+		Files::delete($dir); // Delete old files
 		Files::mkdir($dir);
 
 		try {
