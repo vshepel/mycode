@@ -444,8 +444,8 @@ class Messages extends AppModel {
 			->addBreadcrumbs($this->_lang->get("messages", "moduleName"), "messages")
 			->addBreadcrumbs($this->_lang->get("messages", "remove.moduleName"), "messages/remove/" . $id);
 
-		if (!$this->_user->hasPermission("messages.remove") || $id < 5) {
-			$this->_core->addBreadcrumbs($this->_lang->get("core", "accessDenied"), "messages/remove/" . 	$id);
+		if (!$this->_user->hasPermission("messages.remove")) {
+			$this->_core->addBreadcrumbs($this->_lang->get("core", "accessDenied"), "messages/remove/" . $id);
 			$response->code = 2;
 			$response->type = "danger";
 			$response->message = $this->_lang->get("core", "accessDenied");
