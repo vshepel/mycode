@@ -412,7 +412,7 @@ class Messages extends AppModel {
 					// Sent notification reciever
 					$this->_registry
 						->get("Notifications")
-						->add($to, "info", "[messages:newMessage]", "<b>{$this->_user->get("login")}</b> [messages:newMessageBody] <b>{$topic}</b>",
+						->add($to, "info", "[messages:newMessage]", "<b>{$this->_user->get("login")}</b> [messages:newMessageBody]",
 							SITE_PATH . "messages/" . $this->_db->insert_id()
 						);
 				}
@@ -444,8 +444,8 @@ class Messages extends AppModel {
 			->addBreadcrumbs($this->_lang->get("messages", "moduleName"), "messages")
 			->addBreadcrumbs($this->_lang->get("messages", "remove.moduleName"), "messages/remove/" . $id);
 
-		if (!$this->_user->hasPermission("messages.remove") || $id < 5) {
-			$this->_core->addBreadcrumbs($this->_lang->get("core", "accessDenied"), "messages/remove/" . 	$id);
+		if (!$this->_user->hasPermission("messages.remove")) {
+			$this->_core->addBreadcrumbs($this->_lang->get("core", "accessDenied"), "messages/remove/" . $id);
 			$response->code = 2;
 			$response->type = "danger";
 			$response->message = $this->_lang->get("core", "accessDenied");
