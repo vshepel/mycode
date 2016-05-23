@@ -79,8 +79,9 @@ class Messages extends AppModel {
 					->from(DBPREFIX . "messages")
 					->where("user", "=", $this->_user->get("id"))
 					->and_where(($type == "outbox" ? "from" : "to"), "=", $this->_user->get("id"))
-					->order_by("id")->desc()
-					->limit($pagination->getSqlLimits())
+					->order_by($this->_config->get("messages", "list.orderBy", "id"),
+						$this->_config->get("messages", "list.order", "desc")
+					)->limit($pagination->getSqlLimits())
 					->result_array();
 
 				/**
