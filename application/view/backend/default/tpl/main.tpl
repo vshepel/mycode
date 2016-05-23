@@ -9,7 +9,7 @@
 	<link rel="icon" href="{PATH}images/harmony-fav.png" sizes="16x16" type="image/png">
 	<link rel="stylesheet" href="{PATH}vendor/bootstrap/css/bootstrap.min.css">
 	<link rel="stylesheet" href="{PATH}vendor/bootstrap/css/bootstrap-theme.min.css">
-	<link href="{PATH}vendor/bootstrap-switch/css/bootstrap3/bootstrap-switch.min.css" type="text/css" rel="stylesheet">
+	<link href="{PATH}vendor/bootstrap-switch/css/bootstrap-switch.min.css" type="text/css" rel="stylesheet">
 	<link rel="stylesheet" href="{PATH}vendor/font-awesome/css/font-awesome.min.css">
 	<link rel="stylesheet" href="{VIEW}styles.css">
 
