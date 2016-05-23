@@ -93,8 +93,8 @@ class Notifications extends AppModel {
 					"time" => $time,
 
 					"title" => $this->_lang->parseString($row["title"]),
-					"type" => $this->_lang->parseString($row["type"]),
-					"text" => $row["text"],
+					"type" => $row["type"],
+					"text" => $this->_lang->parseString($row["text"]),
 					"show-date" => ($lastdate != $date)
 				];
 				
@@ -132,6 +132,22 @@ class Notifications extends AppModel {
 		}
 
 		$remove = $this->_db->result();
+
+		if ($remove === false)
+			throw new Exception("Notifications Remove Error: " . $this->_db->getError());
+	}
+
+	/**
+	 * Clear Notifications
+	 * @param int $id User ID
+	 * @throws Exception
+	 */
+	public function clear($id) {
+		$id = intval($id);
+		$remove = $this->_db
+			->delete_from(DBPREFIX . "user_notifications")
+			->where("user", "=", $id)
+			->result();
 
 		if ($remove === false)
 			throw new Exception("Notifications Remove Error: " . $this->_db->getError());

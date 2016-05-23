@@ -27,6 +27,7 @@
 		<div class="clearfix"></div>
 		
 		<p>{full-text}</p>
+		<p><span class="fa fa-tags"></span> {tags}</p>
 	</div>
 </div>
 

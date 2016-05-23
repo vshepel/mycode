@@ -1,4 +1,6 @@
-[if num!="0"][foreach rows]
+[if num!="0"]
+<button class="btn btn-danger btn-xs pull-right" onclick="app.core.notifications.clear(); return false;"><span class="fa fa-remove"></span></button>
+[foreach rows]
 [show-date]
 <p align="center"><span class="label label-info">{date}</span></p>
 [/show-date]

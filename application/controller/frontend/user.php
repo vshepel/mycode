@@ -178,7 +178,7 @@ class User extends AppController {
 			break;
 
 			case "clear":
-				$model->remove(null, null, $this->_registry->get("User")->get("id"));
+				$model->clear($this->_registry->get("User")->get("id"));
 				$this->_view->jsonRender(
 					new Response()
 				);

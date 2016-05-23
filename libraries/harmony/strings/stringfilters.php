@@ -61,6 +61,23 @@ class StringFilters {
 	 * @return string
 	 */
 	public static function filterForUrl($string) {
-		return preg_replace( "/[^a-z0-9\_\-]+/mi", "", str_replace(" ", "-", strtolower(StringConverters::toTranslit($string))));
+		return preg_replace( "/[^a-z0-9\\_\\-]+/mi", "", str_replace(" ", "-", strtolower(StringConverters::toTranslit($string))));
+	}
+
+	/**
+	 * Filter string of tags
+	 * @param string $tags Tags string
+	 * @return string
+     */
+	public function filterTagsString($tags) {
+		$tags_array = array();
+
+		foreach (explode (",", $tags) as $value) {
+			if (trim($value)) {
+				$tags_array[] = trim($value);
+			}
+		}
+
+		return count($tags_array) ? implode(", ", $tags_array) : "";
 	}
 }

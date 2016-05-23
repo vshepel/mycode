@@ -411,7 +411,7 @@ class Messages extends AppModel {
 					// Sent notification reciever
 					$this->_registry
 						->get("Notifications")
-						->add($to, "info", "[messages:newMessage]", $topic . "(" . $this->_user->get("login") .")",
+						->add($to, "info", "[messages:newMessage]", "<b>{$this->_user->get("login")}</b> [messages:newMessageBody] <b>{$topic}</b>",
 							SITE_PATH . "messages/" . $this->_db->insert_id()
 						);
 				}

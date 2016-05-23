@@ -39,6 +39,7 @@
 		<div class="clearfix"></div>
 
 		<p>{short-text}</p>
+		<p><span class="fa fa-tags"></span> {tags}</p>
 	</div>
 </div>
 [/foreach]
