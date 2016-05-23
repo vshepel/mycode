@@ -1,0 +1,34 @@
+* {
+	box-sizing: border-box;
+}
+ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+input {
+	outline: none;
+}
+a {
+	text-decoration: none;
+	color: $secondary;
+	transition: all .1s linear;
+}
+::-webkit-input-placeholder {
+  color: $grey85;
+}
+::-moz-placeholder {
+  color: $grey85;
+}
+:-ms-input-placeholder {
+  color: $grey85;
+}
+:-moz-placeholder {
+  color: $grey85;
+}
+body {
+	background: $grey95;
+	font: {
+		family: "Ubuntu", sans-serif;
+	}
+}

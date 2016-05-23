@@ -1,0 +1,174 @@
+// Top panel
+#overlay {
+    position: fixed;
+    z-index: 150;
+    top: 0;
+    right: 0;
+    display: none;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, .5);
+}
+
+.top_panel {
+    background: $primary;
+    height: 90px;
+    line-height: 90px;
+    .container > ul li {
+        display: inline-block;
+    }
+    .logotype {
+        text-transform: uppercase;
+        font-weight: 700;
+        font-size: 1.1em;
+        a {
+            display: block;
+            color: $grey80;
+            padding: 0 15px;
+        }
+        .project_name {
+            color: $grey60;
+        }
+    }
+    .search {
+        margin: 0 0 0 25px;
+        input {
+            width: 200px;
+            height: 45px;
+            line-height: 45px;
+            padding: 0 25px;
+            border: 1px solid $grey92;
+            border-radius: 45px;
+            color: $text;
+            transition: all .2s linear;
+            &:focus {
+                border-color: $primary;
+                @extend %shadow_primary;
+            }
+        }
+    }
+    .write {
+        margin: 0 25px 0 0;
+    }
+    .user_panel {
+        float: right;
+        li {
+            display: inline-block;
+        }
+        .links {
+            color: $grey85;
+            font-size: 1.3em;
+            &.search_icon, &.write_icon {
+            	display: none;
+            }
+            a {
+                color: $grey85;
+                display: block;
+                padding: 0 25px;
+            }
+            i {
+                position: relative;
+            }
+            .new {
+                position: absolute;
+                width: 6px;
+                height: 6px;
+                right: 1px;
+                top: 2px;
+                border-radius: 50%;
+                background: $red;
+            }
+        }
+    }
+}
+
+.notification {
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    right: -350px;
+    overflow: auto;
+    width: 350px;
+    height: 100%;
+    color: #000;
+    background: #fff;
+    transition: all .1s linear;
+    background: $grey95;
+    &.active {
+        right: 0;
+    }
+    .notification-head {
+        height: 90px;
+        padding: 0 25px;
+        text-align: center;
+        line-height: 90px;
+        color: $text;
+        background: $primary;
+        div {
+            display: inline-block;
+            text-transform: uppercase;
+            i {
+                cursor: pointer;
+                font-size: 1.3em;
+                color: $grey85;
+            }
+        }
+        .head-close {
+            float: left;
+        }
+        .head-clear {
+            float: right;
+        }
+    }
+    .notification-list {
+        > p {
+            color: $grey85;
+            font-size: 0.9em;
+            margin: 30px 15px 20px;
+            text-align: center;
+        }
+        .notif {
+            > a {
+                display: block;
+                padding: 20px 25px;
+                color: $text;
+            }
+            .type {
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                background: $grey80;
+                margin: 0 15px 0 0;
+                float: left;
+            }
+            p {
+                white-space: nowrap;
+                margin: 9px 0;
+                overflow: hidden;
+                position: relative;
+                small {
+                    display: block;
+                    color: $grey80;
+                }
+                &:after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    width: 30px;
+                    height: 100%;
+                    background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(243, 243, 243, 1) 100%);
+                }
+            }
+        }
+        .notification-nope {
+            text-align: center;
+            color: $grey85;
+            margin: 50px 25px;
+            text-transform: uppercase;
+            i {
+                font-size: 3em;
+            }
+        }
+    }
+}

@@ -62,8 +62,3 @@
     opacity: 0.8;
     z-index: 9999;
 }
-
-#core-notifications {
-	overflow-y: auto;
-	max-height: 300px;
-}

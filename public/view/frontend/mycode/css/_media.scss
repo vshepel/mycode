@@ -1,0 +1,47 @@
+@media all and (max-width: 1200px) {
+    .container {
+        width: 100%;
+    }
+}
+
+@media all and (max-width: 768px) {
+	.top_panel {
+		.container > ul {
+			.write {
+				display: none;
+			}
+			.search {
+				display: none;
+			}
+			.links {
+				a {
+					padding: 0 15px;
+				}
+				&.search_icon, &.write_icon {
+					display: inline-block;
+				}
+			}
+		}
+	}
+}
+
+@media all and (max-width: 480px) {
+	.top_panel {
+		.container > ul {
+			.logotype {
+				font-size: 1.3em;
+				.short {
+					display: none;
+				}
+			}
+		}
+	}
+    .notification {
+        right: -100%;
+        overflow: auto;
+        width: 100%;
+        &.active {
+            right: 0;
+        }
+    }
+}
