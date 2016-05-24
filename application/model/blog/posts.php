@@ -661,7 +661,7 @@ class Posts extends AppModel {
 			$langs[] = [
 				"id" => $lang,
 				"name" => $name,
-				"current" => ($this->_addTags["tags"]["lang"] == $this->_lang->getLang())
+				"current" => ($this->_addTags["tags"]["lang"] == $lang)
 			];
 
 		$response->tags = array_merge($this->_addTags["tags"], array (
