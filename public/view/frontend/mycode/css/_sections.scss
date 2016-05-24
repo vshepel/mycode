@@ -176,8 +176,95 @@
 
 //Main
 main {
+	width: calc(100% / 12 * 9 - 15px);
     float: left;
     margin: 50px 0 0 0;
+    article {
+    	padding: 40px;
+    	margin: 0 0 50px;
+    	background: $primary;
+    	border-radius: 5px;
+    	transition: all .2s linear;
+    	&:hover {
+    		@extend %shadow_primary;
+    	}
+    	.post_top {
+    		margin: 0 0 40px;
+    		img {
+    			width: 30px;
+    			height: 30px;
+    			border-radius: 50%;
+    			vertical-align: middle;
+    			margin: 0 10px 0 0;
+    		}
+    		span {
+    			color: $grey80;
+    			margin: 0 0 0 10px;
+    		}
+    		.has-read {
+    			color: $grey70;
+    			background: $grey95;
+    			padding: 9px 15px;
+    			text-transform: uppercase;
+    			border-radius: 30px;
+    			font-size: 0.7em;
+    			float: right;
+    		}
+    	}
+    	.post_text {
+    		color: $text;
+    		a {
+    			display: block;
+    			color: $text;
+    			line-height: 1.9em;
+    			word-wrap: break-word;
+    		}
+    		span {
+    			display: block;
+    			margin: 0 0 15px;
+    			font: {
+    				weight: 700;
+    				size: 1.2em;
+    				color: $grey60;
+    			}
+    		}
+    	}
+    	.post_bottom {
+    		margin: 50px 0 0;
+    		a, > span {
+    			color: $grey60;
+    			margin: 0 15px 0 0;
+    		}
+    		i {
+    			color: $grey85;
+    			font-size: 1.2em;
+    			margin: 0 5px 0 0;
+    		}
+    		.category {
+    			margin: 0 40px 0 0;
+    		}
+    		.rating {
+    			float: right;
+    			margin: 0;
+    			i {
+    				margin: 0;
+    				cursor: pointer;
+    				padding: 0 8px;
+    			}
+    		}
+    	}
+    }
+    .post-nope {
+        text-align: center;
+        color: $grey85;
+        margin: 50px 0;
+        text-transform: uppercase;
+        i {
+            font-size: 3em;
+            display: block;
+            margin: 0 0 15px;
+        }
+    }
 }
 
 #sidebar {

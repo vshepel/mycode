@@ -13,8 +13,14 @@
     }
 }
 
-@media all and (max-width: 768px) {
-	
+@media all and (max-width: 900px) {
+	main {
+		width: 100%;
+		float: inherit;
+	}
+	#sidebar {
+		display: none;
+	}
 }
 
 @media all and (max-width: 768px) {
@@ -57,5 +63,16 @@
         &.active {
             right: 0;
         }
+    }
+    main article .post_bottom {
+    	text-align: center;
+    	.category {
+    		margin: 0 15px 0 0;
+    	}
+    	.rating {
+    		float: none;
+    		display: block;
+    		margin: 30px 0 0;
+    	}
     }
 }
