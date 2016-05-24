@@ -36,7 +36,7 @@
 </div>
 [/logged]
 
-<section class="top_panel">
+<header class="top_panel">
 	<div class="container">
 		<ul>
 			<li class="logotype">
@@ -73,7 +73,9 @@
 			</li>
 		</ul>
 	</div>
-</section>
+</header>
+
+
 
 </body>
 </html>

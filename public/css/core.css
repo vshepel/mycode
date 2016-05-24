@@ -19,35 +19,38 @@
 
 #alerts {
     position: fixed;
-    bottom: 5px;
-    right: 0;
+    bottom: 15px;
+    right: 30px;
     width: 300px;
     z-index: 9999;
-    opacity: 0.9;
+}
+
+@media all and (max-width: 480px) {
+    #alerts {
+        width: 100%;
+        right: 0;
+        padding: 0 20px;
+    }
 }
 
 .cms-alert {
-    font: 11px Verdana, sans-serif;
-    margin: 10px;
-    padding: 15px;
-    color: #FFFFFF;
-    border-radius: 5px;
-    background-color: #409DCD;
-    opacity: 0.9;
-    text-align: center;
+    position: relative;
+    margin: 10px 0;
+    padding: 20px;
+    color: #fff;
+    border-radius: 2px;
     cursor: pointer;
+    background: rgba(0, 0, 0, 0.5);
 }
 
-.cms-alert.success {
-    background-color: #9DCD40;
+.cms-alert.info, .cms-alert.success {
+    background: #B5DDF7;
+    border-left: 3px solid #96B8CE;
 }
 
-.cms-alert.warning {
-    background-color: #CD9D40;;
-}
-
-.cms-alert.danger {
-    background-color: #CD4040;
+.cms-alert.danger, .cms-alert.warning {
+    background: #B3B3B3;
+    border-left: 3px solid #808080;
 }
 
 #loading-layer {
