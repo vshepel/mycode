@@ -7,12 +7,34 @@
 
 	{link}
 	<link rel="stylesheet" href="{VIEW}css/main.min.css">
+
+	{script}
+	<script src="{VIEW}js/script.min.js"></script>
 </head>
 <body>
 {ajax}
 
 <div id="overlay"></div>
-<div id="core-notifications">{notifications}</div>
+[logged]
+<div class="notification-list">
+	<div class="notification">
+		<div class="notification-head">
+			<div class="head-close">
+				<i id="notification-close" class="mdi mdi-arrow-right"></i>
+			</div>
+			<div class="head-count">
+				[f:user:notifications.title]
+			</div>
+			<div class="head-clear">
+				<i class="mdi mdi-delete-sweep" onclick="app.core.notifications.clear(); return false;"></i>
+			</div>
+		</div>
+		<div id="core-notifications">
+			{notifications}
+		</div>
+	</div>
+</div>
+[/logged]
 
 <section class="top_panel">
 	<div class="container">
@@ -27,9 +49,9 @@
 					<input type="text" name="query" placeholder="[f:main:panel.search]">
 				</form>
 			</li>
-			[logged]
 			<li class="user_panel">
 				<ul>
+					[logged]
 					<li class="write">
 						<a class="btn btn-primary" href="{add-link}">[f:main:panel.write]</a>
 					</li>
@@ -41,14 +63,17 @@
 						</a>
 					</li>
 					<li class="links"><a href="{profile-link}"><i class="mdi mdi-account"></i></a></li>
+					[/logged]
+					[not-logged]
+					<li>
+						<a class="btn btn-primary" href="{auth-link}">[f:main:panel.login]</a>
+					</li>
+					[/not-logged]
 				</ul>
 			</li>
-			[/logged]
 		</ul>
 	</div>
 </section>
 
-{script}
-<script src="{VIEW}js/script.min.js"></script>
 </body>
 </html>
