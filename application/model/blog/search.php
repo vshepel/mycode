@@ -79,7 +79,7 @@ class Search extends AppModel {
 				$array = $this->_db
 					->select(array(
 						"id", "title", "url", "short_text", "full_text", "category", "comments_num", "views_num", "rating",
-						array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
+						"tags", "lang", array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 						"show", "author"
 					))
 					->from(DBPREFIX . "blog_posts")
@@ -111,6 +111,10 @@ class Search extends AppModel {
 
 							"short-text" => BBCodeParser::parse($row["short_text"]),
 							"full-text" => BBCodeParser::parse((empty($row["full-text"]) ? $row["short_text"] : $row["full_text"])),
+
+							"tags" => $row["tags"],
+							"lang" => $row["lang"],
+							"language" => $this->_lang->getLangName($row["lang"]),
 
 							"category-id" => $row["category"],
 							"category-name" => Categories::getInstance()->getName($row["category"]),

@@ -42,6 +42,22 @@
 	</div>
 
 	<div class="form-group">
+		<label class="control-label col-sm-3">[f:blog:add.form.tags]</label>
+		<div class="col-sm-9">
+			<input class="form-control" type="text" name="tags" value="{tags}">
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="control-label col-sm-3">[f:blog:add.form.lang]</label>
+		<div class="col-sm-9">
+			<select class="form-control" name="lang">[foreach langs]
+				<option value="{id}"[current] selected[/current]>{name}</option>
+				[/foreach]</select>
+		</div>
+	</div>
+
+	<div class="form-group">
 		<label class="control-label col-sm-3">[f:blog:add.form.allowComments]</label>
 		<div class="col-sm-9">
 			<input class="form-control" type="checkbox" name="allow_comments"[allow-comments] checked[/allow-comments]>

@@ -69,7 +69,7 @@ class StringFilters {
 	 * @param string $tags Tags string
 	 * @return string
      */
-	public function filterTagsString($tags) {
+	public static function filterTagsString($tags) {
 		$tags_array = array();
 
 		foreach (explode (",", $tags) as $value) {

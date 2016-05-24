@@ -45,6 +45,11 @@ class Lang {
 	private $_lang = array ();
 
 	/**
+	 * @var array Langs array
+	 */
+	private $_langs = [];
+
+	/**
 	 * Constructor
 	 * @param string $dir Lang directory
 	 * @param string $lang Lang name
@@ -57,6 +62,7 @@ class Lang {
 	/**
 	 * Set lang
 	 * @param string $name Lang name
+	 * @return bool
 	 */
 	public function setLang($name) {
 		if ($this->available($name)) {
@@ -88,18 +94,32 @@ class Lang {
 	 * Get languages array
 	 * @return array
 	 */
-	public function getLangs(){
-		$langs = [];
-		
-		foreach(scandir($this->_dir) as $lang) {
-			$file = $this->_dir . DS . $lang . DS . "core.ini";
-			if (!in_array($lang, [".", ".."]) && is_file($file)) {
-				$ini = parse_ini_file($file);
-				$langs[$lang] = $ini["lang.name"];
+	public function getLangs() {
+		if (count($this->_langs) == 0) {
+			foreach (scandir($this->_dir) as $lang) {
+				$file = $this->_dir . DS . $lang . DS . "core.ini";
+				if (!in_array($lang, [".", ".."]) && is_file($file)) {
+					$ini = parse_ini_file($file);
+					$this->_langs[$lang] = $ini["lang.name"];
+				}
 			}
 		}
-		
-		return $langs;
+
+		return $this->_langs;
+	}
+
+	/**
+	 * Get language name by code
+	 * @param string $code Language code
+	 * @return string
+	 */
+	public function getLangName($code) {
+		foreach ($this->getLangs() as $id => $name) {
+			if ($id == $code)
+				return $name;
+		}
+
+		return "";
 	}
 
 	/**

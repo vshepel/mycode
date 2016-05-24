@@ -45,6 +45,9 @@ class Posts extends AppModel {
 			"url" => "",
 			"short-text" => "",
 			"full-text" => "",
+
+			"tags" => "",
+			"lang" => "",
 			
 			"allow-comments" => true,
 			"show" => true,
@@ -64,8 +67,8 @@ class Posts extends AppModel {
 	 */
 	public function __construct($type) {
 		parent::__construct();
-
 		$this->_type = $type;
+		$this->_addTags["tags"]["lang"] = $this->_lang->getLang();
 	}
 
 	/**
@@ -91,6 +94,23 @@ class Posts extends AppModel {
 			return ($result[0][0] > 0);
 		else
 			throw new \Exception("Error check post for exists: {$this->_db->getError()}");
+	}
+
+	/**
+	 * Make a links for tags string
+	 * @param string $tags Tags string
+	 * @return string
+     */
+	public function makeTagsLinks($tags) {
+		if ($tags == "") return "";
+
+		$tarray = explode(", ", $tags);
+
+		foreach ($tarray as &$tag) {
+			$tag = "<a href=\"" . SITE_PATH . "blog/tag/{$tag}\">{$tag}</a>";
+		}
+
+		return implode(", ", $tarray);
 	}
 
 	/**
@@ -162,6 +182,7 @@ class Posts extends AppModel {
 			$this->_db
 				->select(array(
 					"id", "title", "url", "short_text", "full_text", "category", "comments_num", "views_num", "rating",
+					"tags", "lang",
 					array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 					"show", "show_main", "show_category", "author"
 				))
@@ -204,6 +225,10 @@ class Posts extends AppModel {
 
 						"short-text" => BBCodeParser::parse($row["short_text"]),
 						"full-text" => BBCodeParser::parse((empty($row["full-text"]) ? $row["short_text"] : $row["full_text"])),
+						
+						"tags" => $this->makeTagsLinks($row["tags"]),
+						"lang" => $row["lang"],
+						"language" => $this->_lang->getLangName($row["lang"]),
 
 						"category-id" => $row["category"],
 						"category-name" => Categories::getInstance()->getName($row["category"]),
@@ -289,7 +314,7 @@ class Posts extends AppModel {
 		 */
 		$array = $this->_db
 			->select(array(
-				"id", "title", "url", "short_text", "full_text", "category",
+				"id", "title", "url", "short_text", "full_text", "category", "tags", "lang",
 				"comments_num", "views_num", "rating", array ("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 				"allow_comments", "author"
 			))
@@ -337,6 +362,10 @@ class Posts extends AppModel {
 				"short-text" => BBCodeParser::parse($row["short_text"]),
 				"full-text" => BBCodeParser::parse((empty($row["full_text"]) ? $row["short_text"] : $row["full_text"])),
 
+				"tags" => $this->makeTagsLinks($row["tags"]),
+				"lang" => $row["lang"],
+				"language" => $this->_lang->getLangName($row["lang"]),
+
 				"category-id" => $row["category"],
 				"category-name" => Categories::getInstance()->getName($row["category"]),
 				"category-link" => SITE_PATH . "blog/cat/" . $row["category"],
@@ -377,20 +406,22 @@ class Posts extends AppModel {
 	 * @param int $category Post category
 	 * @param string $shortText Short text
 	 * @param string $fullText Full text
+	 * @param string $tags Tags
+	 * @param string $lang Post language
 	 * @param bool $allowComments Allow comments?
 	 * @param bool $show Show posts?
 	 * @param bool $showMain Show posts on main?
 	 * @param bool $showCaregory Show posts on category?
 	 * @return Response
 	 */
-	public function edit($postId, $title, $url, $category, $shortText, $fullText, $allowComments, $show, $showMain, $showCaregory) {
+	public function edit($postId, $title, $url, $category, $shortText, $fullText, $tags, $lang, $allowComments, $show, $showMain, $showCaregory) {
 		if (!$this->_user->hasPermission("blog.posts.edit")) 
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		
 		$this->_editQuery = true;
 
 		if ($this->exists($postId, false))
-			return $this->add($title, $url, $category, $shortText, $fullText, $allowComments, $show, $showMain, $showCaregory, $postId);
+			return $this->add($title, $url, $category, $shortText, $fullText, $tags, $lang, $allowComments, $show, $showMain, $showCaregory, $postId);
 		else {
 			$response = new Response();
 
@@ -425,6 +456,7 @@ class Posts extends AppModel {
 				$row = $this->_db
 					->select(array(
 						"id", "url", "title", "short_text", "full_text", "category",
+						"tags", "lang",
 						"allow_comments", "show", "show_main", "show_category"
 					))
 					->from(DBPREFIX . "blog_posts")
@@ -448,6 +480,9 @@ class Posts extends AppModel {
 							"url" => $row["url"],
 							"short-text" => $row["short_text"],
 							"full-text" => $row["full_text"],
+
+							"tags" => $row["tags"],
+							"lang" => $row["lang"],
 							
 							"allow-comments" => ($row["allow_comments"] > 0),
 							"show" => ($row["show"] > 0),
@@ -458,6 +493,7 @@ class Posts extends AppModel {
 				}
 			}
 
+			// Categories
 			$categories = [];
 			foreach (Categories::getInstance()->get() as $id => $row)
 				$categories[] = [
@@ -467,8 +503,18 @@ class Posts extends AppModel {
 					"current" => ($this->_addTags["category"] == $id)
 				];
 
+			// Languages
+			$langs = [];
+			foreach ($this->_lang->getLangs() as $lang => $name)
+				$langs[] = [
+					"id" => $lang,
+					"name" => $name,
+					"current" => ($this->_addTags["tags"]["lang"] == $lang)
+				];
+
 			$response->tags = array_merge($this->_addTags["tags"], array (
-				"categories" => $categories
+				"categories" => $categories,
+				"langs" => $langs
 			));
 		} else {
 			$response->code = 3;
@@ -486,6 +532,8 @@ class Posts extends AppModel {
 	 * @param int $category Post category
 	 * @param string $shortText Short text
 	 * @param string $fullText Full text
+	 * @param string $tags Tags
+	 * @param string $lang Post language
 	 * @param bool $allowComments Allow comments?
 	 * @param bool $show Show posts?
 	 * @param bool $showMain Show posts on main?
@@ -494,7 +542,7 @@ class Posts extends AppModel {
 	 * @return Response
 	 * @internal param bool $showCaregory Show posts on category?
 	 */
-	public function add($title, $url, $category, $shortText, $fullText, $allowComments, $show, $showMain, $showCategory, $postId = null) {
+	public function add($title, $url, $category, $shortText, $fullText, $tags, $lang, $allowComments, $show, $showMain, $showCategory, $postId = null) {
 		if (!$this->_user->hasPermission("blog.posts.edit") && $postId === null) 
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		
@@ -503,6 +551,8 @@ class Posts extends AppModel {
 		$category = intval($category);
 		$shortText = StringFilters::filterHtmlTags($shortText);
 		$fullText = StringFilters::filterHtmlTags($fullText);
+		$tags = StringFilters::filterTagsString($tags);
+		$lang = StringFilters::filterHtmlTags($lang);
 		$allowComments = (bool)($allowComments);
 		$show = (bool)($show);
 		$showMain = (bool)($showMain);
@@ -517,6 +567,9 @@ class Posts extends AppModel {
 				"url" => $url,
 				"short-text" => $shortText,
 				"full-text" => $fullText,
+
+				"tags" => $tags,
+				"lang" => $lang,
 				
 				"allow-comments" => $allowComments,
 				"show" => $show,
@@ -538,6 +591,10 @@ class Posts extends AppModel {
 				"category" => $category,
 				"short_text" => $shortText,
 				"full_text" => $fullText,
+
+				"tags" => $tags,
+				"lang" => $lang,
+
 				"allow_comments" => $allowComments ? 1 : 0,
 				"show" => $show ? 1 : 0,
 				"show_main" => $showMain ? 1 : 0,
@@ -588,6 +645,7 @@ class Posts extends AppModel {
 		$response = new Response();
 		$response->view = "blog.add";
 
+		// Categories
 		$categories = [];
 		foreach (Categories::getInstance()->get() as $id => $row)
 			$categories[] = [
@@ -597,8 +655,18 @@ class Posts extends AppModel {
 				"current" => ($this->_addTags["category"] == $id)
 			];
 
+		// Languages
+		$langs = [];
+		foreach ($this->_lang->getLangs() as $lang => $name)
+			$langs[] = [
+				"id" => $lang,
+				"name" => $name,
+				"current" => ($this->_addTags["tags"]["lang"] == $this->_lang->getLang())
+			];
+
 		$response->tags = array_merge($this->_addTags["tags"], array (
-			"categories" => $categories
+			"categories" => $categories,
+			"langs" => $langs
 		));
 
 		return $response;
@@ -734,6 +802,7 @@ class Posts extends AppModel {
 			$this->_db
 				->select(array(
 					"id", "title", "url", "short_text", "full_text", "category", "comments_num", "views_num", "rating",
+					"tags", "lang",
 					array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 					"show", "show_main", "show_category", "author"
 				))
@@ -771,6 +840,10 @@ class Posts extends AppModel {
 
 						"short-text" => BBCodeParser::parse($row["short_text"]),
 						"full-text" => BBCodeParser::parse((empty($row["full-text"]) ? $row["short_text"] : $row["full_text"])),
+
+						"tags" => $this->makeTagsLinks($row["tags"]),
+						"lang" => $row["lang"],
+						"language" => $this->_lang->getLangName($row["lang"]),
 
 						"category-id" => $row["category"],
 						"category-name" => Categories::getInstance()->getName($row["category"]),

@@ -39,11 +39,14 @@
 		<div class="clearfix"></div>
 
 		<p>{short-text}</p>
-		<p><span class="fa fa-tags"></span> {tags}</p>
+
+		[if tags!=""]<p class="pull-left"><span class="fa fa-tags"></span> {tags}</p>[/if]
+		[if language!=""]<p class="pull-right"><span class="fa fa-language"></span> {language}</p>[/if]
+		<div class="clearfix"></div>
 	</div>
 </div>
 [/foreach]
-{posts}{pagination}[/if][if num="0"]
+{pagination}[/if][if num="0"]
 <div class="alert alert-info">
 	[f:blog:search.noRows]
 </div>[/if]
