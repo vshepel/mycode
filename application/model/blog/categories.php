@@ -95,6 +95,11 @@ class Categories extends AppModel {
 	}
 
 	/**
+	 * @var int Active category
+	 */
+	public $activeCategory = -1;
+
+	/**
 	 * Check category for exists
 	 * @param int $id Category ID
 	 * @return bool
@@ -187,17 +192,16 @@ class Categories extends AppModel {
 
 	/**
 	 * Get Categories list
-	 * @param int $active = -1 
 	 * @return string
 	 */
-	public function getList($active = -1) {
+	public function getList() {
 		foreach ($this->get() as $id => $row) {
 			$this->_view->add("blog.tag.category", [
 				"id" => $id,
 				"name" => $row["name"],
 				"link" => SITE_PATH . "blog/cat/" . $id,
 				"num" => $row["num"],
-				"active" => ($active == $id)
+				"active" => ($this->activeCategory == $id)
 			]);
 		}
 

@@ -71,7 +71,7 @@ class Blog extends AppController {
 
 	public function getProperty($name, $arg) {
 		switch ($name) {
-			case "categories" : return Categories::getInstance()->getList();
+			case "categories": return Categories::getInstance()->getList();
 			case "archive": return $this->_posts->getArchive();
 			case "calendar": return $this->_posts->getCalendar();
 			case "popular": return $this->_posts->getPopular();
@@ -89,11 +89,9 @@ class Blog extends AppController {
 		if (isset($args[0]) && $args[0] == "cat") {
 			$category = $args[1];
 			$page = isset($args[2]) ? $args[2] : 1;
-			
-			// Add Blog Categories for layout template
-			$this->_view->addMainTag("blog-categories",
-				Categories::getInstance()->getList($category)
-			);
+
+			// Active Category
+			Categories::getInstance()->activeCategory = $category;
 		} else {
 			$category = null;
 			$page = isset($args[0]) ? $args[0] : 1;
@@ -114,11 +112,8 @@ class Blog extends AppController {
 		$commentsPage = !isset($args[1]) ? 1 : $args[1];
 		$post = $this->_posts->page($id, $commentsPage, $comments_model);
 		
-		// Add Blog Categories for layout template
-		$this->_view->addMainTag("blog-categories",
-			Categories::getInstance()->getList($post->tags["category-id"])
-		);
-
+		// Active Category
+		Categories::getInstance()->activeCategory = $post->tags["category-id"];
 		$this->_view->responseRender($post);
 	}
 
@@ -128,21 +123,16 @@ class Blog extends AppController {
 		
 		for ($i = 0; $i < count($args); $i++) {
 			if ($args[$i] == "page") {
-				$page = $args[$i+1];
+				$page = $args[$i + 1];
 				break;
 			} else
 				$a[] = $args[$i];
 		}
 		
-		// Add Blog Archive for layout template
-		$this->_view->addMainTag("blog-archive",
-			$this->_posts->getArchive()
-		);
-		
-		// Add Blog Calendar for layout template
-		if (isset($args[0], $args[1])) $this->_view->addMainTag("blog-calendar",
+		// TODO: Add Blog Calendar for layout template
+		/*if (isset($args[0], $args[1])) $this->_view->addMainTag("blog-calendar",
 			$this->_posts->getCalendar($args[1], $args[0])
-		);
+		);*/
 		
 		$this->_view->responseRender($this->_posts->archive($a, $page));
 	}
@@ -162,11 +152,9 @@ class Blog extends AppController {
 		$model = new Rating();
 
 		if ($args[0] == "plus") {
-			$this->_view
-				->jsonRender($model->change($args[1], 1));
+			$this->_view->jsonRender($model->change($args[1], 1));
 		} elseif ($args[0] == "minus") {
-			$this->_view
-				->jsonRender($model->change($args[1], 0));
+			$this->_view->jsonRender($model->change($args[1], 0));
 		}
 	}
 	
