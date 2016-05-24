@@ -75,7 +75,31 @@
 	</div>
 </header>
 
-
+<div id="main" class="container">
+	<main class="col_9">
+		{alerts}
+		{content}
+	</main>
+	<aside id="sidebar" class="col_3">
+    	<section id="category">
+    		<div class="title">[b:blog:categories.moduleName]</div>
+    		{blog:categories}
+    	</section>
+    	<section id="popular">
+    		<div class="title">[b:blog:popular.moduleName]</div>
+    		{blog:popular}
+    	</section>
+    	<section id="adv">
+    		<div class="title">[f:main:sidebar.adv]</div>
+    		<div class="adv_mockup"></div>
+    	</section>
+    	<footer>
+    		<a href="#">[f:main:footer.help]</a>
+    		<a href="#">[f:main:footer.terms]</a>
+    		<a href="#">[f:main:footer.about]</a>
+    	</footer>
+	</aside>
+</div>
 
 </body>
 </html>
