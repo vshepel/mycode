@@ -76,7 +76,7 @@
 </header>
 
 <div id="main" class="container">
-	<main class="col_9">
+	<main>
 		{alerts}
 		{content}
 	</main>
