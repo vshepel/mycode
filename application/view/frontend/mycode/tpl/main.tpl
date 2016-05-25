@@ -10,6 +10,9 @@
 
 	{script}
 	<script src="{VIEW}js/script.min.js"></script>
+	<!--[if IE]>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+	<![endif]-->
 </head>
 <body>
 {ajax}
