@@ -49,7 +49,7 @@ class Categories extends AppModel {
 	public function __construct() {
 		parent::__construct();
 
-		$cache = $this->_cache->get("blog", "categories");
+		$cache = $this->_cache->get("blog", "categories." . $this->_lang->getLang());
 
 		// Load categories
 		if ($cache === false) {
@@ -89,7 +89,7 @@ class Categories extends AppModel {
 				];
 			}
 
-			$this->_cache->push("blog", "categories", $this->_categories);
+			$this->_cache->push("blog", "categories." . $this->_lang->getLang(), $this->_categories);
 		} else
 			$this->_categories = $cache;
 	}
@@ -139,7 +139,7 @@ class Categories extends AppModel {
 			} else {
 				$response->type = "success";
 				$response->message = $this->_lang->get("blog", "categories.add.success");
-				$this->_cache->remove("blog", "categories"); // Clear categories cache
+				$this->_cache->remove("blog"); // Clear categories cache
 			}
 		}
 
@@ -171,7 +171,7 @@ class Categories extends AppModel {
 			} else {
 				$response->type = "success";
 				$response->message = $this->_lang->get("blog", "categories.remove.success");
-				$this->_cache->remove("blog", "categories"); // Clear categories cache
+				$this->_cache->remove("blog"); // Clear categories cache
 			}
 		} else {
 			$response->code = 2;
