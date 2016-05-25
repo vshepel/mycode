@@ -73,10 +73,10 @@ class Posts extends AppModel {
 	/**
 	 * Get post text
 	 * @param string $text Original post text
-	 * @param bool $short Get short text?
+	 * @param bool $short = false Get short text?
 	 * @return string
 	 */
-	public static function getText($text, $short) {
+	public static function getText($text, $short = false) {
 		return BBCodeParser::parse($text);
 	}
 
@@ -232,7 +232,8 @@ class Posts extends AppModel {
 						"author-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["author"]),
 						"author-avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
 
-						"text" => BBCodeParser::parse($row["text"]),
+						"full-text" => Posts::getText($row["text"]),
+						"short-text" => Posts::getText($row["text"], true),
 						
 						"tags" => $this->makeTagsLinks($row["tags"]),
 						"lang" => $row["lang"],
@@ -367,7 +368,8 @@ class Posts extends AppModel {
 				"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
 				"title" => $row["title"],
 
-				"text" => BBCodeParser::parse($row["text"]),
+				"full-text" => Posts::getText($row["text"]),
+				"short-text" => Posts::getText($row["text"], true),
 
 				"tags" => $this->makeTagsLinks($row["tags"]),
 				"lang" => $row["lang"],
@@ -839,7 +841,8 @@ class Posts extends AppModel {
 						"author-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["author"]),
 						"author-avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
 
-						"text" => BBCodeParser::parse($row["text"]),
+						"full-text" => Posts::getText($row["text"]),
+						"short-text" => Posts::getText($row["text"], true),
 
 						"tags" => $this->makeTagsLinks($row["tags"]),
 						"lang" => $row["lang"],

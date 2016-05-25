@@ -110,6 +110,7 @@ class Search extends AppModel {
 							"author-avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
 
 							"full-text" => Posts::getText($row["text"]),
+							"short-text" => Posts::getText($row["text"], true),
 
 							"tags" => $row["tags"],
 							"lang" => $row["lang"],
