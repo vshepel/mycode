@@ -43,8 +43,7 @@ class Posts extends AppModel {
 		"tags" => array (
 			"title" => "",
 			"url" => "",
-			"short-text" => "",
-			"full-text" => "",
+			"text" => "",
 
 			"tags" => "",
 			"lang" => "",
@@ -69,6 +68,16 @@ class Posts extends AppModel {
 		parent::__construct();
 		$this->_type = $type;
 		$this->_addTags["tags"]["lang"] = $this->_lang->getLang();
+	}
+
+	/**
+	 * Get post text
+	 * @param string $text Original post text
+	 * @param bool $short Get short text?
+	 * @return string
+	 */
+	public static function getText($text, $short) {
+		return BBCodeParser::parse($text);
 	}
 
 	/**
@@ -181,7 +190,7 @@ class Posts extends AppModel {
 			// Posts query
 			$this->_db
 				->select(array(
-					"id", "title", "url", "short_text", "full_text", "category", "comments_num", "views_num", "rating",
+					"id", "title", "url", "text", "category", "comments_num", "views_num", "rating",
 					"tags", "lang",
 					array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 					"show", "show_main", "show_category", "author"
@@ -223,8 +232,7 @@ class Posts extends AppModel {
 						"author-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["author"]),
 						"author-avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
 
-						"short-text" => BBCodeParser::parse($row["short_text"]),
-						"full-text" => BBCodeParser::parse((empty($row["full-text"]) ? $row["short_text"] : $row["full_text"])),
+						"text" => BBCodeParser::parse($row["text"]),
 						
 						"tags" => $this->makeTagsLinks($row["tags"]),
 						"lang" => $row["lang"],
@@ -314,7 +322,7 @@ class Posts extends AppModel {
 		 */
 		$array = $this->_db
 			->select(array(
-				"id", "title", "url", "short_text", "full_text", "category", "tags", "lang",
+				"id", "title", "url", "text", "category", "tags", "lang",
 				"comments_num", "views_num", "rating", array ("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 				"allow_comments", "author"
 			))
@@ -359,8 +367,7 @@ class Posts extends AppModel {
 				"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
 				"title" => $row["title"],
 
-				"short-text" => BBCodeParser::parse($row["short_text"]),
-				"full-text" => BBCodeParser::parse((empty($row["full_text"]) ? $row["short_text"] : $row["full_text"])),
+				"text" => BBCodeParser::parse($row["text"]),
 
 				"tags" => $this->makeTagsLinks($row["tags"]),
 				"lang" => $row["lang"],
@@ -404,8 +411,7 @@ class Posts extends AppModel {
 	 * @param string $title Post title
 	 * @param string $url Post url
 	 * @param int $category Post category
-	 * @param string $shortText Short text
-	 * @param string $fullText Full text
+	 * @param string $text Post text
 	 * @param string $tags Tags
 	 * @param string $lang Post language
 	 * @param bool $allowComments Allow comments?
@@ -414,14 +420,14 @@ class Posts extends AppModel {
 	 * @param bool $showCaregory Show posts on category?
 	 * @return Response
 	 */
-	public function edit($postId, $title, $url, $category, $shortText, $fullText, $tags, $lang, $allowComments, $show, $showMain, $showCaregory) {
+	public function edit($postId, $title, $url, $category, $text, $tags, $lang, $allowComments, $show, $showMain, $showCaregory) {
 		if (!$this->_user->hasPermission("blog.posts.edit")) 
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		
 		$this->_editQuery = true;
 
 		if ($this->exists($postId, false))
-			return $this->add($title, $url, $category, $shortText, $fullText, $tags, $lang, $allowComments, $show, $showMain, $showCaregory, $postId);
+			return $this->add($title, $url, $category, $text, $tags, $lang, $allowComments, $show, $showMain, $showCaregory, $postId);
 		else {
 			$response = new Response();
 
@@ -455,7 +461,7 @@ class Posts extends AppModel {
 			if (!$this->_editQuery) {
 				$row = $this->_db
 					->select(array(
-						"id", "url", "title", "short_text", "full_text", "category",
+						"id", "url", "title", "text", "category",
 						"tags", "lang",
 						"allow_comments", "show", "show_main", "show_category"
 					))
@@ -478,8 +484,7 @@ class Posts extends AppModel {
 						"tags" => array (
 							"title" => $row["title"],
 							"url" => $row["url"],
-							"short-text" => $row["short_text"],
-							"full-text" => $row["full_text"],
+							"text" => $row["text"],
 
 							"tags" => $row["tags"],
 							"lang" => $row["lang"],
@@ -530,8 +535,7 @@ class Posts extends AppModel {
 	 * @param string $title Post title
 	 * @param string $url Post url
 	 * @param int $category Post category
-	 * @param string $shortText Short text
-	 * @param string $fullText Full text
+	 * @param string $text Post text
 	 * @param string $tags Tags
 	 * @param string $lang Post language
 	 * @param bool $allowComments Allow comments?
@@ -542,15 +546,14 @@ class Posts extends AppModel {
 	 * @return Response
 	 * @internal param bool $showCaregory Show posts on category?
 	 */
-	public function add($title, $url, $category, $shortText, $fullText, $tags, $lang, $allowComments, $show, $showMain, $showCategory, $postId = null) {
+	public function add($title, $url, $category, $text, $tags, $lang, $allowComments, $show, $showMain, $showCategory, $postId = null) {
 		if (!$this->_user->hasPermission("blog.posts.edit") && $postId === null) 
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		
 		$title = StringFilters::filterHtmlTags($title);
 		$url = StringFilters::filterForUrl(empty($url) ? $title : $url);
 		$category = intval($category);
-		$shortText = StringFilters::filterHtmlTags($shortText);
-		$fullText = StringFilters::filterHtmlTags($fullText);
+		$text = StringFilters::filterHtmlTags($text);
 		$tags = StringFilters::filterTagsString($tags);
 		$lang = StringFilters::filterHtmlTags($lang);
 		$allowComments = (bool)($allowComments);
@@ -565,8 +568,7 @@ class Posts extends AppModel {
 			"tags" => array (
 				"title" => $title,
 				"url" => $url,
-				"short-text" => $shortText,
-				"full-text" => $fullText,
+				"text" => $text,
 
 				"tags" => $tags,
 				"lang" => $lang,
@@ -580,7 +582,7 @@ class Posts extends AppModel {
 
 		$response = new Response();
 
-		if (empty($title) || empty($shortText)) {
+		if (empty($title) || empty($text)) {
 			$response->code = 2;
 			$response->type = "warning";
 			$response->message = $this->_lang->get("core", "emptyFields");
@@ -589,8 +591,7 @@ class Posts extends AppModel {
 				"title" => $title,
 				"url" => $url,
 				"category" => $category,
-				"short_text" => $shortText,
-				"full_text" => $fullText,
+				"text" => $text,
 
 				"tags" => $tags,
 				"lang" => $lang,
@@ -801,7 +802,7 @@ class Posts extends AppModel {
 			 */
 			$this->_db
 				->select(array(
-					"id", "title", "url", "short_text", "full_text", "category", "comments_num", "views_num", "rating",
+					"id", "title", "url", "text", "category", "comments_num", "views_num", "rating",
 					"tags", "lang",
 					array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 					"show", "show_main", "show_category", "author"
@@ -838,8 +839,7 @@ class Posts extends AppModel {
 						"author-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["author"]),
 						"author-avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
 
-						"short-text" => BBCodeParser::parse($row["short_text"]),
-						"full-text" => BBCodeParser::parse((empty($row["full-text"]) ? $row["short_text"] : $row["full_text"])),
+						"text" => BBCodeParser::parse($row["text"]),
 
 						"tags" => $this->makeTagsLinks($row["tags"]),
 						"lang" => $row["lang"],

@@ -53,7 +53,7 @@ class DataBase {
 		if (class_exists($driver_class)) {
 			$driver_object = new $driver_class;
 
-			if (!$driver_object instanceof driver)
+			if (!$driver_object instanceof Driver)
 				throw new \Exception("Database error: driver {$driver} is not instance of main driver");
 
 			return $driver_object;

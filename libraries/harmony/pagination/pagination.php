@@ -157,7 +157,7 @@ class Pagination {
 			if ($maxPage < $this->_numPages - 1)
 				$pages .= $this->_getHellip();
 
-			$pages .= $this->_getPage($this->_numPages, true);
+			$pages .= $this->_getPage($this->_numPages);
 
 			$back = ($this->_currentPage - 1) > 0;
 			$next = ($this->_currentPage + 1) <= $this->_numPages;

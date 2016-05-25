@@ -86,7 +86,7 @@ class HarmonyCMS extends Generator {
 		$this->_genBackground();
 		$this->_genCaptcha();
 
-		Sessions::set("captcha", $this->_string, 3600);
+		Sessions::set("captcha", $this->_string);
 
 		return $this;
 	}

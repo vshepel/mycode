@@ -89,8 +89,8 @@ abstract class Parser {
 	 * @param array $blocks Blocks array
 	 * @return $this
 	 */
-	public function add($name, $tags = array(), $blocks = array()) {
-		$view = $this->parse($name, $tags, $blocks);
+	public function add($name, $tags = array()) {
+		$view = $this->parse($name, $tags);
 
 		if (isset($this->_stack[$name]))
 			$this->_stack[$name] .= $view;

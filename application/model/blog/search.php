@@ -58,8 +58,8 @@ class Search extends AppModel {
 				->select("count(*)")
 				->from(DBPREFIX . "blog_posts")
 				->where("title", "LIKE", "%{$query}%")
-				->or_where("short_text", "LIKE", "%{$query}%")
-				->or_where("full_text", "LIKE", "%{$query}%")
+				->or_where("text", "LIKE", "%{$query}%")
+				->or_where("tags", "LIKE", "%{$query}%")
 				->result_array();
 
 			if ($num === false) {
@@ -78,14 +78,14 @@ class Search extends AppModel {
 				 */
 				$array = $this->_db
 					->select(array(
-						"id", "title", "url", "short_text", "full_text", "category", "comments_num", "views_num", "rating",
+						"id", "title", "url", "text", "category", "comments_num", "views_num", "rating",
 						"tags", "lang", array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 						"show", "author"
 					))
 					->from(DBPREFIX . "blog_posts")
 					->where("title", "LIKE", "%{$query}%")
-					->or_where("short_text", "LIKE", "%{$query}%")
-					->or_where("full_text", "LIKE", "%{$query}%")
+					->or_where("text", "LIKE", "%{$query}%")
+					->or_where("tags", "LIKE", "%{$query}%")
 					->order_by("id", $this->_config->get("blog", "search.sort", "DESC"))
 					->limit($pagination->getSqlLimits())
 					->result_array();
@@ -109,8 +109,7 @@ class Search extends AppModel {
 							"author-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["author"]),
 							"author-avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
 
-							"short-text" => BBCodeParser::parse($row["short_text"]),
-							"full-text" => BBCodeParser::parse((empty($row["full-text"]) ? $row["short_text"] : $row["full_text"])),
+							"full-text" => Posts::getText($row["text"]),
 
 							"tags" => $row["tags"],
 							"lang" => $row["lang"],

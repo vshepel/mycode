@@ -108,9 +108,9 @@ class Blog extends AppController {
 	}
 
 	public function action_add() {
-		if (isset($_POST["title"], $_POST["url"], $_POST["category"], $_POST["short_text"], $_POST["full_text"], $_POST["tags"], $_POST["lang"])) {
+		if (isset($_POST["title"], $_POST["url"], $_POST["category"], $_POST["text"], $_POST["tags"], $_POST["lang"])) {
 			$result = $this->_posts->add(
-				$_POST["title"], $_POST["url"], $_POST["category"], $_POST["short_text"], $_POST["full_text"], $_POST["tags"], $_POST["lang"],
+				$_POST["title"], $_POST["url"], $_POST["category"], $_POST["text"], $_POST["tags"], $_POST["lang"],
 				isset($_POST["allow_comments"]), isset($_POST["show"]), isset($_POST["show_main"]), isset($_POST["show_category"])
 			);
 
@@ -126,10 +126,10 @@ class Blog extends AppController {
 	public function action_edit($args) {
 		$postId = $args[0];
 
-		if (isset($_POST["title"], $_POST["url"], $_POST["category"], $_POST["short_text"], $_POST["full_text"], $_POST["tags"], $_POST["lang"])) {
+		if (isset($_POST["title"], $_POST["url"], $_POST["category"], $_POST["text"], $_POST["tags"], $_POST["lang"])) {
 			$result = $this->_posts->edit(
 				$postId,
-				$_POST["title"], $_POST["url"], $_POST["category"], $_POST["short_text"], $_POST["full_text"], $_POST["tags"], $_POST["lang"],
+				$_POST["title"], $_POST["url"], $_POST["category"], $_POST["text"], $_POST["tags"], $_POST["lang"],
 				isset($_POST["allow_comments"]), isset($_POST["show"]), isset($_POST["show_main"]), isset($_POST["show_category"])
 			);
 
