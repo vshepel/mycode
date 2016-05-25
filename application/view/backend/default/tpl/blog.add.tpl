@@ -28,16 +28,9 @@
 	</div>
 
 	<div class="form-group">
-		<label class="control-label col-sm-3">[f:blog:add.form.shortText] *</label>
+		<label class="control-label col-sm-3">[f:blog:add.form.text] *</label>
 		<div class="col-sm-9">
-			<textarea class="form-control" name="short_text" id="editor" rows="6">{short-text}</textarea>
-		</div>
-	</div>
-
-	<div class="form-group">
-		<label class="control-label col-sm-3">[f:blog:add.form.fullText]</label>
-		<div class="col-sm-9">
-			<textarea class="form-control" name="full_text" id="editor-full" rows="6">{full-text}</textarea>
+			<textarea class="form-control" name="text" id="editor" rows="6">{text}</textarea>
 		</div>
 	</div>
 
