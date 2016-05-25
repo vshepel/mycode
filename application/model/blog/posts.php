@@ -77,6 +77,12 @@ class Posts extends AppModel {
 	 * @return string
 	 */
 	public static function getText($text, $short = false) {
+		if ($short) {
+			$text = explode("[separator]", $text)[0];
+		} else {
+			$text = str_replace("[separator]", "", $text);
+		}
+
 		return BBCodeParser::parse($text);
 	}
 
@@ -521,7 +527,10 @@ class Posts extends AppModel {
 
 			$response->tags = array_merge($this->_addTags["tags"], array (
 				"categories" => $categories,
-				"langs" => $langs
+				"langs" => $langs,
+
+				"list-link" => ADMIN_PATH . "blog/list",
+				"remove-link" => ADMIN_PATH . "blog/remove/" . $id
 			));
 		} else {
 			$response->code = 3;

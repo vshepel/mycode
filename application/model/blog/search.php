@@ -57,9 +57,12 @@ class Search extends AppModel {
 			$num = $this->_db
 				->select("count(*)")
 				->from(DBPREFIX . "blog_posts")
-				->where("title", "LIKE", "%{$query}%")
+				->where("show", "=", 1)
+				->query("AND (`title` LIKE '%{$this->_db->safe($query)}%'")
+				->or_where("title", "LIKE", "")
 				->or_where("text", "LIKE", "%{$query}%")
 				->or_where("tags", "LIKE", "%{$query}%")
+				->query(")")
 				->result_array();
 
 			if ($num === false) {
@@ -83,9 +86,12 @@ class Search extends AppModel {
 						"show", "author"
 					))
 					->from(DBPREFIX . "blog_posts")
-					->where("title", "LIKE", "%{$query}%")
+					->where("show", "=", 1)
+					->query("AND (`title` LIKE '%{$this->_db->safe($query)}%'")
+					->or_where("title", "LIKE", "")
 					->or_where("text", "LIKE", "%{$query}%")
 					->or_where("tags", "LIKE", "%{$query}%")
+					->query(")")
 					->order_by("id", $this->_config->get("blog", "search.sort", "DESC"))
 					->limit($pagination->getSqlLimits())
 					->result_array();
