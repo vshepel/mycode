@@ -265,6 +265,32 @@ main {
             margin: 0 0 15px;
         }
     }
+    .pagination {
+    	text-align: center;
+    	padding: 0 40px;
+    	margin: 0 0 50px;
+    	li {
+    		display: inline-block;
+    		&:first-child {
+    			float: left;
+    		}
+    		&:last-child {
+    			float: right;
+    		}
+    		&.disabled {
+    			color: $grey85;
+    			cursor: default;
+    		}
+    		&.num a {
+    			padding: 0 10px;
+    		}
+    		&.active a {
+    			background: $grey92;
+    			padding: 8px 10px;
+    			border-radius: 2px;
+    		}
+    	}
+    }
 }
 
 #sidebar {

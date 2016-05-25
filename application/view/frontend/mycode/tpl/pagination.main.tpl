@@ -1,5 +1,5 @@
 <ul class="pagination">
-	<li[not-back] class="disabled"[/not-back]><a href="{back-link}"><span aria-hidden="true">&laquo;</span><span class="sr-only">Previous</span></a></li>
+	<li[not-back] class="disabled"[/not-back]>[back]<a href="{back-link}">[/back]<i class="mdi mdi-arrow-left"></i> Older[back]</a>[/back]</li>
 	{pages}
-	<li[not-next] class="disabled"[/not-next]><a href="{next-link}"><span aria-hidden="true">&raquo;</span><span class="sr-only">Next</span></a></li>
+	<li[not-next] class="disabled"[/not-next]>[next]<a href="{next-link}">[/next]Newer <i class="mdi mdi-arrow-right"></i>[next]</a>[/next]</li>
 </ul>

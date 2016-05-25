@@ -2,7 +2,7 @@
 [foreach rows]
 <article>
 	<div class="post_top">
-		<a href="{author-link}"><img src="{author-avatar-link}" alt="{author-login}">{author-login}</a> <span>posted in {date}</span> <span class="has-read">Has read</span>
+		<a href="{author-link}"><img src="{author-avatar-link}" alt="{author-login}">{author-login}</a> <span>[f:blog:list.posted] {date}</span> <span class="has-read">list.read</span>
 	</div>
 	<div class="post_text">
 		<a href="{link}">

@@ -1,1 +1,1 @@
-<li[current] class="active"[/current]><a href="{link}">{num}</a></li>
+<li class="num[current] active[/current]"><a href="{link}">{num}</a></li>
