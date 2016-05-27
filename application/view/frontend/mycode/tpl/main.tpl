@@ -83,7 +83,7 @@
 		{alerts}
 		{content}
 	</main>
-	<aside id="sidebar" class="col_3">
+	<aside id="sidebar">
     	<section id="category">
     		<div class="title">[b:blog:categories.moduleName]</div>
     		{blog:categories}
