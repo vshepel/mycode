@@ -19,25 +19,6 @@
 
 !function($, app) {
     app.blog = {};
-
-    app.blog.addComment = function(eForm) {
-        var params = $(eForm).serialize();
-
-        app.core.ajaxPost(
-            app.core.path + 'blog/addcomment',
-            params,
-            function(data) {
-                if (data.add.code == 0)
-                    eForm.reset();
-
-                app.core.alert.show(data.add.type, data.add.message);
-
-                $('#blog-comments-num').html(data.comments.num);
-                $('#blog-comments-pagination').html(data.comments.pagination);
-                $('#blog-comments').html(data.comments.rows);
-            });
-    };
-    
     app.blog.rating = {};
 
     app.blog.rating.change = function(postId, type) {
