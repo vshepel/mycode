@@ -20,9 +20,6 @@
 
 namespace harmony\lang;
 
-use Exception;
-use harmony\arrays\ArrayConverters;
-
 class Lang {
 	/**
 	 * @var string Lang Directory
@@ -166,26 +163,6 @@ class Lang {
 				return ($name . (($key === null) ? "" : (":" . $key)));
 		} else
 			return ($name . (($key === null) ? "" : (":" . $key)));
-	}
-
-	/**
-	 * Save Lang file
-	 * @param string $path Config path
-	 * @param string $name Config name
-	 * @param array $values Values array
-	 * @throws Exception
-	 */
-	public function save($path, $name, $values) {
-		$file = $this->_dir . DS . $this->_name . DS . $name . EXT;
-		$config = ArrayConverters::arrayToFile($values);
-
-		if (!isset($this->_lang[$path]))
-			$this->_lang[$path] = array ();
-
-		$this->_lang[$path][$name] = $values;
-
-		if (!@file_put_contents($file, $config))
-			throw new Exception ("Config error: error save file {$file}");
 	}
 	
 	/**

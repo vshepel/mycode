@@ -86,7 +86,6 @@ abstract class Parser {
 	 * Add view to stack
 	 * @param string $name View name
 	 * @param array $tags Tags array
-	 * @param array $blocks Blocks array
 	 * @return $this
 	 */
 	public function add($name, $tags = array()) {

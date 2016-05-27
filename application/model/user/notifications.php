@@ -22,6 +22,7 @@ namespace model\user;
 
 use Exception;
 use AppModel;
+use Response;
 
 class Notifications extends AppModel {
 	/**

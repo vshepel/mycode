@@ -46,7 +46,7 @@ class User extends AppController {
 		"notifications/([A-Za-z0-9]+)" => "notifications"
 	);
 	
-	private $_model, $_user;
+	private $_model;
 	
 	public function __construct() {
 		parent::__construct();
