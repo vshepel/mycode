@@ -46,7 +46,7 @@ class Captcha {
 	/**
 	 * Get driver
 	 * @param string $driver Driver name
-	 * @return Driver
+	 * @return Generator
 	 * @throws \Exception
 	 */
 	public function driver($driver) {

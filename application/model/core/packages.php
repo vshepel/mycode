@@ -486,7 +486,7 @@ class Packages extends AppModel {
 			$this->_packages = $this->_cache->remove("core.packages"); // Cache cleaning
 			
 			// Check dependences
-			$dep = $this->checkDependences($name, false);
+			$dep = $this->checkDependent($name);
 			if (count($dep) > 0) {
 				return new Response(4, "danger", $this->_lang->get("core", "packages.remove.dependent") . ": <ul><li>" . implode("</li><li>", $dep) . "</li></ul>");
 			}

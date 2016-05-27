@@ -20,10 +20,6 @@
 
 namespace harmony\files;
 
-use Exception;
-use Registry;
-use Response;
-
 class Files {
 	/**
 	 * Get file Extension
@@ -135,7 +131,7 @@ class Files {
 	/**
 	 * Get formatted filesize from bytes
 	 * @param int $byte Size in byte
-	 * @param int $ten Use ten
+	 * @param bool $ten Use ten
 	 * @return string Formatted file size
 	 */
 	public static function fileSizeFormat($byte, $ten = false) {
@@ -164,7 +160,7 @@ class Files {
 	 * Get filesize
 	 * @param string $file File name
 	 * @param bool $format = false Get formatted value
-	 * @param bool $format_ten = false Use ten in format
+	 * @param bool $ten = false Use ten in format
 	 * @return bool|int
 	 */
 	public static function fileSize($file, $format = false, $ten = false) {

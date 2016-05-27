@@ -22,6 +22,7 @@ namespace model\core;
 
 use AppModel;
 use Response;
+use Exception;
 use harmony\strings\StringFilters;
 
 class Menu extends AppModel{

@@ -20,8 +20,6 @@
 
 namespace harmony\captcha;
 
-use Registry;
-
 use harmony\http\Sessions;
 
 abstract class Generator {
@@ -41,8 +39,8 @@ abstract class Generator {
 	protected $_font = null;
 	
 	/**
-	 * Set string
-	 * @param string $string String
+	 * Set font
+	 * @param string $font Font path
 	 * @return $this
 	 */
 	public function setFont($font) {

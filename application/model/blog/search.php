@@ -24,7 +24,6 @@ use AppModel;
 use Response;
 
 use harmony\pagination\Pagination;
-use harmony\bbcode\BBCodeParser;
 use harmony\strings\StringFilters;
 use harmony\strings\Strings;
 

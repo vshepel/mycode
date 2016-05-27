@@ -530,7 +530,7 @@ class Posts extends AppModel {
 				"langs" => $langs,
 
 				"list-link" => ADMIN_PATH . "blog/list",
-				"remove-link" => ADMIN_PATH . "blog/remove/" . $id
+				"remove-link" => ADMIN_PATH . "blog/remove/" . $postId
 			));
 		} else {
 			$response->code = 3;
@@ -555,7 +555,6 @@ class Posts extends AppModel {
 	 * @param bool $showCategory Show posts in category page?
 	 * @param int $postId = null Edit post ID
 	 * @return Response
-	 * @internal param bool $showCaregory Show posts on category?
 	 */
 	public function add($title, $url, $category, $text, $tags, $lang, $allowComments, $show, $showMain, $showCategory, $postId = null) {
 		if (!$this->_user->hasPermission("blog.posts.edit") && $postId === null) 
