@@ -1,5 +1,6 @@
-<div class="article">
-  <h2>{title}</h2>
-  <div class="clr"></div>
-  <p>{content}</p>
-</div>
+<article>
+	<div class="post_text">
+		<h1>{title}</h1>
+		{content}
+	</div>
+</article>

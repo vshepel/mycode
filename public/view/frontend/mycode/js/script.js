@@ -20,7 +20,7 @@ $(document).ready(function() {
             overflow: "inherit"
         });
     });
-    var textarea = document.querySelector('textarea');
+    var textarea = document.querySelector('.add_form textarea');
 
     textarea.addEventListener('keydown', autosize);
 
