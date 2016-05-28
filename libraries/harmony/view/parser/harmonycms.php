@@ -119,6 +119,7 @@ class HarmonyCMS extends Parser {
 				"VIEW" => $this->_config->get("site", "path") . "view/" . $this->_type . "/" . $this->_view . "/",
 				"MODULE" => $this->_router->getModule(),
 				"ACTION" => $this->_router->getAction(),
+				"MODACT" => $this->_router->getModule() . "/" . $this->_router->getAction(),
 				"logged" => $this->_user->isLogged(),
 				"not-logged" => !$this->_user->isLogged()
 			);
