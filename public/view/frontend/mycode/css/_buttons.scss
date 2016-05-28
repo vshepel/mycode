@@ -7,6 +7,7 @@
 	transition: all .2s linear;
 	outline: none;
 	border: none;
+	cursor: pointer;
 
 	font: {
 		weight: 700;
@@ -16,5 +17,12 @@
 	&:hover {
 		color: $primary;
 		@extend %shadow_btn;
+	}
+}
+.btn.disable {
+	background: $grey92;
+	color: $grey92;
+	&:hover {
+		box-shadow: none;
 	}
 }

@@ -1,75 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="[b:core:lang.fname]">
 <head>
 	<meta charset="UTF-8">
 	<title>404 Not Found</title>
-
-	<style type="text/css">
-
-		body {
-			height: 100%;
-			background: #eee;
-			padding: 0;
-			margin: 0;
-			font-size: 100%;
-			color: #333;
-			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-			line-height: 100%;
-		}
-
-		a {
-			color: #0088cc;
-			text-decoration: none;
-		}
-
-		a:hover {
-			color: #005580;
-			text-decoration: underline;
-		}
-
-		h1 {
-			font-size: 4em;
-		}
-
-		small {
-			font-size: 0.7em;
-			color: #999;
-			font-weight: normal;
-		}
-
-		hr {
-			border: 0;
-			border-bottom: 1px #ddd solid;
-		}
-
-		#message {
-			width: 700px;
-			margin: 15% auto;
-		}
-
-		#back-home {
-			bottom: 0;
-			right: 0;
-			position: absolute;
-			padding: 10px;
-		}
-	</style>
-
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+	
+	<link rel="icon" type="image/x-icon" href="{VIEW}img/favicon.ico">
+	<link rel="stylesheet" href="{VIEW}css/main.min.css">
 </head>
 <body>
 
-<div id="message">
-	<h1>404
-		<small>Not Found</small>
-	</h1>
-	<hr>
-	<p>[f:404:text]</p>
+<header class="top_panel">
+	<div class="container">
+		<ul>
+			<li class="logotype disable">
+				<a href="/">
+					M<span class="short">ycode.</span><span class="project_name">P<span class="short">apers</span></span>
+				</a>
+			</li>
+			<li class="user_panel">
+				<ul>
+					<li>
+						<a class="btn btn-primary" href="{PATH}">[f:404:panel.home]</a>
+					</li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+</header>
 
-	<p>{SELF}</p>
-</div>
-
-<div id="back-home">
-	<small>[f:404:return] <a href="{PATH}">[f:404:home]</a>?</small>
+<div id="main" class="container">
+	<main class="main_center not_found">
+		{SELF}<span>[f:404:text]</span>
+	</main>
 </div>
 
 </body>

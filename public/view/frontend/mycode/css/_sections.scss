@@ -30,6 +30,32 @@
         .project_name {
             color: $grey60;
         }
+        &.disable {
+            a {
+                color: $primary;
+                & > span {
+                    position: relative;
+                    &:after {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        width: 81px;
+                        height: 20px;
+                        background: $grey80;
+                    }
+                }
+                .project_name {
+                    color: $primary;
+                    &:after {
+                        right: inherit;
+                        left: 0;
+                        width: 70px;
+                        background: $grey60;
+                    }
+                }
+            }
+        }
     }
     .search {
         margin: 0 0 0 25px;
@@ -319,6 +345,27 @@ main {
                 padding: 8px 10px;
                 border-radius: 2px;
             }
+        }
+    }
+    &.main_center {
+        display: block;
+        width: 570px;
+        margin: 50px auto;
+    }
+    &.not_found {
+        width: 100%;
+        text-align: center;
+        text-transform: uppercase;
+        font-weight: 700;
+        font-size: 4em;
+        color: $text;
+        margin: 200px auto 50px;
+        span {
+            margin: 40px 0 0;
+            line-height: 2em;
+            display: block;
+            font-size: .3em;
+            color: $grey85;
         }
     }
 }
