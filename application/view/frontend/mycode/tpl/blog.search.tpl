@@ -1,48 +1,32 @@
-<form method="post" class="form-horizontal">
-	<div class="input-group">
-		<input type="text" name="query" class="form-control" placeholder="[f:blog:search.search]..." value="{query}">
-	  <span class="input-group-btn">
-		<button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-	  </span>
-	</div>
-</form><br>
-
-[if num!="0"][f:blog:search.total] <span class="badge">{num}</span>
+[if num!="0"]
 [foreach rows]
-<div class="media">
-	<div class="media-body">
-		<h2><a href="{link}">{title}</a></h2>
-
-		<div class="pull-left">
-			<a href="{author-link}"><img src="{author-avatar-link}" class="img-circle" style="height:24px"></a> <a href="{author-link}">{author-login}</a>,
-			<span class="glyphicon glyphicon-folder-open"></span> <a href="{category-link}">{category-name}</a>,
-			<time datetime="{iso-datetime}"><span class="glyphicon glyphicon-calendar"></span> <a href="{archive-link}">{date}</a> {time}</time>,
-			<span class="glyphicon glyphicon-comment"></span> {comments-num},
-			<span class="glyphicon glyphicon-eye-open"></span> {views-num}
-		</div>
-
-		<div class="pull-right">
-			<span class="btn-group">
-				<button class="btn btn-xs btn-warning" onclick="app.blog.rating.change('{id}', false); return false;"><span class="fa fa-thumbs-down"></span></button>
-				<button class="btn btn-xs" id="blog-rating-{id}" disabled>{rating}</button>
-				<button class="btn btn-xs btn-info" onclick="app.blog.rating.change('{id}', true); return false;"><span class="fa fa-thumbs-up"></span></button>
-			</span>
-
-			[edit]<a href="{edit-link}" class="btn btn-xs btn-success">
-				<span class="glyphicon glyphicon-pencil"></span>
-			</a>[/edit]
-
-			[remove]<a href="{remove-link}" class="btn btn-xs btn-danger">
-				<span class="glyphicon glyphicon-trash"></span>
-			</a>[/remove]
-		</div>
-		<div class="clearfix"></div>
-
-		<p>{short-text}</p>
-	</div>
+<div class="search_total">
+	[f:blog:search.request] "{query}" [f:blog:search.found] - {num}
 </div>
+<article>
+	<div class="post_top">
+		<a href="{author-link}"><img src="{author-avatar-link}" alt="{author-login}">{author-login}</a> <span>[f:blog:list.posted] {date}</span> <span class="has-read">[f:blog:list.read]</span>
+	</div>
+	<div class="post_text">
+		<a href="{link}">
+			<span>{title}</span>
+			{short-text}
+		</a>
+	</div>
+	<div class="post_tags">
+		<i class="mdi mdi-label"></i> {tags}
+	</div>
+	<div class="post_bottom">
+		<a href="{category-link}" class="category"><i class="mdi mdi-sort-variant"></i> {category-name}</a> <span><i class="mdi mdi-chart-bar"></i> {views-num}</span> <span><i class="mdi mdi-comment-text-outline"></i> {comments-num}</span> <span class="rating"><i class="mdi mdi-thumb-down" onclick="app.blog.rating.change('{id}', false); return false;"></i> <span id="blog-rating-{id}">{rating}</span> <i class="mdi mdi-thumb-up" onclick="app.blog.rating.change('{id}', true); return false;"></i></span>
+	</div>
+</article>
 [/foreach]
-{posts}{pagination}[/if][if num="0"]
-<div class="alert alert-info">
-	[f:blog:search.noRows]
-</div>[/if]
+{pagination}
+[/if]
+[if num="0"]
+<div class="post-nope">
+	<i class="mdi mdi-magnify"></i>
+	<div>"{query}"</div>
+	[f:blog:list.noRows]
+</div>
+[/if]

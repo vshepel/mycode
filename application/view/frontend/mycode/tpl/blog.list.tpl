@@ -10,6 +10,9 @@
 			{short-text}
 		</a>
 	</div>
+	<div class="post_tags">
+		<i class="mdi mdi-label"></i> {tags}
+	</div>
 	<div class="post_bottom">
 		<a href="{category-link}" class="category"><i class="mdi mdi-sort-variant"></i> {category-name}</a> <span><i class="mdi mdi-chart-bar"></i> {views-num}</span> <span><i class="mdi mdi-comment-text-outline"></i> {comments-num}</span> <span class="rating"><i class="mdi mdi-thumb-down" onclick="app.blog.rating.change('{id}', false); return false;"></i> <span id="blog-rating-{id}">{rating}</span> <i class="mdi mdi-thumb-up" onclick="app.blog.rating.change('{id}', true); return false;"></i></span>
 	</div>
