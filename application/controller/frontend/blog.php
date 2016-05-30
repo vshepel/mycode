@@ -25,7 +25,6 @@ use AppController;
 use model\blog\Posts;
 use model\blog\Categories;
 use model\blog\Comments;
-use model\blog\Search;
 use model\blog\Rating;
 
 use harmony\http\HTTP;
@@ -143,8 +142,7 @@ class Blog extends AppController {
 		else {
 			$query = isset($args[0]) ? urldecode($args[0]) : false;
 			$page = isset($args[1]) ? $args[1] : 1;
-			$model = new Search();
-			$this->_view->responseRender($model->searchPosts($query, $page));
+			$this->_view->responseRender($this->_posts->searchPosts($query, $page));
 		}
 	}
 	
