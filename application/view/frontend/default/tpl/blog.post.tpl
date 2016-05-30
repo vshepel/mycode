@@ -11,9 +11,9 @@
 		</div>
 		<div class="pull-right">
 			<span class="btn-group">
-				<button class="btn btn-xs btn-warning" onclick="app.blog.rating.change('{id}', false); return false;"><span class="fa fa-thumbs-down"></span></button>
+				<button class="btn btn-xs btn-warning[rating-minus-active] active[/rating-minus-active]" onclick="app.blog.rating.change('{id}', false); return false;"><span class="fa fa-thumbs-down"></span></button>
 				<button class="btn btn-xs" id="blog-rating-{id}" disabled>{rating}</button>
-				<button class="btn btn-xs btn-info" onclick="app.blog.rating.change('{id}', true); return false;"><span class="fa fa-thumbs-up"></span></button>
+				<button class="btn btn-xs btn-info[rating-plus-active] active[/rating-plus-active]" onclick="app.blog.rating.change('{id}', true); return false;"><span class="fa fa-thumbs-up"></span></button>
 			</span>
 			
 			[edit]<a href="{edit-link}" class="btn btn-xs btn-success">
@@ -31,6 +31,15 @@
 		[if tags!=""]<p class="pull-left"><span class="fa fa-tags"></span> {tags}</p>[/if]
 		[if language!=""]<p class="pull-right"><span class="fa fa-language"></span> {language}</p>[/if]
 		<div class="clearfix"></div>
+
+		<p>
+			<nav>
+				<ul class="pager">
+					[if previous-link!=""]<li class="previous"><a href="{previous-link}"><span aria-hidden="true">&larr;</span> {previous-title}</a></li>[/if]
+					[if next-link!=""]<li class="next"><a href="{next-link}">{next-title} <span aria-hidden="true">&rarr;</span></a></li>[/if]
+				</ul>
+			</nav>
+		</p>
 	</div>
 </div>
 

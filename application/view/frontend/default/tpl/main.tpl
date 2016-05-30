@@ -71,10 +71,10 @@
 			</div>[/logged]
 
 			<div class="list-group">
-				[not-logged]<a class="list-group-item" href="{auth-link}"><span class="fa fa-fw fa-sign-in"></span>&nbsp; [b:user:auth.moduleName]</a>
-				<a class="list-group-item" href="{register-link}"><span class="fa fa-fw fa-user-plus"></span>&nbsp; [b:user:register.moduleName]</a>[/not-logged]
-				[logged]<a class="list-group-item" href="{profile-link}"><span class="fa fa-fw fa-user"></span>&nbsp; [f:main:user.profile]</a>
-				<a class="list-group-item" href="{messages-link}"><span class="fa fa-fw fa-envelope"></span>&nbsp; [b:messages:moduleName]</a>
+				[not-logged]<a class="list-group-item[if MODACT="user/auth"] active[/if]" href="{auth-link}"><span class="fa fa-fw fa-sign-in"></span>&nbsp; [b:user:auth.moduleName]</a>
+				<a class="list-group-item[if MODACT="user/register"] active[/if]" href="{register-link}"><span class="fa fa-fw fa-user-plus"></span>&nbsp; [b:user:register.moduleName]</a>[/not-logged]
+				[logged]<a class="list-group-item[if MODACT="user/profile"] active[/if]" href="{profile-link}"><span class="fa fa-fw fa-user"></span>&nbsp; [f:main:user.profile]</a>
+				<a class="list-group-item[if MODULE="messages"] active[/if]" href="{messages-link}"><span class="fa fa-fw fa-envelope"></span>&nbsp; [b:messages:moduleName]</a>
 				<a class="list-group-item" href="{logout-link}"><span class="fa fa-fw fa-sign-out"></span>&nbsp; [f:main:user.logout]</a>[/logged]
 			</div>
 

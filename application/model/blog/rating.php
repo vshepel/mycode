@@ -85,7 +85,6 @@ class Rating extends AppModel {
 					->from(DBPREFIX . "blog_rating")
 					->where("post", "=", $postId)
 					->and_where("user", "=", $this->_user->get("id"))
-					->and_where("user", "=", $this->_user->get("id"))
 					->result_array();
 
 				if ($result === false) {

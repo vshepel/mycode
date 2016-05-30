@@ -227,6 +227,26 @@ class Posts extends AppModel {
 				$rows = [];
 
 				foreach ($array as $row) {
+					// Rating Active
+					$ratingPlusActive = false;
+					$ratingMinusActive = false;
+
+					if ($this->_config->get("blog", "ratingActive", true)) {
+						$result = $this->_db
+							->select(array(
+								"id", "type"
+							))
+							->from(DBPREFIX . "blog_rating")
+							->where("post", "=", $row["id"])
+							->and_where("user", "=", $this->_user->get("id"))
+							->result_array();
+
+						if (isset($result[0])) {
+							if ($result[0]["type"] == 0) $ratingMinusActive = true;
+							if ($result[0]["type"] == 1) $ratingPlusActive = true;
+						}
+					}
+
 					$rows[] = [
 						"id" => $row["id"],
 						"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
@@ -259,7 +279,10 @@ class Posts extends AppModel {
 
 						"comments-num" => $row["comments_num"],
 						"views-num" => $row["views_num"],
+
 						"rating" => $row["rating"],
+						"rating-minus-active" => $ratingMinusActive,
+						"rating-plus-active" => $ratingPlusActive,
 
 						"show" => ($row["show"] > 0),
 						"not-show" => ($row["show"] < 1),
@@ -312,9 +335,7 @@ class Posts extends AppModel {
 		$id = intval($id);
 		$commentsPage = intval($commentsPage);
 
-		/**
-		 * Update views
-		 */
+		// Update views
 		$this->_db
 			->update(DBPREFIX . "blog_posts")
 			->set(array (
@@ -324,9 +345,7 @@ class Posts extends AppModel {
 			->and_where("show", "=", 1)
 			->result();
 
-		/**
-		 * Get post
-		 */
+		// Get post
 		$array = $this->_db
 			->select(array(
 				"id", "title", "url", "text", "category", "tags", "lang",
@@ -349,13 +368,74 @@ class Posts extends AppModel {
 		} else {
 			$row = $array[0];
 
-			/**
-			 * Add breadcrumbs
-			 */
+			// Add breadcrumbs
 			$this->_core
 				->addBreadcrumbs(Categories::getInstance()->getName($row["category"]), "blog/cat/" . $row["category"])
 				->addBreadcrumbs($row["title"], SITE_PATH . "blog/" . $row["id"]);
 
+			// Posts switching links
+			$previous = "";
+			$previousTitle = "";
+			$next = "";
+			$nextTitle = "";
+
+			if ($this->_config->get("blog", "posts_switching", true)) {
+				// Previous post link
+				$query = $this->_db
+					->select(array(
+						"id", "url", "title"
+					))
+					->from(DBPREFIX . "blog_posts")
+					->where("id", "<", $id)
+					->and_where("show", "=", "1")
+					->order_by("id")->desc()
+					->query("LIMIT 1")
+					->result_array();
+
+				if ($query !== false && count($query) == 1) {
+					$previous = PATH . "blog/" . $query[0]["id"] . "-" . $query[0]["url"];
+					$previousTitle = $query[0]["title"];
+				}
+
+				// Next post link
+				$query = $this->_db
+					->select(array(
+						"id", "url", "title"
+					))
+					->from(DBPREFIX . "blog_posts")
+					->where("id", ">", $id)
+					->and_where("show", "=", "1")
+					->order_by("id")->asc()
+					->query("LIMIT 1")
+					->result_array();
+
+				if ($query !== false && count($query) == 1) {
+					$next = PATH . "blog/" . $query[0]["id"] . "-" . $query[0]["url"];
+					$nextTitle = $query[0]["title"];
+				}
+			}
+
+			// Rating Active
+			$ratingPlusActive = false;
+			$ratingMinusActive = false;
+
+			if ($this->_config->get("blog", "ratingActive", true)) {
+				$result = $this->_db
+					->select(array(
+						"id", "type"
+					))
+					->from(DBPREFIX . "blog_rating")
+					->where("post", "=", $id)
+					->and_where("user", "=", $this->_user->get("id"))
+					->result_array();
+
+				if (isset($result[0])) {
+					if ($result[0]["type"] == 0) $ratingMinusActive = true;
+					if ($result[0]["type"] == 1) $ratingPlusActive = true;
+				}
+			}
+
+			// Comments
 			$comments = $comments_model->get($id, $commentsPage, $row["allow_comments"], $row["url"]);
 
 			if ($comments->code == 0)
@@ -366,9 +446,7 @@ class Posts extends AppModel {
 			$response->code = 0;
 			$response->view = "blog.post";
 
-			/**
-			 * Add tags
-			 */
+			// Add tags
 			$response->tags = array(
 				"id" => $row["id"],
 				"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
@@ -401,9 +479,17 @@ class Posts extends AppModel {
 
 				"comments-num" => $row["comments_num"],
 				"views-num" => $row["views_num"],
+
 				"rating" => $row["rating"],
+				"rating-minus-active" => $ratingMinusActive,
+				"rating-plus-active" => $ratingPlusActive,
 
 				"comments" => $comments,
+
+				"previous-link" => $previous,
+				"previous-title" => $previousTitle,
+				"next-link" => $next,
+				"next-title" => $nextTitle,
 				
 				"edit" => $this->_user->hasPermission("admin.blog.posts.edit"),
 				"remove" => $this->_user->hasPermission("admin.blog.posts.remove")
@@ -837,7 +923,27 @@ class Posts extends AppModel {
 				// Posts list
 				$rows = [];
 				
-				foreach ($array as $row)
+				foreach ($array as $row) {
+					// Rating Active
+					$ratingPlusActive = false;
+					$ratingMinusActive = false;
+
+					if ($this->_config->get("blog", "ratingActive", true)) {
+						$result = $this->_db
+							->select(array(
+								"id", "type"
+							))
+							->from(DBPREFIX . "blog_rating")
+							->where("post", "=", $row["id"])
+							->and_where("user", "=", $this->_user->get("id"))
+							->result_array();
+
+						if (isset($result[0])) {
+							if ($result[0]["type"] == 0) $ratingMinusActive = true;
+							if ($result[0]["type"] == 1) $ratingPlusActive = true;
+						}
+					}
+
 					$rows[] = [
 						"id" => $row["id"],
 						"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
@@ -870,24 +976,26 @@ class Posts extends AppModel {
 
 						"comments-num" => $row["comments_num"],
 						"views-num" => $row["views_num"],
+
 						"rating" => $row["rating"],
-						
+						"rating-minus-active" => $ratingMinusActive,
+						"rating-plus-active" => $ratingPlusActive,
+
 						"show" => ($row["show"] > 0),
 						"not-show" => ($row["show"] < 1),
-						
+
 						"show-main" => ($row["show_main"] > 0),
 						"not-show-main" => ($row["show_main"] < 1),
-						
+
 						"show-category" => ($row["show_category"] > 0),
 						"not-show-category" => ($row["show_category"] < 1),
-						
+
 						"edit" => $this->_user->hasPermission("admin.blog.posts.edit"),
 						"remove" => $this->_user->hasPermission("admin.blog.posts.remove"),
 					];
+				}
 
-				/**
-				 * Formation response
-				 */
+				// Formation response
 				$response->code = 0;
 				$response->view = "blog.archive";
 				$response->tags = array (

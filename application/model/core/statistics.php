@@ -52,8 +52,8 @@ class Statistics extends AppModel {
 
 		$tags["os"] = @php_uname("s") . " " . @php_uname("r");
 		$tags["php-version"] = phpversion();
-		$tags["post-max-size"] = Files::fileSizeFormat(ini_get("post_max_size") * 1000000, true);
-		$tags["upload-max-filesize"] = Files::fileSizeFormat(ini_get("upload_max_filesize") * 1000000, true);
+		$tags["post-max-size"] = Files::fileSizeFormat(ini_get("post_max_size") * 1024 * 1024);
+		$tags["upload-max-filesize"] = Files::fileSizeFormat(ini_get("upload_max_filesize") * 1024 * 1024);
 
 		$tags["db-driver"] = $this->_config->get("database", "driver");
 		$tags["db-version"] = $this->_db->getVersion();

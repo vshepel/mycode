@@ -23,9 +23,9 @@
 
 		<div class="pull-right">
 			<span class="btn-group">
-				<button class="btn btn-xs btn-warning" onclick="app.blog.rating.change('{id}', false); return false;"><span class="fa fa-thumbs-down"></span></button>
+				<button class="btn btn-xs btn-warning[rating-minus-active] active[/rating-minus-active]" onclick="app.blog.rating.change('{id}', false); return false;"><span class="fa fa-thumbs-down"></span></button>
 				<button class="btn btn-xs" id="blog-rating-{id}" disabled>{rating}</button>
-				<button class="btn btn-xs btn-info" onclick="app.blog.rating.change('{id}', true); return false;"><span class="fa fa-thumbs-up"></span></button>
+				<button class="btn btn-xs btn-info[rating-plus-active] active[/rating-plus-active]" onclick="app.blog.rating.change('{id}', true); return false;"><span class="fa fa-thumbs-up"></span></button>
 			</span>
 
 			[edit]<a href="{edit-link}" class="btn btn-xs btn-success">

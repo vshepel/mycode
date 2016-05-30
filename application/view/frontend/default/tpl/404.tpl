@@ -1,11 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="[b:core:lang.fname]"><head>
 	<meta charset="UTF-8">
 	<title>404 Not Found</title>
-
 	<style type="text/css">
-
 		body {
 			height: 100%;
 			background: #eee;
@@ -36,41 +33,18 @@
 			color: #999;
 			font-weight: normal;
 		}
-
-		hr {
-			border: 0;
-			border-bottom: 1px #ddd solid;
-		}
-
 		#message {
 			width: 700px;
 			margin: 15% auto;
 		}
-
-		#back-home {
-			bottom: 0;
-			right: 0;
-			position: absolute;
-			padding: 10px;
-		}
 	</style>
-
-</head>
-<body>
-
-<div id="message">
-	<h1>404
-		<small>Not Found</small>
-	</h1>
-	<hr>
-	<p>[f:404:text]</p>
-
-	<p>{SELF}</p>
-</div>
-
-<div id="back-home">
-	<small>[f:404:return] <a href="{PATH}">[f:404:home]</a>?</small>
-</div>
-
+</head><body>
+	<div id="message">
+		<h1>404
+			<small>Not Found</small>
+		</h1>
+		<p>[f:404:text]</p>
+		<p>[f:404:return] <a href="{PATH}">[f:404:home]</a></p>
+	</div>
 </body>
 </html>

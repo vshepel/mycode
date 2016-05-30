@@ -24,6 +24,7 @@ use AppController;
 
 use model\blog\Posts;
 use model\blog\Statistics;
+use model\blog\Settings;
 use model\blog\Categories;
 
 use harmony\http\HTTP;
@@ -35,6 +36,7 @@ class Blog extends AppController {
 
 	public $__routes = array (
 		"statistics" => null,
+		"settings" => null,
 		"categories" => null,
 		"posts/(cat)/([0-9]+)/page/([0-9]+)" => "posts",
 		"posts/(cat)/([0-9]+)" => "posts",
@@ -53,6 +55,17 @@ class Blog extends AppController {
 	public function action_statistics() {
 		$model = new Statistics();
 		$this->_view->responseRender($model->getPage());
+	}
+
+	public function action_settings() {
+		$model = new Settings();
+
+		if (count($_POST) > 0) {
+			$result = $model->save($_POST);
+			$this->_view->alert($result->type, $result->message);
+		}
+
+		$this->_view->responseRender($model->page());
 	}
 
 	public function action_categories() {

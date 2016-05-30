@@ -33,42 +33,9 @@ use harmony\strings\StringCheckers;
 
 class User {
 	/**
-	 * Objects
+	 * @var object Objects
 	 */
-
-	/**
-	 * @var object Core object
-	 */
-	private $_core;
-
-	/**
-	 * @var object Cache object
-	 */
-	private $_cache;
-
-	/**
-	 * @var object Config object
-	 */
-	private $_config;
-
-	/**
-	 * @var object Lang object
-	 */
-	private $_lang;
-
-	/**
-	 * @var object DataBase object
-	 */
-	private $_db;
-
-	/**
-	 * @var object Router object
-	 */
-	private $_router;
-
-	/**
-	 * Vars
-	 */
+	private $_core, $_cache, $_config, $_lang, $_db, $_router;
 
 	/**
 	 * @var bool Is logged?
@@ -84,10 +51,6 @@ class User {
 	 * @var string|bool|null User token
 	 */
 	private $_token = null;
-
-	/**
-	 * Methods
-	 */
 
 	/**
 	 * Get user token
@@ -379,9 +342,7 @@ class User {
 			return PATH . "upload/avatar/" . ($original ? "original_" : "") . $avatar;
 	}
 
-	/**
-	 * User fields
-	 */
+	// User fields
 
 	/**
 	 * @var array User fields
@@ -457,9 +418,7 @@ class User {
 		}
 	}
 
-	/**
-	 * Groups
-	 */
+	// Groups
 
 	/**
 	 * Groups init
@@ -544,9 +503,7 @@ class User {
 		return ArrayKeys::checkByKeys($this->_groups[$group][2], $permission, array("*"));
 	}
 
-	/**
-	 * User information
-	 */
+	// User information
 
 	/**
 	 * Get user information
@@ -582,9 +539,7 @@ class User {
 		}
 	}
 
-	/**
-	 * Security
-	 */
+	// Security
 
 	/**
 	 * Hash User password
