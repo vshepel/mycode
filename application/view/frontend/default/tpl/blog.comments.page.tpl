@@ -1,5 +1,5 @@
 {addform}
-[f:blog:comments.list.total] <span class="badge">{num}</span><br><br>
+<span class="fa fa-comment"></span> [f:blog:comments.list.total] <span class="badge">{num}</span><br><br>
 
 [if num!="0"][foreach rows]
 <div class="media">

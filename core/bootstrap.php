@@ -98,6 +98,8 @@ class Bootstrap {
 	}
 
 	/**
+	 * Show exception
+	 * @param string $title Exception title
 	 * @param Exception $e
 	 */
 	private function _exception($title, Exception $e) {

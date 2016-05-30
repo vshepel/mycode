@@ -7,7 +7,7 @@
 	</div>
 </form><br>
 
-[if num!="0"][f:blog:list.total] <span class="badge">{num}</span>
+[if num!="0"]<span class="fa fa-newspaper-o"></span> [f:blog:list.total] <span class="badge">{num}</span>
 [foreach rows]
 <div class="media">
 	<div class="media-body">
@@ -15,10 +15,10 @@
 
 		<div class="pull-left">
 			<a href="{author-link}"><img src="{author-avatar-link}" class="img-circle" style="height:24px"></a> <a href="{author-link}">{author-login}</a>,
-			<span class="glyphicon glyphicon-folder-open"></span> <a href="{category-link}">{category-name}</a>,
-			<time datetime="{iso-datetime}"><span class="glyphicon glyphicon-calendar"></span> <a href="{archive-link}">{date}</a> {time}</time>,
-			<span class="glyphicon glyphicon-comment"></span> {comments-num},
-			<span class="glyphicon glyphicon-eye-open"></span> {views-num}
+			<span class="fa fa-folder"></span> <a href="{category-link}">{category-name}</a>,
+			<time datetime="{iso-datetime}"><span class="fa fa-calendar"></span> <a href="{archive-link}">{date}</a> {time}</time>,
+			<span class="fa fa-comment"></span> {comments-num},
+			<span class="fa fa-eye"></span> {views-num}
 		</div>
 
 		<div class="pull-right">

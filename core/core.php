@@ -272,7 +272,7 @@ class Core {
 	
 	/**
 	 * Add JS item
-	 * @param string|array $link Link for css file (or array of css)
+	 * @param string|array $script Link for script file (or array of script)
 	 * @return $this
 	 */
 	public function addJS($script) {
@@ -394,7 +394,12 @@ class Core {
 
 		return $html;
 	}
-	
+
+	/**
+	 * @var int Timezone correction (0 is UTC)
+	 */
+	private $_correction = 0;
+
 	 /**
 	 * Set time zone
 	 * @param int $zone Time zone correction

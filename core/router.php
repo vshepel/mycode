@@ -86,7 +86,6 @@ class Router {
 		
 		// GET query
 		$pos = strpos($req, "?");
-		$get = [];
 		if ($pos) {
 			parse_str(substr($req, $pos+1, strlen($req)), $_GET);
 			$this->_request = substr($req, 0, $pos);
@@ -213,6 +212,7 @@ class Router {
 	 * Render 404 page
 	 */
 	public function page_404() {
+		$this->_type = "frontend";
 		header("HTTP/1.1 404 Not Found");
 		Registry::getInstance()->get("View")->render(null, "404");
 		exit;
