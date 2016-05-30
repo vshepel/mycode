@@ -113,7 +113,7 @@ class Settings extends AppModel {
 					$name = str_replace([".php", CON . DS], "", $var);
 					$mname = $this->_lang->get($name, "moduleName");
 					$frontend .= $this->_view->parse("core.settings.selector", [
-						"name" => $name . " ($mname)",
+						"name" => empty($mname) ? $name : ($mname . " ({$name})"),
 						"value" => $name,
 						"active" => ($name == $active)
 					]);
@@ -126,7 +126,7 @@ class Settings extends AppModel {
 					$name = str_replace([".php", CON . DS], "", $var);
 					$mname = $this->_lang->get($name, "moduleName");
 					$backend .= $this->_view->parse("core.settings.selector", [
-						"name" => $name . " ($mname)",
+						"name" => empty($mname) ? $name : ($mname . " ({$name})"),
 						"value" => $name,
 						"active" => ($name == $active)
 					]);
