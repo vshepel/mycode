@@ -71,25 +71,23 @@ class Comments extends AppModel {
 			return $response;
 		}
 
-		$interval = $this->_db
-			->select("count(*)")
-			->from(DBPREFIX . "blog_comments")
-			->where("user_ip", "=", HTTP::getIp())
-			->and_where("UNIX_TIMESTAMP(CURRENT_TIMESTAMP)", "<", "UNIX_TIMESTAMP(`timestamp`) + " . $this->_config->get("blog", "comments.interval", 10), false, false)
-			->result_array();
 
-		if ($interval === false) {
-			$response->code = 1;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
+		// Check interval
+		$check_interval  = $this->_config->get("blog", "comments.interval", 10);
 
-			return $response;
-		} elseif ($interval[0][0] > 0) {
-			$response->code = 1;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("blog", "comments.add.smallInterval") . " (" . HTTP::getIp() . ")";
+		if ($check_interval > 0) {
+			$interval = $this->_db
+				->select("count(*)")
+				->from(DBPREFIX . "blog_comments")
+				->where("user_ip", "=", HTTP::getIp())
+				->and_where("UNIX_TIMESTAMP(CURRENT_TIMESTAMP)", "<", "UNIX_TIMESTAMP(`timestamp`) + " . $check_interval, false, false)
+				->result_array();
 
-			return $response;
+			if ($interval === false) {
+				return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+			} elseif ($interval[0][0] > 0) {
+				return new Response(2, "danger", $this->_lang->get("blog", "comments.add.smallInterval"));
+			}
 		}
 
 		$length = Strings::length($comment, "UTF-8");

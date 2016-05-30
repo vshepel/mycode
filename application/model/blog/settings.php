@@ -24,6 +24,9 @@ use AppModel;
 use Response;
 
 class Settings extends AppModel {
+	/**
+	 * @var array Editors array
+	 */
 	private $_editors = ["HTML", "BBCode", "Markdown"];
 
 	/**
@@ -45,7 +48,7 @@ class Settings extends AppModel {
 		} else {
 			// Editors list
 			$editors = "";
-			$active = $this->_config->get("blog", "editor", "BBCode");
+			$active = $this->_config->get("blog", "posts.editor", "BBCode");
 			foreach($this->_editors as $row) {
 				$editors .= $this->_view->parse("blog.settings.selector", [
 					"name" => $row,
@@ -56,10 +59,15 @@ class Settings extends AppModel {
 
 			$response->view = "blog.settings";
 			$response->tags = [
-				"editors" => $editors,
-				"rating-active" => $this->_config->get("blog", "rating_active", true),
-				"advanced-views" => $this->_config->get("blog", "advanced_views", true),
-				"posts-switching" => $this->_config->get("blog", "posts_switching", true)
+				"posts-editors" => $editors,
+				"posts-rating-active" => $this->_config->get("blog", "posts.rating_active", true),
+				"posts-advanced-views" => $this->_config->get("blog", "posts.advanced_views", true),
+				"posts-switching" => $this->_config->get("blog", "posts.posts_switching", true),
+				"posts-read-mark" => $this->_config->get("blog", "posts.read_mark", true),
+
+				"comments-interval" => $this->_config->get("blog", "comments.interval", 10),
+				"comments-length-min" => $this->_config->get("blog", "comments.length.min", 3),
+				"comments-length-max" => $this->_config->get("blog", "comments.length.max", 300)
 			];
 		}
 
@@ -74,14 +82,21 @@ class Settings extends AppModel {
 	public function save($values) {
 		if (!$this->_user->hasPermission("blog.settings"))
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
-		elseif (!isset($values["editor"]) || !in_array($values["editor"], $this->_editors)) {
+		elseif (!isset($values["posts_editor"]) || !in_array($values["posts_editor"], $this->_editors)
+			|| !isset($values["comments_interval"], $values["comments_length_min"], $values["comments_length_max"])
+		) {
 			return new Response(3, "warning", $this->_lang->get("core", "emptyFields"));
 		} else {
 			$this->_config->save("blog", [
-				"editor" => $values["editor"],
-				"rating_active" => isset($values["rating_active"]),
-				"advanced_views" => isset($values["advanced_views"]),
-				"posts_switching" => isset($values["posts_switching"])
+				"posts.editor" => $values["posts_editor"],
+				"posts.rating_active" => isset($values["posts_rating_active"]),
+				"posts.advanced_views" => isset($values["posts_advanced_views"]),
+				"posts.switching" => isset($values["posts_switching"]),
+				"posts.read_mark" => isset($values["posts_read_mark"]),
+
+				"comments.interval" => $values["comments_interval"],
+				"comments.length.min" => $values["comments_length_min"],
+				"comments.length.max" => $values["comments_length_max"]
 			]);
 
 			return new Response(0, "success", $this->_lang->get("page", "settings.success"));

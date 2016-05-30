@@ -232,7 +232,7 @@ class Posts extends AppModel {
 					$ratingPlusActive = false;
 					$ratingMinusActive = false;
 
-					if ($this->_config->get("blog", "rating_active", true)) {
+					if ($this->_config->get("blog", "posts.rating_active", true)) {
 						$result = $this->_db
 							->select(array(
 								"id", "type"
@@ -380,7 +380,7 @@ class Posts extends AppModel {
 			$next = "";
 			$nextTitle = "";
 
-			if ($this->_config->get("blog", "posts_switching", true)) {
+			if ($this->_config->get("blog", "posts.posts_switching", true)) {
 				// Previous post link
 				$query = $this->_db
 					->select(array(
@@ -420,7 +420,7 @@ class Posts extends AppModel {
 			$ratingPlusActive = false;
 			$ratingMinusActive = false;
 
-			if ($this->_config->get("blog", "rating_active", true)) {
+			if ($this->_config->get("blog", "posts.rating_active", true)) {
 				$result = $this->_db
 					->select(array(
 						"id", "type"
@@ -929,7 +929,7 @@ class Posts extends AppModel {
 					$ratingPlusActive = false;
 					$ratingMinusActive = false;
 
-					if ($this->_config->get("blog", "rating_active", true)) {
+					if ($this->_config->get("blog", "posts.rating_active", true)) {
 						$result = $this->_db
 							->select(array(
 								"id", "type"
@@ -1257,7 +1257,7 @@ class Posts extends AppModel {
 						$ratingPlusActive = false;
 						$ratingMinusActive = false;
 
-						if ($this->_config->get("blog", "rating_active", true)) {
+						if ($this->_config->get("blog", "posts.rating_active", true)) {
 							$result = $this->_db
 								->select(array(
 									"id", "type"
