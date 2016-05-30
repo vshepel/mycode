@@ -231,7 +231,7 @@ class Posts extends AppModel {
 					$ratingPlusActive = false;
 					$ratingMinusActive = false;
 
-					if ($this->_config->get("blog", "ratingActive", true)) {
+					if ($this->_config->get("blog", "rating_active", true)) {
 						$result = $this->_db
 							->select(array(
 								"id", "type"
@@ -419,7 +419,7 @@ class Posts extends AppModel {
 			$ratingPlusActive = false;
 			$ratingMinusActive = false;
 
-			if ($this->_config->get("blog", "ratingActive", true)) {
+			if ($this->_config->get("blog", "rating_active", true)) {
 				$result = $this->_db
 					->select(array(
 						"id", "type"
@@ -928,7 +928,7 @@ class Posts extends AppModel {
 					$ratingPlusActive = false;
 					$ratingMinusActive = false;
 
-					if ($this->_config->get("blog", "ratingActive", true)) {
+					if ($this->_config->get("blog", "rating_active", true)) {
 						$result = $this->_db
 							->select(array(
 								"id", "type"
