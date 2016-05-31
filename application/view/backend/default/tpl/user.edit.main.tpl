@@ -52,7 +52,10 @@
 	<div class="form-group">
 		<label class="control-label col-sm-3">[b:user:fields.url]:</label>
 		<div class="col-sm-9">
-			<input class="form-control" type="text" name="edit[url]" value="{url}">
+			<div class="input-group">
+				<span class="input-group-addon" id="basic-addon1">http://</span>
+				<input class="form-control" type="text" name="edit[url]" value="{url}">
+			</div>
 		</div>
 	</div>
 
