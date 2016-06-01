@@ -2,7 +2,7 @@
 <html lang="[b:core:lang.fname]">
 <head>
 	{meta}
-	<title>{title}</title>
+	<title>{title} &bull; MYCODE.PRO</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
 
 	{link}
@@ -85,6 +85,18 @@
 		{content}
 	</main>
 	<aside id="sidebar">
+		[if SELF="/user/profile/{username}"]
+		[logged]
+		<section id="panel">
+			<a href="/user/edit">
+				<i class="mdi mdi-settings"></i> [f:user:profile.link.edit]
+			</a>
+			<a href="/user/logout">
+				<i class="mdi mdi-logout-variant"></i> [f:user:profile.link.exit]
+			</a>
+		</section>
+		[/logged]
+		[/if]
     	<section id="category">
     		<div class="title">[b:blog:categories.moduleName]</div>
     		{blog:categories}
