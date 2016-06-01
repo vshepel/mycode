@@ -20,7 +20,17 @@
 	<dt>[b:user:fields.gender]</dt> <dd>{gender}</dd>
 	[birth]<dt>[b:user:fields.birth]</dt> <dd>{birth-date}</dd>[/birth]
 	[if location!=""]<dt>[b:user:fields.location]</dt> <dd>{location}</dd>[/if]
+<<<<<<< HEAD
 	[if url!=""]<dt>[b:user:fields.url]</dt> <dd><a href="http://{url}">http://{url}</a></dd>[/if]
+=======
+
+
+	[if url!=""]<dt>[b:user:fields.url]</dt> <dd><a href="{url}">{url}</a></dd>[/if]
+
+	[if url=""]1111111111111111111111[/if]
+
+
+>>>>>>> 17d1a9ed98a5349f59e76b82ebbf41a6d12a382b
 	[if public-email!=""]<dt>[b:user:fields.publicEmail]</dt> <dd><a href="mailto:{public-email}">{public-email}</a></dd>[/if]
 	<dt>[b:user:fields.group]</dt> <dd>{group}</dd>
 </dl>

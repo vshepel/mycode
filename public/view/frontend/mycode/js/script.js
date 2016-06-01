@@ -1,4 +1,11 @@
 $(document).ready(function() {
+    $(".search_icon").click(function() {
+        $(".search").addClass("active");
+        $(".search input").focus();
+    });
+    $(".search .mdi-close").click(function() {
+        $(".search").removeClass("active");
+    });
     $('#notification-open').click(function() {
         $('.notification').addClass('active');
         $('#overlay').show();
@@ -20,15 +27,13 @@ $(document).ready(function() {
             overflow: "inherit"
         });
     });
-    var textarea = document.querySelector('.add_form textarea');
+    jQuery.each(jQuery('textarea[data-autoresize]'), function() {
+        var offset = this.offsetHeight - this.clientHeight;
 
-    textarea.addEventListener('keydown', autosize);
+        var resizeTextarea = function(el) {
+            jQuery(el).css('height', 'auto').css('height', el.scrollHeight + offset);
+        };
+        jQuery(this).on('keyup input', function() { resizeTextarea(this); }).removeAttr('data-autoresize');
+    });
 
-    function autosize() {
-        var el = this;
-        setTimeout(function() {
-            el.style.cssText = 'height:auto; padding:0';
-            el.style.cssText = 'height:' + el.scrollHeight + 'px';
-        }, 0);
-    }
 });

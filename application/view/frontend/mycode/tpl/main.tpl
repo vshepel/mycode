@@ -2,7 +2,7 @@
 <html lang="[b:core:lang.fname]">
 <head>
 	{meta}
-	<title>{title}</title>
+	<title>{title} &bull; MYCODE.PRO</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
 
 	{link}
@@ -49,6 +49,7 @@
 				</a>
 			</li>
 			<li class="search">
+				<i class="mdi mdi-close"></i>
 				<form method="post" action="{SITE_PATH}blog/search">
 					<input type="text" name="query" placeholder="[f:main:panel.search]">
 				</form>
@@ -59,7 +60,7 @@
 					<li class="write">
 						<a class="btn btn-primary" href="{add-link}">[f:main:panel.write]</a>
 					</li>
-					<li class="search_icon links"><a href="/blog/search"><i class="mdi mdi-magnify"></i></a></li>
+					<li class="search_icon links"><a href="#"><i class="mdi mdi-magnify"></i></a></li>
 					<li class="write_icon links"><a href="{add-link}"><i class="mdi mdi-pencil"></i></a></li>
 					<li id="notification-open" class="links">
 						<a href="#">
@@ -85,6 +86,18 @@
 		{content}
 	</main>
 	<aside id="sidebar">
+		[if SELF="/user/profile/{username}"]
+		[logged]
+		<section id="panel">
+			<a href="/user/edit">
+				<i class="mdi mdi-settings"></i> [f:user:profile.link.edit]
+			</a>
+			<a href="/user/logout">
+				<i class="mdi mdi-logout-variant"></i> [f:user:profile.link.exit]
+			</a>
+		</section>
+		[/logged]
+		[/if]
     	<section id="category">
     		<div class="title">[b:blog:categories.moduleName]</div>
     		{blog:categories}
