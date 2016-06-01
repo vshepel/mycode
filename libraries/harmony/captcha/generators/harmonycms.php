@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-namespace harmony\captcha\generator;
+namespace harmony\captcha\generators;
 
 use harmony\http\Sessions;
 use harmony\captcha\Generator;

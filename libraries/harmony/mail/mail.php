@@ -31,7 +31,7 @@ class Mail {
 	/**
 	 * @var string Driver prefix
 	 */
-	private $_driver_class_prefix = "\\harmony\\mail\\driver\\";
+	private $_driver_class_prefix = "\\harmony\\mail\\drivers\\";
 
 	/**
 	 * @return Mail Return singleton object

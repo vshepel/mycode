@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-namespace harmony\view\parser;
+namespace harmony\view\parsers;
 
 use Exception;
 use model\core\Packages;

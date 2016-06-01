@@ -1,6 +1,6 @@
 <?php
 /**
- * Database Driver MySQLi class
+ * Database Driver MySQL class
  * @copyright Copyright (C) 2016 al3xable <al3xable@yandex.com>. All rights reserved.
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License version 3
  *
@@ -18,61 +18,64 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-namespace harmony\database\driver;
+namespace harmony\database\drivers;
 
 use harmony\database\Driver;
 use \Exception;
 
-class MySQLi extends Driver {
+class MySQL extends Driver {
 	protected $_db;
 
 	public function __construct() {
-		if (!function_exists("mysqli_get_server_info"))
-			throw new Exception("PHP does not support MySQLi");
+		if (!function_exists("mysql_get_server_info"))
+			throw new Exception("PHP does not support MySQL");
 	}
 
 	public function connect($host, $username, $password, $name, $charset = 'utf8') {
-		if (!$this->_db = mysqli_connect($host, $username, $password, $name))
+		if (!$this->_db = mysql_connect($host, $username, $password))
 			die('Database error: connect error, ' . __METHOD__);
 
-		if (!mysqli_set_charset($this->_db, $charset))
-			die('Database error: charset error, ' . __METHOD__ . ", " . $this->getError());
+		if (!mysql_select_db($name, $this->_db))
+			die('Database error: select database error, ' . __METHOD__);
+
+		if (!mysql_set_charset($charset, $this->_db))
+			die('Database error: set charset error, ' . __METHOD__);
 	}
 
 	public function checkConnect($host, $username, $password, $name) {
-		if (!mysqli_connect($host, $username, $password, $name))
+		if (!mysql_connect($host, $username, $password, $name))
 			return false;
 		else
 			return true;
 	}
 
 	public function getVersion() {
-		return mysqli_get_server_info($this->_db);
+		return mysql_get_server_info($this->_db);
 	}
 
 	public function insert_id() {
-		return mysqli_insert_id($this->_db);
+		return mysql_insert_id($this->_db);
 	}
 
 	public function safe($string) {
-		return mysqli_real_escape_string($this->_db, $string);
+		return mysql_real_escape_string($string, $this->_db);
 	}
 
 	public function getError() {
-		$error = mysqli_error($this->_db);
+		$error = mysql_error($this->_db);
 
 		return (empty($error) ? "" : ($error . " ")) . (($this->_lastSql === "") ? "" : "in query: {$this->_lastSql}");
 	}
 
 	public function result() {
-		if (mysqli_query($this->_db, $this->getSql()))
+		if (mysql_query($this->getSql(), $this->_db))
 			return true;
 		else
 			return false;
 	}
 
 	public function result_num() {
-		$num = mysqli_num_rows(mysqli_query($this->_db, $this->getSql()));
+		$num = mysql_num_rows(mysql_query($this->getSql(), $this->_db));
 
 		if ($num === false)
 			return false;
@@ -81,10 +84,10 @@ class MySQLi extends Driver {
 	}
 
 	public function result_array() {
-		if ($query = mysqli_query($this->_db, $this->getSql())) {
+		if ($query = mysql_query($this->getSql(), $this->_db)) {
 			$result = array ();
 
-			while ($row = mysqli_fetch_array($query))
+			while ($row = mysql_fetch_array($query))
 				$result[] = $row;
 
 			return $result;
@@ -94,6 +97,6 @@ class MySQLi extends Driver {
 	}
 
 	public function close() {
-		mysqli_close($this->_db);
+		mysql_close($this->_db);
 	}
 }
