@@ -49,6 +49,7 @@
 				</a>
 			</li>
 			<li class="search">
+				<i class="mdi mdi-close"></i>
 				<form method="post" action="{SITE_PATH}blog/search">
 					<input type="text" name="query" placeholder="[f:main:panel.search]">
 				</form>
@@ -59,7 +60,7 @@
 					<li class="write">
 						<a class="btn btn-primary" href="{add-link}">[f:main:panel.write]</a>
 					</li>
-					<li class="search_icon links"><a href="/blog/search"><i class="mdi mdi-magnify"></i></a></li>
+					<li class="search_icon links"><a href="#"><i class="mdi mdi-magnify"></i></a></li>
 					<li class="write_icon links"><a href="{add-link}"><i class="mdi mdi-pencil"></i></a></li>
 					<li id="notification-open" class="links">
 						<a href="#">

@@ -36,6 +36,28 @@
             }
             .search {
                 display: none;
+                &.active {
+                    display: block;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    margin: 0;
+                    padding: 0 15px 0 55px;
+                    z-index: 1;
+                    width: 100%;
+                    background: $primary;
+                    i {
+                        display: block;
+                    }
+                    input {
+                        width: 100%;
+                        border-radius: 0;
+                        border: none;
+                        &:focus {
+                            box-shadow: none;
+                        }
+                    }
+                }
             }
             .links {
                 a {

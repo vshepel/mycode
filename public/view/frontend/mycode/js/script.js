@@ -1,4 +1,11 @@
 $(document).ready(function() {
+    $(".search_icon").click(function() {
+        $(".search").addClass("active");
+        $(".search input").focus();
+    });
+    $(".search .mdi-close").click(function() {
+        $(".search").removeClass("active");
+    });
     $('#notification-open').click(function() {
         $('.notification').addClass('active');
         $('#overlay').show();
