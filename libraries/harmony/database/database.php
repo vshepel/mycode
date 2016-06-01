@@ -29,7 +29,7 @@ class DataBase {
 	/**
 	 * @var string Driver prefix
 	 */
-	protected $_driver_class_prefix = "\\harmony\\database\\driver\\";
+	protected $_driver_class_prefix = "\\harmony\\database\\drivers\\";
 
 	/**
 	 * @return DataBase Get instance

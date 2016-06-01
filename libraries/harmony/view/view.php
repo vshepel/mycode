@@ -31,7 +31,7 @@ class View {
 	/**
 	 * @var string Driver prefix
 	 */
-	private $_parser_class_prefix = "\\harmony\\view\\parser\\";
+	private $_parser_class_prefix = "\\harmony\\view\\parsers\\";
 
 	/**
 	 * Get singleton instance

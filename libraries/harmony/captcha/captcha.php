@@ -29,7 +29,7 @@ class Captcha {
 	/**
 	 * @var string Driver prefix
 	 */
-	protected $_driver_class_prefix = "\\harmony\\captcha\\generator\\";
+	protected $_driver_class_prefix = "\\harmony\\captcha\\generators\\";
 
 	/**
 	 * Get instance

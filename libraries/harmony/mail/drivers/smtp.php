@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-namespace harmony\mail\driver;
+namespace harmony\mail\drivers;
 
 use harmony\mail\Driver;
 
