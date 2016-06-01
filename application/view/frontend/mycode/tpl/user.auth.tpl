@@ -1,4 +1,15 @@
-<div class="row">
+<section class="block">
+	<div class="title">[f:user:auth.title]</div>
+	<ul class="tabs">
+		<li>
+			
+		</li>
+		<li>
+			<a href="/user/register"></a>
+		</li>
+	</ul>
+</section>
+<!-- <div class="row">
 	<div class="col-md-4 col-sm-4"></div>
 	<div class="col-md-4 col-sm-4">
 		<form class="form-signin" role="form" method="post">
@@ -16,3 +27,4 @@
 	</div>
 	<div class="col-md-4 col-sm-4"></div>
 </div>
+ -->

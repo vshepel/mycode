@@ -1,15 +1,4 @@
 // Top panel
-#overlay {
-    position: fixed;
-    z-index: 150;
-    top: 0;
-    right: 0;
-    display: none;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, .5);
-}
-
 .top_panel {
     background: $primary;
     height: 90px;
@@ -534,6 +523,9 @@ main {
         }
     }
 }
+
+//Auth
+
 
 //Profile
 .profile {
