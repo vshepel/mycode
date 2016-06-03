@@ -465,7 +465,13 @@ abstract class Driver {
 	 * Safe string for use in sql
 	 */
 	function string($string) {
-		return "'" . $this->safe($string) . "'";
+		if (is_int($string)) {
+			return $string;
+		} elseif (is_null($string)) {
+			return "NULL";
+		} else {
+			return "'" . $this->safe($string) . "'";
+		}
 	}
 
 	/**

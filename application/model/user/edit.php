@@ -239,48 +239,71 @@ class Edit extends AppModel {
 			if ($userId == null) $userId = $this->_user->get("id");
 			$this->_updateVars($userId);
 			
-			// Pages
+			// ACTIONS
 			switch($type) {
-				// Main page
+				// ACTION: MAIN
 				case false:
 				case "main":
-					if (isset($args["name"], $args["gender"], $args["year"], $args["mouth"], $args["day"], $args["lang"], $args["location"], $args["url"], $args["public_email"]))
-						if (!empty($args["name"]) && !StringCheckers::isValidName($args["name"])) {
-							$response->code = 5;
-							$response->type = "danger";
-							$response->message = $this->_lang->get("user", "edit.main.nameInvalid");
-						} elseif (!empty($args["public_email"]) && !StringCheckers::isValidEmail($args["public_email"])) {
-							$response->code = 6;
-							$response->type = "danger";
-							$response->message = $this->_lang->get("user", "edit.main.emailInvalid");
+					$db_values = []; // Database values
+
+					// Name
+					if (isset($args["name"]) && !empty($args["name"])) {
+						if (StringCheckers::isValidName($args["name"])) {
+							$db_values["name"] = $args["name"];
 						} else {
-							$db_values = [
-								"name" => $args["name"],
-								"gender" => intval($args["gender"]),
-								"location" => StringFilters::filterHtmlTags($args["location"]),
-								"url" => StringFilters::filterHtmlTags($args["url"]),
-								"public_email" => $args["public_email"],
-								"lang" => $args["lang"]
-							];
-
-							// Update birth date
-							if (intval($args["year"]) == 0 || intval($args["mouth"]) == 0 || intval($args["day"])) {
-								$row["birth_date"] = intval($args["year"]) . "-" . intval($args["mouth"]) . "-" . intval($args["day"]);
-							}
-
-							// Update group
-							if ($this->_user->hasPermission("user.edit.group") && isset($args["group"])) {
-								$db_values["group"] = $args["group"];
-							}
-
-							$this->_user->update($userId, $db_values);
-
-							$response->type = "success";
-							$response->message = $this->_lang->get("user", "edit.success");
+							return new Response(4, "danger", $this->_lang->get("user", "edit.main.nameInvalid"));
 						}
+					}
+
+					// Gender
+					if (isset($args["gender"])) {
+						$db_values["gender"] = intval($args["gender"]);
+					}
+
+					// Update birth date
+					if (isset($args["year"], $args["mouth"], $args["day"])) {
+						if (intval($args["year"]) > 0 && intval($args["mouth"]) > 0 && intval($args["day"]) > 0) {
+							$db_values["birth_date"] = intval($args["year"]) . "-" . intval($args["mouth"]) . "-" . intval($args["day"]);
+						} else {
+							$db_values["birth_date"] = null;
+						}
+					}
+
+					// Location
+					if (isset($args["location"])) {
+						$db_values["location"] = StringFilters::filterHtmlTags($args["location"]);
+					}
+
+					// Location
+					if (isset($args["url"])) {
+						$db_values["url"] = StringFilters::filterHtmlTags($args["url"]);
+					}
+
+					// Public Email
+					if (!empty($args["public_email"])) {
+						if (StringCheckers::isValidEmail($args["public_email"])) {
+							$db_values["public_email"] = $args["public_email"];
+						} else {
+							return new Response(5, "danger", $this->_lang->get("user", "edit.main.emailInvalid"));
+						}
+					}
+
+					// Lang
+					if (isset($args["lang"])) {
+						$db_values["lang"] = StringFilters::filterHtmlTags($args["lang"]);
+					}
+
+					// Update group
+					if ($this->_user->hasPermission("user.edit.group") && isset($args["group"])) {
+						$db_values["group"] = $args["group"];
+					}
+
+					// Update query
+					$this->_user->update($userId, $db_values);
+					return new Response(0, "success", $this->_lang->get("user", "edit.success"));
 				break;
 
-				// Password change page
+				// ACTION: PASSWORD CHANGE
 				case "password":
 					if (isset($args["old_password"], $args["new_password"], $args["new_password_2"]))
 						if (empty($args["old_password"]) || empty($args["new_password"]) || empty($args["new_password_2"])) {
@@ -305,7 +328,7 @@ class Edit extends AppModel {
 						}
 				break;
 
-				// Avatar change page
+				// ACTION: AVATAR CHANGE
 				case "avatar":
 					$avatar = $this->_get("avatar");
 					$files = UploadFiles::getInstance();
