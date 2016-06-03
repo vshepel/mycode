@@ -44,6 +44,34 @@ body {
     }
 }
 
+.alert {
+    background: $grey92;
+    padding: 20px;
+    width: 100%;
+    margin: 0 0 40px;
+    border-radius: 5px;
+    color: $grey70;
+    i {
+        margin: 0 10px 0 0;
+    }
+    &.success {
+        background: #cbefcb;
+        color: #9cc19c;
+    }
+    &.info {
+        background: #d8e8f3;
+        color: #9cacb7;
+    }
+    &.warning {
+        background: #f5ebd2;
+        color: #cac1ac;
+    }
+    &.danger {
+        background: #f1dbdb;
+        color: #bf9a9a;
+    }
+}
+
 #overlay {
     position: fixed;
     z-index: 150;
@@ -68,8 +96,89 @@ body {
     border-radius: 5px;
     @extend %shadow_static;
     .title {
-        padding: 40px;
+        padding: 40px 40px 30px;
         color: $text;
         font-size: 1.3em;
+    }
+    .block-content {
+        padding: 30px 40px;
+    }
+    .tabs {
+        padding: 0 40px;
+        position: relative;
+        &:before {
+            content: '';
+            display: block;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: $grey95;
+            z-index: 1;
+        }
+        li {
+            display: inline-block;
+            margin: 0 30px 0 0;
+            z-index: 2;
+            position: relative;
+            &:last-child {
+                margin: 0;
+            }
+            a {
+                display: block;
+                padding: 15px 5px;
+            }
+            &.active {
+                border-bottom: 2px solid $secondary;
+                a {
+                    color: $secondary;
+                }
+            }
+        }
+    }
+}
+
+.form {
+    .panel {
+        margin: 50px 0 30px;
+        a {
+            margin: 0 30px;
+        }
+    }
+    .break {
+        overflow: hidden;
+        width: 100%;
+        height: 20px;
+    }
+}
+
+.field {
+    display: inline-block;
+    width: 230px;
+    padding: 15px 0;
+    margin: 0 26px 0 0;
+    span {
+        display: block;
+        color: $grey85;
+        margin: 0 0 15px;
+    }
+    input, select {
+        outline: none;
+        border: none;
+        background: $grey95;
+        height: 50px;
+        line-height: 50px;
+        padding: 0 20px;
+        color: $text;
+        width: 100%;
+        transition: all .2s linear;
+        &:focus {
+            background: $primary;
+            @extend %shadow_primary;
+        }
+    }
+    &.full {
+        width: 100%;
     }
 }

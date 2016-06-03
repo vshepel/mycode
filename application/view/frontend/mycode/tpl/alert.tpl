@@ -1,7 +1,7 @@
-<div class="alert alert-{type}" role="alert">
-	[if type="success"]<span class="glyphicon glyphicon-ok-sign"></span>[/if]
-	[if type="warning"]<span class="glyphicon glyphicon-warning-sign"></span>[/if]
-	[if type="danger"]<span class="glyphicon glyphicon-remove-sign"></span>[/if]
-	[if type="info"]<span class="glyphicon glyphicon-info-sign"></span>[/if]
+<div class="alert {type}" role="alert">
+	[if type="success"]<i class="mdi mdi-check-circle-outline"></i>[/if]
+	[if type="warning"]<i class="mdi mdi-alert-circle-outline"></i>[/if]
+	[if type="danger"]<i class="mdi mdi-close-circle-outline"></i>[/if]
+	[if type="info"]<i class="mdi mdi-information-outline"></i>[/if]
 	{message}
 </div>

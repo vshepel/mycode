@@ -3,14 +3,13 @@
 <head>
 	{meta}
 	<title>{title} &bull; MYCODE.PRO</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
 
 	{link}
-	<link rel="icon" type="image/x-icon" href="{VIEW}img/favicon.ico">
-	<link rel="stylesheet" href="{VIEW}css/main.min.css">
+	<link rel="icon" type="image/x-icon" href="{VIEW}img/favicon.ico" />
+	<link rel="stylesheet" href="{VIEW}css/main.min.css" />
 
 	{script}
-	<script src="{VIEW}js/script.min.js"></script>
 	<!--[if IE]>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
 	<![endif]-->
@@ -58,7 +57,7 @@
 				<ul>
 					[logged]
 					<li class="write">
-						<a class="btn btn-primary" href="{add-link}">[f:main:panel.write]</a>
+						<a class="btn-primary" href="{add-link}">[f:main:panel.write]</a>
 					</li>
 					<li class="search_icon links"><a href="#"><i class="mdi mdi-magnify"></i></a></li>
 					<li class="write_icon links"><a href="{add-link}"><i class="mdi mdi-pencil"></i></a></li>
@@ -71,7 +70,7 @@
 					[/logged]
 					[not-logged]
 					<li>
-						<a class="btn btn-primary" href="{auth-link}">[f:main:panel.login]</a>
+						<a class="btn-primary" href="{auth-link}">[f:main:panel.login]</a>
 					</li>
 					[/not-logged]
 				</ul>
@@ -98,6 +97,18 @@
 		</section>
 		[/logged]
 		[/if]
+		[if SELF="/user/edit"]
+		[logged]
+		<section id="panel">
+			<a href="/user/profile/{username}">
+				<i class="mdi mdi-arrow-left"></i> [f:user:edit.link.back]
+			</a>
+			<a href="/user/sessions">
+				<i class="mdi mdi-login-variant"></i> [f:user:edit.link.sessions]
+			</a>
+		</section>
+		[/logged]
+		[/if]
     	<section id="category">
     		<div class="title">[b:blog:categories.moduleName]</div>
     		{blog:categories}
@@ -117,6 +128,8 @@
     	</footer>
 	</aside>
 </div>
+
+<script src="{VIEW}js/script.min.js"></script>
 
 </body>
 </html>

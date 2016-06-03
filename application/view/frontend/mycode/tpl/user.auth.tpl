@@ -1,30 +1,29 @@
 <section class="block">
 	<div class="title">[f:user:auth.title]</div>
 	<ul class="tabs">
-		<li>
-			
+		<li class="active">
+			<a href="#">[f:user:auth.tab.entry]</a>
 		</li>
 		<li>
-			<a href="/user/register"></a>
+			<a href="/user/register">[f:user:auth.tab.register]</a>
 		</li>
 	</ul>
-</section>
-<!-- <div class="row">
-	<div class="col-md-4 col-sm-4"></div>
-	<div class="col-md-4 col-sm-4">
-		<form class="form-signin" role="form" method="post">
-			<h2 class="form-signin-heading">[b:user:auth.moduleName]</h2>
-			<input class="form-control" placeholder="[b:user:fields.login]" required="" autofocus="" type="text" name="login"><br>
-			<input class="form-control" placeholder="[b:user:fields.password]" required="" type="password" name="password">
-			<div class="checkbox">
-				<label>
-					<input name="tpc" type="checkbox"> [f:user:auth.form.tpc]
-				</label>
+	<div class="block-content">
+		<form class="form" role="form" method="post">
+			<div class="field">
+				<span>[f:user:form.login]</span>
+				<input type="text" name="login" autofocus />
 			</div>
-			<button class="btn btn-lg btn-primary btn-block" type="submit">[f:user:auth.form.submit]</button><br>
-			<div align="center"><a href="{restore-link}">[f:user:auth.restore]</a></div>
+			<div class="field">
+				<span>[f:user:form.password]</span>
+				<input type="password" name="password" />
+			</div>
+			<div class="panel">
+				<button class="btn-primary">
+					[f:user:auth.form.btn]
+				</button>
+				<a href="{restore-link}">[f:user:auth.form.forgot]</a>
+			</div>
 		</form>
 	</div>
-	<div class="col-md-4 col-sm-4"></div>
-</div>
- -->
+</section>
