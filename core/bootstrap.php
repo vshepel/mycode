@@ -110,6 +110,9 @@ class Bootstrap {
 HTML;
 	}
 
+	/**
+	 * Autoload init
+	 */
 	private function _autoload() {
 		spl_autoload_register(function ($className) {
 			$classArray = explode("\\", strtolower($className));
