@@ -180,14 +180,12 @@ class Restore extends AppModel {
 				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
 			} else {
 				$email = $query[0]["email"];
-
-				$mail = $this->_registry
-					->get("SendMail");
+				$mail = $this->_registry->get("SendMail");
 
 				$send = $mail
 					->send($email,
 						$this->_lang->get("user", "restore.moduleName"),
-						$this->_view->parse("user/restore/mail", [
+						$this->_view->parse("user.restore.mail", [
 							"restore-link" => FSITE_PATH . "user/restore/" . $key,
 							"restore-key" => $key,
 							"ip-address" => HTTP::getIp(),
@@ -199,10 +197,8 @@ class Restore extends AppModel {
 				if (!$send) {
 					$response->code = 1;
 					$response->type = "danger";
-					$response->message = $this->_lang->get("core", "internalError") . " (" . $mail->getError() . ")";
+					$response->message = $this->_lang->get("core", "internalError", [$mail->getError()]);
 				} else {
-					$this->_success = true;
-
 					$response->type = "success";
 					$response->message = $this->_lang->get("user", "restore.send.success");
 				}

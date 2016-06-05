@@ -1,6 +1,6 @@
 <?php
 /**
- * Mail Driver abstract class
+ * SendMail Driver abstract class
  * @copyright Copyright (C) 2016 al3xable <al3xable@yandex.com>. All rights reserved.
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License version 3
  *
@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-namespace harmony\mail;
+namespace harmony\sendmail;
 
 abstract class Driver {
 	/**

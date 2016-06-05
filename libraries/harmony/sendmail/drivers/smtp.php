@@ -1,6 +1,6 @@
 <?php
 /**
- * Mail Driver SMTP class
+ * SendMail Driver SMTP class
  * @copyright Copyright (C) 2016 al3xable <al3xable@yandex.com>. All rights reserved.
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License version 3
  *
@@ -18,9 +18,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-namespace harmony\mail\drivers;
+namespace harmony\sendmail\drivers;
 
-use harmony\mail\Driver;
+use harmony\sendmail\Driver;
 
 class SMTP extends Driver {
 	private $_error = "";
@@ -57,11 +57,12 @@ class SMTP extends Driver {
 	public function send($to, $subject, $message, $headers = "") {
 		// Variable
 		$recipients = explode(",", $to);
+		$name = $this->_config["name"];
 		$user = $this->_config["user"];
 		$pass = $this->_config["password"];
 		$smtp_host = $this->_config["host"];
 		$smtp_port = $this->_config["port"];
-
+ 
 		// Connect to server
 		if (!($this->_socket = fsockopen($smtp_host, $smtp_port, $errno, $errstr, 15))) {
 			$this->_error = "Couldn't connect to SMTP host {$smtp_host} ({$errno}) ({$errstr})";
@@ -93,7 +94,7 @@ class SMTP extends Driver {
 		$query_list = array (
 			array ("DATA", 354),
 			array ("Subject: {$subject}"),
-			array ("From: {$this->_config["from"]} <{$user}>"),
+			array ("From: {$name} <{$user}>"),
 			array ("To: <" . implode(">, <", $recipients) . ">"),
 			array ($headers),
 			array (""),

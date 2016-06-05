@@ -1,6 +1,6 @@
 <?php
 /**
- * Mail Main class
+ * SendMail Main class
  * @copyright Copyright (C) 2016 al3xable <al3xable@yandex.com>. All rights reserved.
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License version 3
  *
@@ -18,23 +18,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-namespace harmony\mail;
+namespace harmony\sendmail;
 
 use Exception;
 
-class Mail {
+class SendMail {
 	/**
-	 * @var Mail Singleton object
+	 * @var SendMail Singleton object
 	 */
 	private static $_instance;
 
 	/**
 	 * @var string Driver prefix
 	 */
-	private $_driver_class_prefix = "\\harmony\\mail\\drivers\\";
+	private $_driver_class_prefix = "\\harmony\\sendmail\\drivers\\";
 
 	/**
-	 * @return Mail Return singleton object
+	 * @return SendMail Return singleton object
 	 */
 	public static function getInstance() {
 		if (empty(self::$_instance))
@@ -57,10 +57,10 @@ class Mail {
 			$driver_object = new $driver_class($config);
 
 			if (!$driver_object instanceof Driver)
-				throw new Exception("Mail error: driver {$driver} is not instance of main driver");
+				throw new Exception("SendMail error: driver {$driver} is not instance of main driver");
 
 			return $driver_object;
 		} else
-			throw new Exception("Mail error: driver {$driver} is not available");
+			throw new Exception("SendMail error: driver {$driver} is not available");
 	}
 }

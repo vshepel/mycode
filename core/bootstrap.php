@@ -191,7 +191,10 @@ HTML;
 			->add("Router", new Router())
 			->add("View", harmony\view\View::getInstance()->parser($config->get("view", "parser", "HarmonyCMS")))
 			->add("Captcha", harmony\captcha\Captcha::getInstance()->driver($config->get("captcha", "generator", "HarmonyCMS")))
-			->add("SendMail", harmony\mail\Mail::getInstance()->driver($config->get("sendmail", "driver", "SMTP"), $config->get("sendmail", null, array())))
+			->add("SendMail", harmony\sendmail\SendMail::getInstance()
+				->driver($config->get("sendmail", "driver", "SMTP"),
+					$config->get("sendmail", "driver_" . $config->get("sendmail", "driver"), [])
+				))
 			->add("Menu", new model\core\Menu())
 			->add("Notifications", new model\user\Notifications())
 			->get("Database")

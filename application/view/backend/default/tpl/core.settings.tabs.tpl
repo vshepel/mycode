@@ -10,4 +10,7 @@
 	<li[if action="view"] class="active"[/if]><a href="{ADMIN_PATH}core/settings/view">
 		<span class="main-row-icon fa fa-eye"></span> [b:core:settings.view.moduleName]
 	</a></li>
+	<li[if action="sendmail"] class="active"[/if]><a href="{ADMIN_PATH}core/settings/sendmail">
+		<span class="main-row-icon fa fa-envelope"></span> [b:core:settings.sendmail.moduleName]
+	</a></li>
 </ul><br>

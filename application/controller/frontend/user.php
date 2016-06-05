@@ -35,6 +35,7 @@ class User extends AppController {
 		"profile/([A-Za-z0-9._-]+)" => "profile",
 		"auth" => null,
 		"logout" => null,
+		"restore/([A-Za-z0-9._-]+)" => "restore",
 		"restore" => null,
 		"register" => null,
 		"list/page/([0-9]+)" => "list",
@@ -95,7 +96,7 @@ class User extends AppController {
 
 			if (isset($_POST["login"])) {
 				$restore = $model->send($_POST["login"]);
-				$this->_view->alert($restore->type, $restore->message, "alert");
+				$this->_view->alert($restore->type, $restore->message);
 			}
 
 			$this->_view->responseRender($model->page());

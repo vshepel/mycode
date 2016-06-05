@@ -103,6 +103,35 @@ class Settings extends AppModel {
 					"language" => $languages
 				];
 			break;
+
+			case "sendmail":
+				$response->view = "core.settings.sendmail";
+
+				// Drivers
+				$drivers = "";
+				$active = $this->_config->get("sendmail", "driver");
+				foreach(["SMTP" => "SMTP"] as $driver => $name) {
+					$drivers .= $this->_view->parse("core.settings.selector", [
+						"name" => $name,
+						"value" => $driver,
+						"active" => ($driver == $active)
+					]);
+				}
+				$response->tags["drivers"] = $drivers;
+
+				// Driver: SMTP
+				$cfg = $this->_config->get("sendmail", "driver_SMTP", []);
+
+				if (!isset($cfg["name"])) $cfg["name"] = "";
+				if (!isset($cfg["user"])) $cfg["user"] = "";
+				if (!isset($cfg["password"])) $cfg["password"] = "";
+				if (!isset($cfg["host"])) $cfg["host"] = "";
+				if (!isset($cfg["port"])) $cfg["port"] = "";
+
+				foreach($cfg as $name => $value) {
+					$response->tags["smtp-" . $name] = $value;
+				}
+			break;
 			
 			case "main":
 			default:
@@ -204,6 +233,11 @@ class Settings extends AppModel {
 						$response = new Response(0, "success", $this->_lang->get("core", "settings.success"));
 					} else
 						$response = new Response(3, "warning", $this->_lang->get("core", "emptyFields"));
+				break;
+
+				case "sendmail":
+					$this->_config->save("sendmail", $values);
+					$response = new Response(0, "success", $this->_lang->get("core", "settings.success"));
 				break;
 				
 				case "main":
