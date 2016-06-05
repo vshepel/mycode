@@ -1,6 +1,3 @@
-<script src="{PATH}vendor/wysibb/jquery.wysibb.min.js"></script>
-<link href="{PATH}vendor/wysibb/theme/default/wbbtheme.css" type="text/css" rel="stylesheet">
-
 [include "blog.tabs"]
 
 <form method="post" class="form-horizontal">
@@ -37,12 +34,10 @@
 	</div>
 
 	<div class="form-group">
-		<label class="control-label col-sm-3">[f:blog:add.form.text] *</label>
-		<div class="col-sm-9">
+		<div class="col-sm-12">
 			<textarea class="form-control" name="text" id="editor" rows="6">{text}</textarea>
 		</div>
 	</div>
-
 
 	<div class="form-group">
 		<label class="control-label col-sm-3">[f:blog:add.form.tags]</label>
@@ -102,8 +97,47 @@
 	</div>
 </form>
 
+[if editor="HTML"]
+<script src="{PATH}vendor/tinymce/tinymce.min.js"></script>
+
+<script>
+	tinymce.init({
+		selector:'#editor',
+		theme: 'modern',
+		plugins: [
+			'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+			'searchreplace wordcount visualblocks visualchars code fullscreen',
+			'insertdatetime media nonbreaking save table contextmenu directionality',
+			'emoticons template paste textcolor colorpicker textpattern imagetools'
+		],
+		toolbar1: "bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | formatselect | bullist numlist | forecolor backcolor emoticons",
+		toolbar2: "outdent indent | undo redo | link unlink anchor image media | hr table | subscript superscript | charmap | print preview code",
+		image_advtab: true,
+		content_css: [
+			'{PATH}vendor/bootstrap/css/bootstrap.min.css',
+		],
+		language: '[f:page:edit.tinymce.lang]'
+	});
+</script>
+
+[/if][if editor="BBCode"]
+<script src="{PATH}vendor/wysibb/jquery.wysibb.min.js"></script>
+<link href="{PATH}vendor/wysibb/theme/default/wbbtheme.css" type="text/css" rel="stylesheet">
+
 <script>
 	$(function() {
 		$('#editor').wysibb();
 	})
 </script>
+[/if][if editor="Markdown"]
+<link rel="stylesheet" href="{PATH}vendor/codemirror/lib/codemirror.css">
+<script src="{PATH}vendor/codemirror/lib/codemirror.js"></script>
+<script src="{PATH}vendor/codemirror/mode/markdown.js"></script>
+
+<script>
+	var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+		lineNumbers: true,
+		mode: 'markdown'
+	});
+</script>
+[/if]

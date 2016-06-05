@@ -21,19 +21,27 @@
 namespace model\blog;
 
 use AppModel;
-use harmony\strings\Strings;
+use Registry;
 use Response;
 use NotFoundException;
 
 use harmony\pagination\Pagination;
-use harmony\bbcode\BBCodeParser;
+use harmony\parsers\BBCodeParser;
 use harmony\strings\StringFilters;
+use harmony\strings\Strings;
+
+use erusev\parsedown\Parsedown;
 
 class Posts extends AppModel {
 	/**
 	 * @var string Side type
 	 */
 	private $_type;
+
+	/**
+	 * @var string Posts editor
+	 */
+	private $_editor;
 
 	/**
 	 * @var array Add post tags
@@ -68,6 +76,7 @@ class Posts extends AppModel {
 	public function __construct($type) {
 		parent::__construct();
 		$this->_type = $type;
+		$this->_editor = $this->_config->get("blog", "posts.editor", "BBCode");
 		$this->_addTags["tags"]["lang"] = $this->_lang->getLang();
 	}
 
@@ -84,7 +93,19 @@ class Posts extends AppModel {
 			$text = str_replace("[separator]", "", $text);
 		}
 
-		return BBCodeParser::parse($text);
+		$editor = Registry::getInstance()->get("Config")->get("blog", "posts.editor", "BBCode");
+
+		switch ($editor) {
+			case "Markdown":
+				$parsedown = new Parsedown();
+				return $parsedown->parse($text);
+			
+			case "BBCode":
+				return BBCodeParser::parse($text); 
+				
+			default:
+				return $text;
+		}
 	}
 
 	/**
@@ -613,6 +634,8 @@ class Posts extends AppModel {
 				];
 
 			$response->tags = array_merge($this->_addTags["tags"], array (
+				"editor" => $this->_editor,
+
 				"categories" => $categories,
 				"langs" => $langs,
 
@@ -650,7 +673,7 @@ class Posts extends AppModel {
 		$title = StringFilters::filterHtmlTags($title);
 		$url = StringFilters::filterForUrl(empty($url) ? $title : $url);
 		$category = intval($category);
-		$text = StringFilters::filterHtmlTags($text);
+		$text = ($this->_editor == "HTML") ? $text : StringFilters::filterHtmlTags($text);
 		$tags = StringFilters::filterTagsString($tags);
 		$lang = StringFilters::filterHtmlTags($lang);
 		$allowComments = (bool)($allowComments);
@@ -763,6 +786,8 @@ class Posts extends AppModel {
 			];
 
 		$response->tags = array_merge($this->_addTags["tags"], array (
+			"editor" => $this->_editor,
+
 			"categories" => $categories,
 			"langs" => $langs
 		));

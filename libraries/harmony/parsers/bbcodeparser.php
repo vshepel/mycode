@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-namespace harmony\bbcode;
+namespace harmony\parsers;
 
 use harmony\strings\Strings;
 
