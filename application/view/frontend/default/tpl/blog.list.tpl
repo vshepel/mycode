@@ -11,7 +11,7 @@
 [foreach rows]
 <div class="media">
 	<div class="media-body">
-		<h2><a href="{link}">{title}</a></h2>
+		<h2><a href="{link}">{title}</a> [read]<span class="fa fa-check text-success"></span>[/read]</h2>
 
 		<div class="pull-left">
 			<a href="{author-link}"><img src="{author-avatar-link}" class="img-circle" style="height:24px"></a> <a href="{author-link}">{author-login}</a>,

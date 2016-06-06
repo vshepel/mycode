@@ -21,6 +21,7 @@
 namespace model\blog;
 
 use AppModel;
+use harmony\http\HTTP;
 use Registry;
 use Response;
 use NotFoundException;
@@ -269,6 +270,21 @@ class Posts extends AppModel {
 						}
 					}
 
+					// Read
+					$read = false;
+
+					if ($this->_config->get("blog", "posts.read_mark", true)) {
+						$query = $this->_db
+							->select("count(*)")
+							->from(DBPREFIX . "blog_views")
+							->where("post", "=", $row["id"])
+							->and_where("user", "=", $this->_user->get("id"))
+							->result_array();
+
+						$read = (isset($query[0][0]) && $query[0][0] > 0);
+					}
+
+					// Rows array
 					$rows[] = [
 						"id" => $row["id"],
 						"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
@@ -301,6 +317,7 @@ class Posts extends AppModel {
 
 						"comments-num" => $row["comments_num"],
 						"views-num" => $row["views_num"],
+						"read" => $read,
 
 						"rating" => $row["rating"],
 						"rating-minus-active" => $ratingMinusActive,
@@ -357,16 +374,6 @@ class Posts extends AppModel {
 		$id = intval($id);
 		$commentsPage = intval($commentsPage);
 
-		// Update views
-		$this->_db
-			->update(DBPREFIX . "blog_posts")
-			->set(array (
-				"views_num" => array ("views_num", "+", 1, false)
-			))
-			->where("id", "=", $id)
-			->and_where("show", "=", 1)
-			->result();
-
 		// Get post
 		$array = $this->_db
 			->select(array(
@@ -389,6 +396,59 @@ class Posts extends AppModel {
 			throw new NotFoundException();
 		} else {
 			$row = $array[0];
+
+			// Update views
+			if ($this->_config->get("blog", "posts.advanced_views", true)) {
+				$this->_db
+					->select(["id"])
+					->from(DBPREFIX . "blog_views")
+					->where("post", "=", $id);
+
+				if ($this->_user->isLogged())
+					$this->_db->and_where("user", "=", $this->_user->get("id"));
+				else
+					$this->_db->and_where("ip", "=", HTTP::getIp());
+
+				$views = $this->_db
+					->and_where("UNIX_TIMESTAMP(`timestamp`)", ">", time() - 86400, false)
+					->result_array();
+
+				if ($views === false) {
+					return new Response(1, "danger", $this->_lang->get(null, "core", "internalError", [$this->_db->getError()]));
+				} elseif (count($views) < 1) {
+					// Update post views
+					$this->_db
+						->update(DBPREFIX . "blog_posts")
+						->set(array(
+							"views_num" => array("views_num", "+", 1, false)
+						))
+						->where("id", "=", $id)
+						->and_where("show", "=", 1)
+						->result();
+
+					// Add view to database
+					$this->_db
+						->insert_into(DBPREFIX . "blog_views")
+						->values(array (
+							"post" => $id,
+							"user" => $this->_user->isLogged() ? $this->_user->get("id") : 0,
+							"ip" => HTTP::getIp()
+						))
+						->result();
+
+					// Update row counter
+					$row["views_num"]++;
+				}
+			} else {
+				$this->_db
+					->update(DBPREFIX . "blog_posts")
+					->set(array(
+						"views_num" => array("views_num", "+", 1, false)
+					))
+					->where("id", "=", $id)
+					->and_where("show", "=", 1)
+					->result();
+			}
 
 			// Add breadcrumbs
 			$this->_core
