@@ -1,4 +1,4 @@
-<article class="full_post">
+<article class="post full_post">
 	<div class="post_top">
 		<a href="{author-link}"><img src="{author-avatar-link}" alt="{author-login}">{author-login}</a> <span>[f:blog:list.posted] {date}</span> <span class="has-read">[f:blog:list.read]</span>
 	</div>

@@ -80,7 +80,7 @@
 </header>
 
 <div id="main" class="container">
-	<main>
+	<main id="content">
 		{alerts}
 		{content}
 	</main>
@@ -90,6 +90,9 @@
 		<section id="panel">
 			<a href="/user/edit">
 				<i class="mdi mdi-settings"></i> [f:user:profile.link.edit]
+			</a>
+			<a href="/user/sessions">
+				<i class="mdi mdi-login-variant"></i> [f:user:edit.link.sessions]
 			</a>
 			<a href="/user/logout">
 				<i class="mdi mdi-logout-variant"></i> [f:user:profile.link.exit]
@@ -103,8 +106,14 @@
 			<a href="/user/profile/{username}">
 				<i class="mdi mdi-arrow-left"></i> [f:user:edit.link.back]
 			</a>
-			<a href="/user/sessions">
-				<i class="mdi mdi-login-variant"></i> [f:user:edit.link.sessions]
+		</section>
+		[/logged]
+		[/if]
+		[if SELF="/user/sessions"]
+		[logged]
+		<section id="panel">
+			<a href="/user/profile/{username}">
+				<i class="mdi mdi-arrow-left"></i> [f:user:edit.link.back]
 			</a>
 		</section>
 		[/logged]
@@ -122,7 +131,7 @@
     		<div class="adv_mockup"></div>
     	</section>
     	<footer>
-    		<a href="#">[f:main:footer.help]</a>
+    		<a href="/user/list">[f:main:footer.users]</a>
     		<a href="#">[f:main:footer.terms]</a>
     		<a href="#">[f:main:footer.about]</a>
     	</footer>

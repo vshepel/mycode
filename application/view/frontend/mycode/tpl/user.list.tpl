@@ -1,21 +1,23 @@
-[f:user:list.total] <span class="badge">{num}</span>
-
-<hr>
+<div class="page_total">
+	[f:user:list.total] <span>{num} [f:user:list.total.people]</span>
+</div>
 
 [foreach rows]
-<div class="media">
-	<a class="pull-left" href="{profile-link}">
-		<img class="media-object img-rounded" src="{avatar-link}" alt="{username}" style="max-height: 50px">
-	</a>
-	<div class="media-body">
-		<div class="pull-left">
-			<h4 class="media-heading"><a href="{profile-link}">{username}</a><small> [if name!=""]({name})[/if] [online][f:user:list.user.online][/online][offline][f:user:list.user.offline] {last-online-date} в {last-online-time}[/offline]</small></h4>
-			{group}{message-send-link}
-		</div>
-		<div class="pull-right"><a href="{message-send-link}" style="font-size:30px"><span class="fa fa-envelope"></span></a></div>
-		<div class="clearfix"></div>
+<article class="card">
+	<div class="photo_content">
+		[if group-id="1"]<span class="group-label">{group}</span>[/if]
+		<a href="{profile-link}">
+			<img src="{avatar-link}" alt="{username}" />
+		</a>
 	</div>
-</div>
+	<a class="user_link" href="{profile-link}">[if name!=""]{name}[/if][if name=""]{username}[/if]</a>
+	<small>[online]<span class="online">[f:user:profile.status.online]</span>[/online][offline][f:user:profile.status.offline] {last-online-date} в {last-online-time}[/offline]</small>
+	<div class="panel">
+		<a href="{message-send-link}" class="btn-primary"><i class="mdi mdi-email"></i></a>
+	</div>
+</article>
 [/foreach]
+
+<br clear="both" />
 
 {pagination}

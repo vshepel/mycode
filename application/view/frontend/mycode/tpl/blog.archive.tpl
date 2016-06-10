@@ -1,6 +1,6 @@
 [if num!="0"]
 [foreach rows]
-<article>
+<article class="post">
 	<div class="post_top">
 		<a href="{author-link}"><img src="{author-avatar-link}" alt="{author-login}">{author-login}</a> <span>[f:blog:list.posted] {date}</span> <span class="has-read">[f:blog:list.read]</span>
 	</div>

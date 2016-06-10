@@ -5,9 +5,9 @@
 			[if name!=""]{name}[/if][if name=""]{username}[/if][if group-id="1"] <span class="group-label">{group}</span>[/if]
 			<small>[online][f:user:profile.status.online][/online][offline][f:user:profile.status.offline] {last-online-date} в {last-online-time}[/offline]</small>
 		</div>
-		<div class="rating">
+		<!-- <div class="rating">
 			<i class="mdi mdi-fire"></i> 1 342
-		</div>
+		</div> -->
 	</div>
 	<div class="information">
 		<div class="counter">

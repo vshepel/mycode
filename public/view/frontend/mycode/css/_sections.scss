@@ -1,20 +1,20 @@
 // Top panel
 .top_panel {
-    background: $primary;
-    height: 90px;
     line-height: 90px;
     overflow: hidden;
+    height: 90px;
+    background: $primary;
     .container > ul li {
         display: inline-block;
     }
     .logotype {
-        text-transform: uppercase;
-        font-weight: 700;
         font-size: 1.1em;
+        font-weight: 700;
+        text-transform: uppercase;
         a {
             display: block;
-            color: $grey80;
             padding: 0 15px;
+            color: $grey80;
         }
         .project_name {
             color: $grey60;
@@ -25,12 +25,12 @@
                 & > span {
                     position: relative;
                     &:after {
-                        content: '';
                         position: absolute;
                         top: 0;
                         right: 0;
                         width: 81px;
                         height: 20px;
+                        content: '';
                         background: $grey80;
                     }
                 }
@@ -49,27 +49,27 @@
     .search {
         margin: 0 0 0 25px;
         i {
-            display: none;
+            font-size: 1.3em;
+            line-height: 45px;
             position: absolute;
             top: 23px;
             left: 15px;
+            display: none;
             width: 40px;
             height: 45px;
-            text-align: center;
-            line-height: 45px;
-            color: $grey85;
-            font-size: 1.3em;
             cursor: pointer;
+            text-align: center;
+            color: $grey85;
         }
         input {
+            line-height: 45px;
             width: 200px;
             height: 45px;
-            line-height: 45px;
             padding: 0 25px;
+            transition: all .2s linear;
+            color: $text;
             border: 1px solid $grey92;
             border-radius: 45px;
-            color: $text;
-            transition: all .2s linear;
             &:focus {
                 border-color: $primary;
                 @extend %shadow_primary;
@@ -85,32 +85,33 @@
             display: inline-block;
         }
         .links {
-            color: $grey85;
             font-size: 1.3em;
+            color: $grey85;
             &.search_icon,
             &.write_icon {
                 display: none;
             }
             a {
-                color: $grey85;
                 display: block;
                 padding: 0 25px;
+                color: $grey85;
             }
             i {
                 position: relative;
             }
             .new {
                 position: absolute;
+                top: 2px;
+                right: 1px;
                 width: 6px;
                 height: 6px;
-                right: 1px;
-                top: 2px;
                 border-radius: 50%;
                 background: $red;
             }
         }
     }
 }
+
 .notification {
     position: fixed;
     z-index: 1000;
@@ -119,26 +120,26 @@
     overflow: auto;
     width: 350px;
     height: 100%;
+    transition: all .1s linear;
     color: #000;
     background: #fff;
-    transition: all .1s linear;
     background: $grey95;
     &.active {
         right: 0;
     }
     .notification-head {
+        line-height: 90px;
         height: 90px;
         padding: 0 25px;
         text-align: center;
-        line-height: 90px;
         color: $text;
         background: $primary;
         div {
             display: inline-block;
             text-transform: uppercase;
             i {
-                cursor: pointer;
                 font-size: 1.3em;
+                cursor: pointer;
                 color: $grey85;
             }
         }
@@ -151,10 +152,10 @@
     }
     #core-notifications {
         > p {
-            color: $grey85;
-            font-size: 0.9em;
+            font-size: .9em;
             margin: 30px 15px 20px;
             text-align: center;
+            color: $grey85;
         }
         .notif {
             > a {
@@ -163,38 +164,38 @@
                 color: $text;
             }
             .type {
+                float: left;
                 width: 50px;
                 height: 50px;
+                margin: 0 15px 0 0;
                 border-radius: 50%;
                 background: $grey80;
-                margin: 0 15px 0 0;
-                float: left;
             }
             p {
-                white-space: nowrap;
-                margin: 9px 0;
-                overflow: hidden;
                 position: relative;
+                overflow: hidden;
+                margin: 9px 0;
+                white-space: nowrap;
                 small {
                     display: block;
                     color: $grey80;
                 }
                 &:after {
-                    content: '';
                     position: absolute;
                     top: 0;
                     right: 0;
                     width: 30px;
                     height: 100%;
+                    content: '';
                     background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(243, 243, 243, 1) 100%);
                 }
             }
         }
         .notification-nope {
-            text-align: center;
-            color: $grey85;
             margin: 50px 25px;
+            text-align: center;
             text-transform: uppercase;
+            color: $grey85;
             i {
                 font-size: 3em;
             }
@@ -203,22 +204,26 @@
 }
 
 //Main
-main {
+#content {
     display: inline-block;
     width: calc(100% - 300px);
     margin: 50px 0 0 0;
-    .search_total {
+    .page_total {
+        font-weight: 700;
         margin: 10px 0 40px;
         text-transform: uppercase;
-        font-weight: 700;
-        color: #ccc;
+        color: $grey80;
+        span {
+            margin-left: 10px;
+            color: $grey70;
+        }
     }
-    article {
-        padding: 40px;
+    .post {
         margin: 0 0 50px;
-        background: $primary;
-        border-radius: 5px;
+        padding: 40px;
         transition: all .2s linear;
+        border-radius: 5px;
+        background: $primary;
         @extend %shadow_static;
         &:hover {
             @extend %shadow_primary;
@@ -231,44 +236,44 @@ main {
             img {
                 width: 30px;
                 height: 30px;
-                border-radius: 50%;
-                vertical-align: middle;
                 margin: 0 10px 0 0;
+                vertical-align: middle;
+                border-radius: 50%;
             }
             span {
-                color: $grey80;
                 margin: 0 0 0 5px;
+                color: $grey80;
             }
             .has-read {
-                color: $grey70;
-                background: $grey95;
+                font-size: .7em;
+                float: right;
                 padding: 9px 15px;
                 text-transform: uppercase;
+                color: $grey70;
                 border-radius: 30px;
-                font-size: 0.7em;
-                float: right;
+                background: $grey95;
             }
         }
         .post_text {
             color: $text;
             a {
-                display: block;
-                color: $text;
                 line-height: 1.9em;
+                display: block;
                 word-wrap: break-word;
+                color: $text;
             }
             span {
-                display: block;
-                margin: 0 0 15px;
                 font: {
+                    color: $grey60;
                     weight: 700;
                     size: 1.2em;
-                    color: $grey60;
                 }
+                display: block;
+                margin: 0 0 15px;
             }
             h1 {
-                text-align: center;
                 padding: 40px 0;
+                text-align: center;
             }
         }
         .post_tags {
@@ -278,22 +283,22 @@ main {
                 color: $grey60;
             }
             i {
-                color: $grey85;
                 font-size: 1.2em;
                 margin: 0 5px 0 0;
+                color: $grey85;
             }
         }
         .post_bottom {
             margin: 50px 0 0;
             a,
             > span {
-                color: $grey60;
                 margin: 0 15px 0 0;
+                color: $grey60;
             }
             i {
-                color: $grey85;
                 font-size: 1.2em;
                 margin: 0 5px 0 0;
+                color: $grey85;
             }
             .category {
                 margin: 0 40px 0 0;
@@ -303,8 +308,8 @@ main {
                 margin: 0;
                 i {
                     margin: 0;
-                    cursor: pointer;
                     padding: 0 8px;
+                    cursor: pointer;
                     &.like {
                         color: $green;
                     }
@@ -316,10 +321,10 @@ main {
         }
     }
     .post-nope {
-        text-align: center;
-        color: $grey85;
         margin: 50px 0;
+        text-align: center;
         text-transform: uppercase;
+        color: $grey85;
         i {
             font-size: 5em;
             display: block;
@@ -330,9 +335,9 @@ main {
         }
     }
     .pagination {
-        text-align: center;
-        padding: 0 40px;
         margin: 0 0 50px;
+        padding: 0 40px;
+        text-align: center;
         li {
             display: inline-block;
             &:first-child {
@@ -342,16 +347,16 @@ main {
                 float: right;
             }
             &.disabled {
-                color: $grey85;
                 cursor: default;
+                color: $grey85;
             }
             &.num a {
                 padding: 0 10px;
             }
             &.active a {
-                background: $grey92;
                 padding: 8px 10px;
                 border-radius: 2px;
+                background: $grey92;
             }
         }
     }
@@ -361,52 +366,53 @@ main {
         margin: 50px auto;
     }
     &.not_found {
+        font-size: 4em;
+        font-weight: 700;
         width: 100%;
+        margin: 200px auto 50px;
         text-align: center;
         text-transform: uppercase;
-        font-weight: 700;
-        font-size: 4em;
         color: $text;
-        margin: 200px auto 50px;
         span {
-            margin: 40px 0 0;
+            font-size: .3em;
             line-height: 2em;
             display: block;
-            font-size: .3em;
+            margin: 40px 0 0;
             color: $grey85;
         }
     }
 }
+
 #sidebar {
-    width: 270px;
     float: right;
+    width: 270px;
     margin: 60px 0 0 30px;
     section {
-        padding: 0 0 40px;
-        margin: 0 0 40px;
-        border-bottom: 1px solid $grey92;
         line-height: 1.8em;
+        margin: 0 0 40px;
+        padding: 0 0 40px;
+        border-bottom: 1px solid $grey92;
         .title {
-            text-transform: uppercase;
             font-weight: 700;
-            color: $grey80;
-            margin: 0 0 30px;
             line-height: initial;
+            margin: 0 0 30px;
+            text-transform: uppercase;
+            color: $grey80;
         }
     }
     #panel {
-        border: none;
         margin: 0;
+        border: none;
         a {
+            line-height: 60px;
             display: block;
+            height: 60px;
+            margin: 0 0 20px;
+            padding: 0 15px;
+            transition: all .2s linear;
+            color: $text;
             border-radius: 5px;
             background: $grey92;
-            color: $text;
-            height: 60px;
-            padding: 0 15px;
-            margin: 0 0 20px;
-            line-height: 60px;
-            transition: all .2s linear;
             &:hover {
                 @extend %shadow_static;
             }
@@ -422,8 +428,8 @@ main {
         a {
             margin: 0 5px 0 0;
             &.active {
-                color: $grey60;
                 font-weight: 700;
+                color: $grey60;
             }
         }
     }
@@ -434,13 +440,13 @@ main {
     }
     #adv {
         .adv_mockup {
-            background: $grey92;
             height: 300px;
+            background: $grey92;
         }
     }
     footer {
-        text-align: center;
         margin: 0 0 60px 0;
+        text-align: center;
         a {
             padding: 5px;
         }
@@ -455,25 +461,25 @@ main {
         transition: all .1s linear;
     }
     textarea {
-        width: 100%;
-        resize: none;
-        outline: none;
-        border: none;
-        padding: 26px 70px 26px 25px;
-        border-radius: 5px;
-        background: $grey92;
-        color: $text;
-        overflow: hidden;
-        display: block;
         line-height: 1.5em;
+        display: block;
+        overflow: hidden;
+        width: 100%;
+        padding: 26px 70px 26px 25px;
+        resize: none;
+        color: $text;
+        border: none;
+        border-radius: 5px;
+        outline: none;
+        background: $grey92;
         &::-webkit-input-placeholder {
             color: $grey75;
         }
         &:focus {
             background: $primary;
             + button {
-                background: $secondary;
                 font-size: initial;
+                background: $secondary;
                 &:hover {
                     @extend %shadow_btn;
                 }
@@ -481,24 +487,25 @@ main {
         }
     }
     button {
-        background: $grey85;
-        color: $primary;
+        font-size: 0;
+        line-height: 40px;
+        position: absolute;
+        right: 15px;
+        bottom: 18px;
         width: 40px;
         height: 40px;
-        line-height: 40px;
         text-align: center;
+        color: $primary;
         border: none;
         border-radius: 50%;
-        font-size: 0;
-        position: absolute;
-        bottom: 18px;
-        right: 15px;
         outline: none;
+        background: $grey85;
     }
 }
+
 .comments_item {
-    padding: 25px 0;
     overflow: hidden;
+    padding: 25px 0;
     .item-photo {
         float: left;
         a {
@@ -511,13 +518,13 @@ main {
         }
     }
     .item-text {
-        width: calc(100% - 70px);
         float: right;
+        width: calc(100% - 70px);
         color: $grey80;
         .text {
+            line-height: 1.5em;
             margin: 20px 0 40px;
             color: $text;
-            line-height: 1.5em;
         }
         .date {
             font-size: .8em;
@@ -525,17 +532,16 @@ main {
     }
 }
 
-
 //Profile
 .profile {
     margin: 0 0 50px;
-    background: $primary;
     border-radius: 5px;
+    background: $primary;
     @extend %shadow_static;
     .general {
+        font-size: 1.2em;
         padding: 35px 40px;
         color: $grey60;
-        font-size: 1.2em;
         border-bottom: 1px solid $grey95;
         > * {
             display: inline-block;
@@ -544,17 +550,8 @@ main {
         img {
             width: 60px;
             height: 60px;
-            border-radius: 50%;
             margin: 0 20px 0 0;
-        }
-        .group-label {
-            text-transform: uppercase;
-            font-size: .5em;
-            background: $grey95;
-            color: $grey70;
-            padding: 7px 10px;
-            margin: 0 0 0 10px;
-            border-radius: 2px;
+            border-radius: 50%;
         }
         .rating {
             float: right;
@@ -566,9 +563,9 @@ main {
         }
     }
     .information {
+        overflow: hidden;
         padding: 35px 40px;
         color: $grey80;
-        overflow: hidden;
         > * {
             display: inline-block;
             vertical-align: top;
@@ -576,25 +573,82 @@ main {
         .counter {
             margin: 0 40px 0 0;
             span {
-                display: block;
-                color: $grey60;
                 font-size: 2em;
+                display: block;
                 margin: 0 0 10px 0;
+                color: $grey60;
             }
         }
         .about {
-            width: 530px;
             float: right;
+            width: 530px;
             li {
                 padding: 10px 0;
                 i {
                     min-width: 30px;
                 }
-                span, a {
-                    color: $grey60;
+                span,
+                a {
                     word-wrap: nowrap;
+                    color: $grey60;
                 }
             }
         }
     }
 }
+
+
+/* User list */
+
+.card {
+    float: left;
+    width: calc(100% / 3 - 20px);
+    margin: 0 30px 30px 0;
+    padding: 40px;
+    transition: all .2s linear;
+    text-align: center;
+    border-radius: 5px;
+    background: $primary;
+    @extend %shadow_static;
+    &:nth-child(3n+1) {
+        margin: 0 0 30px;
+    }
+    &:hover {
+        @extend %shadow_primary;
+    }
+    .photo_content {
+        position: relative;
+        .group-label {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            margin: 0;
+            transform: translate(-50%, 0);
+        }
+        img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+        }
+    }
+    .user_link {
+        display: block;
+        overflow: hidden;
+        margin: 20px 0 5px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    small {
+        color: $grey80;
+    }
+    .panel {
+        margin: 50px 0 0;
+        .btn-primary {
+            font-size: 1em;
+            padding: 14px 15px;
+        }
+    }
+}
+
+
+/* Settings */

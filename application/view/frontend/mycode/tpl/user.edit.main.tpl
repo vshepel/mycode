@@ -8,41 +8,8 @@
 				<input type="text" name="edit[name]" value="{name}">
 			</div>
 			<div class="field">
-				<span>[b:user:fields.gender]</span>
-				<select name="edit[gender]">
-					{gender-options}
-				</select>
-			</div>
-			<div class="field">
 				<span>[f:user:form.email]</span>
 				<input type="text" name="edit[public_email]" value="{public-email}">
-			</div>
-			<div class="break"></div>
-			<div class="field">
-				<span>[f:user:edit.personal.form.birth.day]</span>
-				<select name="edit[day]">
-					<option value="0">[f:user:edit.personal.form.birth.day]</option>
-					{day-options}
-				</select>
-			</div>
-			<div class="field">
-				<span>[f:user:edit.personal.form.birth.mouth]</span>
-				<select name="edit[mouth]">
-					<option value="0">[f:user:edit.personal.form.birth.mouth]</option>
-					{mouth-options}
-				</select>
-			</div>
-			<div class="field">
-				<span>[f:user:edit.personal.form.birth.year]</span>
-				<select name="edit[year]">
-					<option value="0">[f:user:edit.personal.form.birth.year]</option>
-					{year-options}
-				</select>
-			</div>
-			<div class="break"></div>
-			<div class="field">
-				<span>[b:user:fields.location]</span>
-				<input type="text" name="edit[location]" value="{location}">
 			</div>
 			<div class="field">
 				<span>[f:user:form.lang]</span>

@@ -3,9 +3,9 @@
 }
 
 ul {
-    list-style: none;
-    padding: 0;
     margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
 input {
@@ -13,9 +13,9 @@ input {
 }
 
 a {
+    transition: all .1s linear;
     text-decoration: none;
     color: $grey75;
-    transition: all .1s linear;
     &:hover {
         color: $grey70;
     }
@@ -38,37 +38,37 @@ a {
 }
 
 body {
-    background: $grey95;
     font: {
-        family: "Ubuntu", sans-serif;
+        family: 'Ubuntu', sans-serif;
     }
+    background: $grey95;
 }
 
 .alert {
-    background: $grey92;
-    padding: 20px;
     width: 100%;
     margin: 0 0 40px;
-    border-radius: 5px;
+    padding: 20px;
     color: $grey70;
+    border-radius: 5px;
+    background: $grey92;
     i {
         margin: 0 10px 0 0;
     }
     &.success {
-        background: #cbefcb;
         color: #9cc19c;
+        background: #cbefcb;
     }
     &.info {
-        background: #d8e8f3;
         color: #9cacb7;
+        background: #d8e8f3;
     }
     &.warning {
-        background: #f5ebd2;
         color: #cac1ac;
+        background: #f5ebd2;
     }
     &.danger {
-        background: #f1dbdb;
         color: #bf9a9a;
+        background: #f1dbdb;
     }
 }
 
@@ -86,42 +86,45 @@ body {
 .container {
     width: 1200px;
     margin: 0 auto;
-    padding-left: 15px;
     padding-right: 15px;
+    padding-left: 15px;
 }
 
 .block {
     margin: 0 0 50px;
-    background: $primary;
     border-radius: 5px;
+    background: $primary;
     @extend %shadow_static;
     .title {
+        font-size: 1.3em;
         padding: 40px 40px 30px;
         color: $text;
-        font-size: 1.3em;
     }
     .block-content {
         padding: 30px 40px;
+        &.hastable {
+            padding: 0 40px 40px;
+        }
     }
     .tabs {
-        padding: 0 40px;
         position: relative;
+        padding: 0 40px;
         &:before {
-            content: '';
-            display: block;
             position: absolute;
+            z-index: 1;
             bottom: 0;
             left: 0;
+            display: block;
             width: 100%;
             height: 2px;
+            content: '';
             background: $grey95;
-            z-index: 1;
         }
         li {
+            position: relative;
+            z-index: 2;
             display: inline-block;
             margin: 0 30px 0 0;
-            z-index: 2;
-            position: relative;
             &:last-child {
                 margin: 0;
             }
@@ -137,42 +140,54 @@ body {
             }
         }
     }
-}
-
-.form {
-    .panel {
-        margin: 50px 0 30px;
-        a {
-            margin: 0 30px;
-        }
-    }
-    .break {
-        overflow: hidden;
+    table {
         width: 100%;
-        height: 20px;
+        color: $text;
+        thead {
+            border-bottom: 2px solid $grey92;
+        }
+        th {
+            font-size: .8em;
+            color: $grey80;
+        }
+        td,
+        th {
+            padding: 15px 10px;
+            text-align: left;
+        }
+        tr td:last-child {
+            text-align: right;
+            color: $grey80;
+            button {
+                font-size: 1.2em;
+                border: none;
+                background: none;
+            }
+        }
     }
 }
 
 .field {
     display: inline-block;
     width: 230px;
-    padding: 15px 0;
     margin: 0 26px 0 0;
+    padding: 15px 0;
     span {
         display: block;
-        color: $grey85;
         margin: 0 0 15px;
+        color: $grey85;
     }
-    input, select {
-        outline: none;
-        border: none;
-        background: $grey95;
-        height: 50px;
+    input,
+    select {
         line-height: 50px;
-        padding: 0 20px;
-        color: $text;
         width: 100%;
+        height: 50px;
+        padding: 0 20px;
         transition: all .2s linear;
+        color: $text;
+        border: none;
+        outline: none;
+        background: $grey95;
         &:focus {
             background: $primary;
             @extend %shadow_primary;
@@ -181,4 +196,74 @@ body {
     &.full {
         width: 100%;
     }
+}
+
+.inputfile {
+    display: inline-block;
+    input {
+        position: absolute;
+        z-index: -1;
+        overflow: hidden;
+        width: .1px;
+        height: .1px;
+        opacity: 0;
+        + label {
+            font: {
+                weight: 700;
+                size: .95em;
+            }
+            display: inline-block;
+            padding: 14px 25px;
+            cursor: pointer;
+            transition: all .2s linear;
+            text-transform: uppercase;
+            color: $primary;
+            border: none;
+            border-radius: 45px;
+            outline: none;
+            background: $grey92;
+        }
+        &:focus + label,
+        + label:hover {
+            background: $secondary;
+        }
+    }
+}
+
+.checkbox {
+    display: inline-block;
+    input {
+        display: none;
+        &:checked + label:before {
+            background: $secondary;
+        }
+    }
+    label {
+        position: relative;
+        padding: 0 0 0 35px;
+        &:before {
+            position: absolute;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            content: '';
+            transition: all .1s linear;
+            border-radius: 2px;
+            background: $grey92;
+        }
+    }
+}
+
+.online {
+    color: $secondary;
+}
+
+.group-label {
+    font-size: 10px;
+    margin: 0 0 0 10px;
+    padding: 7px 10px;
+    text-transform: uppercase;
+    color: $grey70;
+    border-radius: 2px;
+    background: $grey95;
 }
