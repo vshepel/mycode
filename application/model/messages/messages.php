@@ -46,9 +46,7 @@ class Messages extends AppModel {
 			->addBreadcrumbs($this->_lang->get("messages", "moduleName"), "messages")
 			->addBreadcrumbs($this->_lang->get("messages", "{$type}.moduleName"), "messages/" . $type);
 
-		/**
-		 * Check permissions for messages list
-		 */
+		// Check permissions for messages list
 		if ($this->_user->hasPermission("messages.list")) {
 			$num = $this->_db
 				->select("count(*)")
@@ -57,9 +55,7 @@ class Messages extends AppModel {
 				->and_where(($type == "outbox" ? "from" : "to"), "=", $this->_user->get("id"))
 				->result_array();
 
-			/**
-			 * Database error
-			 */
+			// Database error
 			if ($num === false) {
 				$response->code = 1;
 				$response->type = "danger";
@@ -68,9 +64,7 @@ class Messages extends AppModel {
 				$num = $num[0][0];
 				$pagination = new Pagination($num, $page, SITE_PATH . "messages/{$type}/page/", $this->_config->get("messages", "list.customPagination", array()));
 
-				/**
-				 * Messages list query
-				 */
+				// Messages list query
 				$array = $this->_db
 					->select(array(
 						"id", "from", "to", "reply", "topic", "message", "readed",
@@ -84,18 +78,14 @@ class Messages extends AppModel {
 					)->limit($pagination->getSqlLimits())
 					->result_array();
 
-				/**
-				 * Database error
-				 */
+				// Database error
 				if ($array === false) {
 					$response->code = 1;
 					$response->type = "danger";
 					$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
 				}
 
-				/**
-				 * Make messages list
-				 */
+				// Make messages list
 				else {
 					$rows = [];
 
@@ -103,9 +93,7 @@ class Messages extends AppModel {
 						$message = mb_substr($row["message"], 0, $this->_config->get("messages", "list.messageLength", 32), "UTF-8");
 						if (Strings::length($message) < Strings::length($row["message"])) $message .= "...";
 
-						/**
-						 * Tags
-						 */
+						// Tags
 						$rows[] = [
 							"id" => $row["id"],
 							"url" => SITE_PATH . "messages/" . $row["id"],
@@ -115,11 +103,18 @@ class Messages extends AppModel {
 							"from-id" => $this->_user->getUserLogin($row["from"]),
 							"from-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["from"]),
 							"from-login" => $this->_user->getUserLogin($row["from"]),
+							"from-name" => $this->_user->getUserName($row["from"]),
+							"from-avatar-link" => $this->_user->getAvatarLink($this->_user->getUser($row["from"], "avatar")),
+							"from-online" => $this->_user->checkOnline($this->_user->getUser($row["from"], "active")),
+							"from-offline" => !$this->_user->checkOnline($this->_user->getUser($row["from"], "active")),
 							
 							"to-id" => $this->_user->getUserLogin($row["to"]),
 							"to-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["to"]),
 							"to-login" => $this->_user->getUserLogin($row["to"]),
-							
+							"to-name" => $this->_user->getUserName($row["to"]),
+							"to-avatar-link" => $this->_user->getAvatarLink($this->_user->getUser($row["to"], "avatar")),
+							"to-online" => $this->_user->checkOnline($this->_user->getUser($row["to"], "active")),
+							"to-offline" => !$this->_user->checkOnline($this->_user->getUser($row["to"], "active")),
 							
 							"date" => $this->_core->getDate($row["timestamp"]),
 							"time" => $this->_core->getTime($row["timestamp"]),
@@ -155,9 +150,7 @@ class Messages extends AppModel {
 			}
 		}
 
-		/**
-		 * Access denied
-		 */
+		// Access denied
 		else {
 			$response->code = 2;
 			$response->type = "danger";
@@ -181,9 +174,7 @@ class Messages extends AppModel {
 		$this->_core
 			->addBreadcrumbs($this->_lang->get("messages", "moduleName"), "messages");
 
-		/**
-		 * Check permissions for messages list
-		 */
+		// Check permissions for messages list
 		if ($this->_user->hasPermission("messages.read")) {
 			$array = $this->_db
 				->select(array(
@@ -195,9 +186,7 @@ class Messages extends AppModel {
 				->and_where("user", "=", $this->_user->get("id"))
 				->result_array();
 
-			/**
-			 * Database error
-			 */
+			// Database error
 			if ($array === false) {
 				$response->code = 1;
 				$response->type = "danger";
@@ -221,10 +210,8 @@ class Messages extends AppModel {
 				$response->code = 0;
 				$response->view = "messages.read";
 
-				/**
-				 * Tags
-				 */
-				$response->tags = array(
+				// Tags
+				$response->tags = [
 					"id" => $row["id"],
 					"url" => SITE_PATH . "messages/" . $row["id"],
 					"topic" => $row["topic"],
@@ -233,23 +220,29 @@ class Messages extends AppModel {
 					"from-id" => $this->_user->getUserLogin($row["from"]),
 					"from-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["from"]),
 					"from-login" => $this->_user->getUserLogin($row["from"]),
+					"from-name" => $this->_user->getUserName($row["from"]),
+					"from-avatar-link" => $this->_user->getAvatarLink($this->_user->getUser($row["from"], "avatar")),
+					"from-online" => $this->_user->checkOnline($this->_user->getUser($row["from"], "active")),
+					"from-offline" => !$this->_user->checkOnline($this->_user->getUser($row["from"], "active")),
 							
 					"to-id" => $this->_user->getUserLogin($row["to"]),
 					"to-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["to"]),
 					"to-login" => $this->_user->getUserLogin($row["to"]),
+					"to-name" => $this->_user->getUserName($row["from"]),
+					"to-avatar-link" => $this->_user->getAvatarLink($this->_user->getUser($row["to"], "avatar")),
+					"to-online" => $this->_user->checkOnline($this->_user->getUser($row["to"], "active")),
+					"to-offline" => !$this->_user->checkOnline($this->_user->getUser($row["to"], "active")),
 					
 					"date" => $this->_core->getDate($row["timestamp"]),
 					"time" => $this->_core->getTime($row["timestamp"]),
 
 					"remove" => $this->_user->hasPermission("messages.remove"),
 					"remove-link" => SITE_PATH . "messages/remove/" . $row["id"]
-				);
+				];
 			}
 		}
 
-		/**
-		 * Access denied
-		 */
+		// Access denied
 		else {
 			$response->code = 2;
 			$response->type = "danger";
@@ -264,6 +257,7 @@ class Messages extends AppModel {
 	/*****************
 	 * SEND MESSAGES *
 	 *****************/
+	
 	 private $_sendPageTags = array(
 	 	 "user" => "",
 	 	 "topic" => "",
@@ -342,9 +336,7 @@ class Messages extends AppModel {
 		
 		$length = Strings::length($message); 
 
-		/**
-		 * If user haven't permission for add group
-		 */
+		// If user haven't permission for send message
 		if (!$this->_user->hasPermission("messages.send")) {
 			$response->code = 3;
 			$response->type = "danger";

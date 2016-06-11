@@ -5,8 +5,8 @@
 </ul><br>
 
 <dl class="dl-horizontal">
-	<dt>[f:messages:read.from]:</dt> <dd><a href="{from-link}">{from-login}</a></dd>
-	<dt>[f:messages:read.to]:</dt> <dd><a href="{to-link}">{to-login}</a></dd>
+	<dt>[f:messages:read.from]:</dt> <dd><img class="img-circle" src="{from-avatar-link}" alt="{from-login}" style="max-width: 20px"> <a href="{from-link}">{from-login}</a></dd>
+	<dt>[f:messages:read.to]:</dt> <dd><img class="img-circle" src="{to-avatar-link}" alt="{to-login}" style="max-width: 20px"> <a href="{to-link}">{to-login}</a></dd>
 	<dt>[f:messages:read.date]:</dt> <dd>{date}, {time}</dd>
 	<hr>
 	<dt>[f:messages:read.topic]:</dt> <dd>{topic}</dd>

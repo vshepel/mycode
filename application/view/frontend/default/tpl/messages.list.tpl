@@ -19,8 +19,14 @@
 		<tr[not-readed] class="active"[/not-readed]>
 			<td>{topic}</td>
 			<td><a href="{url}">{message}</a></td>
-			<td><a href="{from-link}">{from-login}</a></td>
-			<td><a href="{to-link}">{to-login}</a></td>
+			<td>
+				<img class="img-circle" src="{from-avatar-link}" alt="{from-login}" style="max-width: 20px">
+				<a href="{from-link}">{from-login}</a>
+			</td>
+			<td>
+				<img class="img-circle" src="{to-avatar-link}" alt="{to-login}" style="max-width: 20px">
+				<a href="{to-link}">{to-login}</a>
+			</td>
 			<td>{date}, {time}</td>
 			<td style="padding: 3px">
 				<div class="btn-group btn-group-sm btn-group-justified">

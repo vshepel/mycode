@@ -3,7 +3,7 @@
 
 <form method="post" class="form-horizontal">
 	<div class="form-group">
-		<label class="control-label col-sm-3">[b:user:fields.name]: *</label>
+		<label class="control-label col-sm-3">[b:user:fields.name]:</label>
 		<div class="col-sm-9">
 			<input class="form-control" type="text" name="edit[name]" value="{name}">
 		</div>

@@ -141,6 +141,7 @@ abstract class Parser {
 	 * @param object|array $object
 	 */
 	public function jsonRender($object) {
+		header("Content-Type: application/json");
 		echo json_encode($object);
 	}
 }
