@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
 
 	{link}
-	<link rel="icon" type="image/x-icon" href="{VIEW}img/favicon.ico" />
+	<link rel="icon" type="image/x-icon" href="{VIEW}img/favicon.png" />
 	<link rel="stylesheet" href="{VIEW}css/main.min.css" />
 
 	{script}
@@ -114,6 +114,33 @@
 		<section id="panel">
 			<a href="/user/profile/{username}">
 				<i class="mdi mdi-arrow-left"></i> [f:user:edit.link.back]
+			</a>
+		</section>
+		[/logged]
+		[/if]
+		[if MODACT="messages/list"]
+		[logged]
+		<section id="panel">
+			<a href="{PATH}messages/send">
+				<i class="mdi mdi-email"></i> [f:messages:mail.create]
+			</a>
+		</section>
+		[/logged]
+		[/if]
+		[if MODACT="messages/page"]
+		[logged]
+		<section id="panel">
+			<a href="/messages/list">
+				<i class="mdi mdi-arrow-left"></i> [f:messages:mail.link.back]
+			</a>
+		</section>
+		[/logged]
+		[/if]
+		[if SELF="/messages/send"]
+		[logged]
+		<section id="panel">
+			<a href="/messages/list">
+				<i class="mdi mdi-arrow-left"></i> [f:messages:mail.link.back]
 			</a>
 		</section>
 		[/logged]

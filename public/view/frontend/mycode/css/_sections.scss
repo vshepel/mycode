@@ -102,7 +102,7 @@
             .new {
                 position: absolute;
                 top: 2px;
-                right: 1px;
+                right: 2px;
                 width: 6px;
                 height: 6px;
                 border-radius: 50%;
@@ -169,25 +169,25 @@
                 height: 50px;
                 margin: 0 15px 0 0;
                 border-radius: 50%;
-                background: $grey80;
+                background: $secondary;
+                text-align: center;
+                line-height: 50px;
+                font-size: 1.3em;
+                color: $primary;
+                &.info i:before {
+                    content: "\F2FD";
+                }
             }
             p {
-                position: relative;
                 overflow: hidden;
                 margin: 9px 0;
+                overflow: hidden;
+                display: block;
                 white-space: nowrap;
+                text-overflow: ellipsis;
                 small {
                     display: block;
                     color: $grey80;
-                }
-                &:after {
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    width: 30px;
-                    height: 100%;
-                    content: '';
-                    background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(243, 243, 243, 1) 100%);
                 }
             }
         }
@@ -589,7 +589,7 @@
                 }
                 span,
                 a {
-                    word-wrap: nowrap;
+                    white-space: nowrap;
                     color: $grey60;
                 }
             }
@@ -638,8 +638,9 @@
         white-space: nowrap;
         text-overflow: ellipsis;
     }
-    small {
+    .status {
         color: $grey80;
+        font-size: .9em;
     }
     .panel {
         margin: 50px 0 0;
@@ -650,5 +651,72 @@
     }
 }
 
-
 /* Settings */
+
+.edit_photo {
+    .avatar {
+        width: 160px;
+        height: 160px;
+        border-radius: 5px;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    .photo-panel {
+        display: inline-block;
+        vertical-align: middle;
+        padding: 0 0 0 30px;
+        color: $grey80;
+        > span {
+            margin: 0 20px;
+            font-size: .8em;
+        }
+        > p {
+            font-size: .8em;
+            margin: 50px 0 0;
+        }
+    }
+}
+
+/* Messages */
+
+.message {
+    padding: 30px 40px;
+    transition: all .1s linear;
+    overflow: hidden;
+    position: relative;
+    &:hover, &.not-read {
+        background: $grey97;
+    }
+    .photo {
+        float: left;
+        padding: 8px 0;
+        img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            margin: 0 30px 0 0;
+        }
+    }
+    .subject {
+        line-height: 30px;
+        .message-text {
+            color: $grey70;
+            overflow: hidden;
+            display: block;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            span {
+                display: block;
+                color: $grey60;
+            }
+        }
+    }
+    .time {
+        position: absolute;
+        color: $grey80;
+        font-size: .8em;
+        top: 40px;
+        right: 40px;
+        pointer-events: none;
+    }
+}

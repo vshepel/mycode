@@ -30,7 +30,7 @@
 </header>
 
 <div id="main" class="container">
-	<main class="main_center not_found">
+	<main id="content" class="main_center not_found">
 		{SELF}<span>[f:404:text]</span>
 	</main>
 </div>

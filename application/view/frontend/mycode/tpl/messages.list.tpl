@@ -1,37 +1,41 @@
-<ul class="nav nav-tabs" role="tablist">
-	<li [if type="inbox"]class="active"[/if]><a href="{PATH}messages/inbox"><span class="glyphicon glyphicon-save"></span> [b:messages:inbox.moduleName] <span class="badge">{new-count}</span></a></li>
-	<li [if type="outbox"]class="active"[/if]><a href="{PATH}messages/outbox"><span class="glyphicon glyphicon-open"></span> [b:messages:outbox.moduleName]</a></li>
-	<li><a href="{PATH}messages/send"><span class="glyphicon glyphicon-send"></span> [b:messages:send.moduleName]</a></li>
-</ul><br>
-
-
-[if num!="0"]<table class="table">
-	<thead><tr>
-		<th>[f:messages:list.table.topic]</th>
-		<th>[f:messages:list.table.message]</th>
-		<th>[f:messages:list.table.from]</th>
-		<th>[f:messages:list.table.to]</th>
-		<th>[f:messages:list.table.date]</th>
-		<th style="width: 40px;"></th>
-	</tr></thead>
-	<tbody>
+<section class="block">
+	<div class="title">[f:messages:mail.title]</div>
+	<ul class="tabs">
+		<li[if type="inbox"] class="active"[/if]>
+			<a href="{PATH}messages/inbox">[b:messages:inbox.moduleName][if new-count!="0"] <span>{new-count}</span>[/if]</a>
+		</li>
+		<li[if type="outbox"] class="active"[/if]>
+			<a href="{PATH}messages/outbox">[b:messages:outbox.moduleName]</a>
+		</li>
+	</ul>
+	<div class="block-content message-content">
+		[if num!="0"]
 		[foreach rows]
-		<tr[not-readed] class="active"[/not-readed]>
-			<td>{topic}</td>
-			<td><a href="{url}">{message}</a></td>
-			<td><a href="{from-link}">{from-login}</a></td>
-			<td><a href="{to-link}">{to-login}</a></td>
-			<td>{date}, {time}</td>
-			<td style="padding: 3px">
-				<div class="btn-group btn-group-sm btn-group-justified">
-					[remove]<a href="{remove-link}" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></a>[/remove]
-				</div>
-			</td>
-		</tr>
+		<div class="message[not-readed] not-read[/not-readed]">
+			<div class="photo">
+				<a href="{from-link}">
+					<img src="{from-avatar-link}" alt="{from-login}">
+				</a>
+			</div>
+			<div class="subject">
+				<a href="{url}" class="message-text">
+					<span>[if from-name!=""]{from-name}[/if][if from-name=""]{from-login}[/if]</span>
+					{message}
+				</a>
+			</div>
+			<div class="time">
+				[if date!="[b:core:smartDate.today]"]{date}, [/if]{time}
+			</div>
+		</div>
 		[/foreach]
-	</tbody>
-</table>
+		[/if]
+		[if num="0"]
+		<div class="post-nope">
+			<i class="mdi mdi-email-open"></i>
+			[f:messages:list.noRows]
+		</div>
+		[/if]
+	</div>
+</section>
 
-{pagination}[/if][if num="0"]<div class="alert alert-info" role="alert">
-	[f:messages:list.noRows]
-</div>[/if]
+{pagination}

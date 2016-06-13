@@ -99,11 +99,54 @@ body {
         font-size: 1.3em;
         padding: 40px 40px 30px;
         color: $text;
+        &.title-message {
+            font-size: 1em;
+            position: relative;
+            &:before {
+                position: absolute;
+                z-index: 1;
+                bottom: 0;
+                left: 0;
+                display: block;
+                width: 100%;
+                height: 2px;
+                content: '';
+                background: $grey95;
+            }
+            > * {
+                display: inline-block;
+                vertical-align: middle;
+            }
+            img {
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+            }
+            > ul {
+                margin: 0 10px;
+                li {
+                    padding: 3px 5px;
+                    &.date {
+                        font-size: .9em;
+                    }
+                }
+            }
+        }
     }
     .block-content {
         padding: 30px 40px;
+        color: $text;
         &.hastable {
             padding: 0 40px 40px;
+        }
+        &.message-content {
+            padding: 0 0 40px;
+        }
+        .message-panel {
+            margin: 50px 0 20px;
+            .btn-primary {
+                margin: 0 20px 0 0;
+            }
         }
     }
     .tabs {
@@ -131,11 +174,22 @@ body {
             a {
                 display: block;
                 padding: 15px 5px;
+                span {
+                    background: $grey92;
+                    color: $primary;
+                    padding: 4px 5px;
+                    border-radius: 2px;
+                    font-size: .8em;
+                    margin: 0 0 0 5px;
+                }
             }
             &.active {
                 border-bottom: 2px solid $secondary;
                 a {
                     color: $secondary;
+                    span {
+                        background: $secondary;
+                    }
                 }
             }
         }
@@ -167,6 +221,20 @@ body {
     }
 }
 
+.form {
+    .panel {
+        margin: 50px 0 30px;
+        a {
+            margin: 0 30px;
+        }
+    }
+    .break {
+        overflow: hidden;
+        width: 100%;
+        height: 20px;
+    }
+}
+
 .field {
     display: inline-block;
     width: 230px;
@@ -178,6 +246,7 @@ body {
         color: $grey85;
     }
     input,
+    textarea,
     select {
         line-height: 50px;
         width: 100%;
@@ -192,6 +261,12 @@ body {
             background: $primary;
             @extend %shadow_primary;
         }
+    }
+    textarea {
+        resize: none;
+        min-height: 100px;
+        line-height: inherit;
+        padding: 20px;
     }
     &.full {
         width: 100%;
@@ -250,6 +325,7 @@ body {
             transition: all .1s linear;
             border-radius: 2px;
             background: $grey92;
+            cursor: pointer;
         }
     }
 }
