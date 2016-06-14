@@ -99,11 +99,55 @@ body {
         font-size: 1.3em;
         padding: 40px 40px 30px;
         color: $text;
+        &.title-message {
+            font-size: 1em;
+            position: relative;
+            &:before {
+                position: absolute;
+                z-index: 1;
+                bottom: 0;
+                left: 0;
+                display: block;
+                width: 100%;
+                height: 2px;
+                content: '';
+                background: $grey95;
+            }
+            > * {
+                display: inline-block;
+                vertical-align: middle;
+            }
+            img {
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+            }
+            > ul {
+                margin: 0 10px;
+                li {
+                    padding: 3px 5px;
+                    &.date {
+                        font-size: .9em;
+                    }
+                }
+            }
+        }
     }
     .block-content {
         padding: 30px 40px;
+        color: $text;
         &.hastable {
             padding: 0 40px 40px;
+        }
+        &.message-content {
+            padding: 0 0 40px;
+        }
+        .panel {
+            margin: 50px 0 20px;
+            .btn-primary {
+                margin: 0 20px 0 0;
+                display: inline-block;
+            }
         }
     }
     .tabs {
@@ -131,11 +175,22 @@ body {
             a {
                 display: block;
                 padding: 15px 5px;
+                span {
+                    font-size: .8em;
+                    margin: 0 0 0 5px;
+                    padding: 4px 5px;
+                    color: $primary;
+                    border-radius: 2px;
+                    background: $grey92;
+                }
             }
             &.active {
                 border-bottom: 2px solid $secondary;
                 a {
                     color: $secondary;
+                    span {
+                        background: $secondary;
+                    }
                 }
             }
         }
@@ -178,6 +233,7 @@ body {
         color: $grey85;
     }
     input,
+    textarea,
     select {
         line-height: 50px;
         width: 100%;
@@ -192,6 +248,12 @@ body {
             background: $primary;
             @extend %shadow_primary;
         }
+    }
+    textarea {
+        line-height: inherit;
+        min-height: 100px;
+        padding: 20px;
+        resize: none;
     }
     &.full {
         width: 100%;
@@ -223,9 +285,12 @@ body {
             outline: none;
             background: $grey92;
         }
-        &:focus + label,
         + label:hover {
+            @extend %shadow_static;
+        }
+        &:focus + label {
             background: $secondary;
+            @extend %shadow_btn;
         }
     }
 }
@@ -247,6 +312,7 @@ body {
             width: 20px;
             height: 20px;
             content: '';
+            cursor: pointer;
             transition: all .1s linear;
             border-radius: 2px;
             background: $grey92;

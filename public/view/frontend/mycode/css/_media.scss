@@ -119,6 +119,12 @@
         .photo-panel {
             display: block;
             padding: 0;
+            > * {
+                display: block;
+            }
+            > span {
+                margin: 20px 0;
+            }
         }
     }
     .card {

@@ -5,11 +5,11 @@
 		<form class="form" method="post">
 			<div class="field">
 				<span>[f:user:form.name]</span>
-				<input type="text" name="edit[name]" value="{name}">
+				<input type="text" name="edit[name]" value="{name}" />
 			</div>
 			<div class="field">
 				<span>[f:user:form.email]</span>
-				<input type="text" name="edit[public_email]" value="{public-email}">
+				<input type="text" name="edit[public_email]" value="{public-email}" />
 			</div>
 			<div class="field">
 				<span>[f:user:form.lang]</span>
@@ -21,11 +21,11 @@
 			<div class="break"></div>
 			<div class="field full">
 				<span>[f:user:form.url]</span>
-				<input type="text" name="edit[url]" value="{url}" placeholder="http://">
+				<input type="text" name="edit[url]" value="{url}" placeholder="http://" />
 			</div>
 			<div class="panel">
 				<button class="btn-primary">
-					[f:user:edit.main.form.submit]
+					[f:user:edit.form.btn]
 				</button>
 			</div>
 		</form>

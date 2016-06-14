@@ -102,7 +102,7 @@
             .new {
                 position: absolute;
                 top: 2px;
-                right: 1px;
+                right: 2px;
                 width: 6px;
                 height: 6px;
                 border-radius: 50%;
@@ -164,30 +164,30 @@
                 color: $text;
             }
             .type {
+                font-size: 1.3em;
+                line-height: 50px;
                 float: left;
                 width: 50px;
                 height: 50px;
                 margin: 0 15px 0 0;
+                text-align: center;
+                color: $primary;
                 border-radius: 50%;
-                background: $grey80;
+                background: $secondary;
+                &.info i:before {
+                    content: '\F2FD';
+                }
             }
             p {
-                position: relative;
+                display: block;
+                overflow: hidden;
                 overflow: hidden;
                 margin: 9px 0;
                 white-space: nowrap;
+                text-overflow: ellipsis;
                 small {
                     display: block;
                     color: $grey80;
-                }
-                &:after {
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    width: 30px;
-                    height: 100%;
-                    content: '';
-                    background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(243, 243, 243, 1) 100%);
                 }
             }
         }
@@ -366,8 +366,9 @@
         margin: 50px auto;
     }
     &.not_found {
-        font-size: 4em;
+        font-size: 3em;
         font-weight: 700;
+        word-wrap: break-word;
         width: 100%;
         margin: 200px auto 50px;
         text-align: center;
@@ -589,7 +590,7 @@
                 }
                 span,
                 a {
-                    word-wrap: nowrap;
+                    white-space: nowrap;
                     color: $grey60;
                 }
             }
@@ -597,6 +598,29 @@
     }
 }
 
+/* Edit - Photo */
+.edit_photo {
+    .avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 5px;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    .photo-panel {
+        display: inline-block;
+        vertical-align: middle;
+        margin: 0 30px;
+        > span {
+            margin: 0 15px;
+        }
+        > p {
+            font-size: .9em;
+            color: $grey80;
+            margin: 40px 0 0;
+        }
+    }
+}
 
 /* User list */
 
@@ -638,7 +662,8 @@
         white-space: nowrap;
         text-overflow: ellipsis;
     }
-    small {
+    .status {
+        font-size: .9em;
         color: $grey80;
     }
     .panel {
@@ -652,3 +677,49 @@
 
 
 /* Settings */
+
+
+/* Messages */
+
+.message {
+    position: relative;
+    overflow: hidden;
+    padding: 30px 40px;
+    transition: all .1s linear;
+    &:hover,
+    &.not-read {
+        background: $grey97;
+    }
+    .photo {
+        float: left;
+        padding: 8px 0;
+        img {
+            width: 45px;
+            height: 45px;
+            margin: 0 30px 0 0;
+            border-radius: 50%;
+        }
+    }
+    .subject {
+        line-height: 30px;
+        .message-text {
+            display: block;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            color: $grey70;
+            span {
+                display: block;
+                color: $grey60;
+            }
+        }
+    }
+    .time {
+        font-size: .8em;
+        position: absolute;
+        top: 40px;
+        right: 40px;
+        pointer-events: none;
+        color: $grey80;
+    }
+}

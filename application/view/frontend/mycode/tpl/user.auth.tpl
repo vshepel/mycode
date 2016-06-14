@@ -22,7 +22,7 @@
 				<button class="btn-primary">
 					[f:user:auth.form.btn]
 				</button>
-				<a href="{restore-link}">[f:user:auth.form.forgot]</a>
+				<a href="{restore-link}">[f:user:auth.form.restore]</a>
 			</div>
 		</form>
 	</div>

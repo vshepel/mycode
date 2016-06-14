@@ -1,6 +1,6 @@
 [if num!="0"]
 [foreach rows]
-<div class="search_total">
+<div class="page_total">
 	[f:blog:search.request] "{query}" [f:blog:search.found] - {num}
 </div>
 <article class="post">
