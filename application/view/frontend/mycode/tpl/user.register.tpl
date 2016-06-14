@@ -33,7 +33,7 @@
 			</div>
 			<div class="panel">
 				<button class="btn-primary">
-					[f:user:auth.form.btn]
+					[f:user:register.form.btn]
 				</button>
 			</div>
 		</form>

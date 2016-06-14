@@ -1,11 +1,11 @@
 <section class="block">
-	<div class="title">[f:messages:mail.title]</div>
+	<div class="title">[f:messages:list.title]</div>
 	<ul class="tabs">
 		<li[if type="inbox"] class="active"[/if]>
-			<a href="{PATH}messages/inbox">[b:messages:inbox.moduleName][if new-count!="0"] <span>{new-count}</span>[/if]</a>
+			<a href="{PATH}messages/inbox">[f:messages:list.tab.inbox][if new-count!="0"] <span>{new-count}</span>[/if]</a>
 		</li>
 		<li[if type="outbox"] class="active"[/if]>
-			<a href="{PATH}messages/outbox">[b:messages:outbox.moduleName]</a>
+			<a href="{PATH}messages/outbox">[f:messages:list.tab.outbox]</a>
 		</li>
 	</ul>
 	<div class="block-content message-content">

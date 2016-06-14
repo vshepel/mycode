@@ -164,25 +164,25 @@
                 color: $text;
             }
             .type {
+                font-size: 1.3em;
+                line-height: 50px;
                 float: left;
                 width: 50px;
                 height: 50px;
                 margin: 0 15px 0 0;
+                text-align: center;
+                color: $primary;
                 border-radius: 50%;
                 background: $secondary;
-                text-align: center;
-                line-height: 50px;
-                font-size: 1.3em;
-                color: $primary;
                 &.info i:before {
-                    content: "\F2FD";
+                    content: '\F2FD';
                 }
             }
             p {
+                display: block;
+                overflow: hidden;
                 overflow: hidden;
                 margin: 9px 0;
-                overflow: hidden;
-                display: block;
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 small {
@@ -366,8 +366,9 @@
         margin: 50px auto;
     }
     &.not_found {
-        font-size: 4em;
+        font-size: 3em;
         font-weight: 700;
+        word-wrap: break-word;
         width: 100%;
         margin: 200px auto 50px;
         text-align: center;
@@ -597,6 +598,29 @@
     }
 }
 
+/* Edit - Photo */
+.edit_photo {
+    .avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 5px;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    .photo-panel {
+        display: inline-block;
+        vertical-align: middle;
+        margin: 0 30px;
+        > span {
+            margin: 0 15px;
+        }
+        > p {
+            font-size: .9em;
+            color: $grey80;
+            margin: 40px 0 0;
+        }
+    }
+}
 
 /* User list */
 
@@ -639,8 +663,8 @@
         text-overflow: ellipsis;
     }
     .status {
-        color: $grey80;
         font-size: .9em;
+        color: $grey80;
     }
     .panel {
         margin: 50px 0 0;
@@ -651,40 +675,19 @@
     }
 }
 
+
 /* Settings */
 
-.edit_photo {
-    .avatar {
-        width: 160px;
-        height: 160px;
-        border-radius: 5px;
-        display: inline-block;
-        vertical-align: middle;
-    }
-    .photo-panel {
-        display: inline-block;
-        vertical-align: middle;
-        padding: 0 0 0 30px;
-        color: $grey80;
-        > span {
-            margin: 0 20px;
-            font-size: .8em;
-        }
-        > p {
-            font-size: .8em;
-            margin: 50px 0 0;
-        }
-    }
-}
 
 /* Messages */
 
 .message {
+    position: relative;
+    overflow: hidden;
     padding: 30px 40px;
     transition: all .1s linear;
-    overflow: hidden;
-    position: relative;
-    &:hover, &.not-read {
+    &:hover,
+    &.not-read {
         background: $grey97;
     }
     .photo {
@@ -693,18 +696,18 @@
         img {
             width: 45px;
             height: 45px;
-            border-radius: 50%;
             margin: 0 30px 0 0;
+            border-radius: 50%;
         }
     }
     .subject {
         line-height: 30px;
         .message-text {
-            color: $grey70;
-            overflow: hidden;
             display: block;
+            overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
+            color: $grey70;
             span {
                 display: block;
                 color: $grey60;
@@ -712,11 +715,11 @@
         }
     }
     .time {
-        position: absolute;
-        color: $grey80;
         font-size: .8em;
+        position: absolute;
         top: 40px;
         right: 40px;
         pointer-events: none;
+        color: $grey80;
     }
 }

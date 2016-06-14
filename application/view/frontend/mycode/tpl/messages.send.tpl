@@ -1,5 +1,5 @@
 <section class="block">
-	<div class="title">[f:messages:mail.title.create]</div>
+	<div class="title">[f:messages:send.title]</div>
 	<div class="block-content">
 
 	<form class="form" enctype="multipart/form-data" method="post">
@@ -18,7 +18,7 @@
 			</div>
 			<div class="panel">
 				<button class="btn-primary">
-					[f:messages:send.form.submit]
+					[f:messages:send.form.btn]
 				</button>
 			</div>
 		</form>

@@ -57,7 +57,7 @@
 				<ul>
 					[logged]
 					<li class="write">
-						<a class="btn-primary" href="{add-link}">[f:main:panel.write]</a>
+						<a class="btn-primary" href="blog/add">[f:main:panel.write]</a>
 					</li>
 					<li class="search_icon links"><a href="#"><i class="mdi mdi-magnify"></i></a></li>
 					<li class="write_icon links"><a href="{add-link}"><i class="mdi mdi-pencil"></i></a></li>
@@ -88,11 +88,14 @@
 		[if SELF="/user/profile/{username}"]
 		[logged]
 		<section id="panel">
+			<a href="/messages/list">
+				<i class="mdi mdi-email"></i> [f:messages:list.title]
+			</a>
 			<a href="/user/edit">
 				<i class="mdi mdi-settings"></i> [f:user:profile.link.edit]
 			</a>
 			<a href="/user/sessions">
-				<i class="mdi mdi-login-variant"></i> [f:user:edit.link.sessions]
+				<i class="mdi mdi-login-variant"></i> [f:user:profile.link.sessions]
 			</a>
 			<a href="/user/logout">
 				<i class="mdi mdi-logout-variant"></i> [f:user:profile.link.exit]
@@ -122,7 +125,10 @@
 		[logged]
 		<section id="panel">
 			<a href="{PATH}messages/send">
-				<i class="mdi mdi-email"></i> [f:messages:mail.create]
+				<i class="mdi mdi-email"></i> [f:messages:link.create]
+			</a>
+			<a href="/user/profile/{username}">
+				<i class="mdi mdi-arrow-left"></i> [f:user:edit.link.back]
 			</a>
 		</section>
 		[/logged]
@@ -131,7 +137,7 @@
 		[logged]
 		<section id="panel">
 			<a href="/messages/list">
-				<i class="mdi mdi-arrow-left"></i> [f:messages:mail.link.back]
+				<i class="mdi mdi-arrow-left"></i> [f:messages:link.back]
 			</a>
 		</section>
 		[/logged]
@@ -140,17 +146,17 @@
 		[logged]
 		<section id="panel">
 			<a href="/messages/list">
-				<i class="mdi mdi-arrow-left"></i> [f:messages:mail.link.back]
+				<i class="mdi mdi-arrow-left"></i> [f:messages:link.back]
 			</a>
 		</section>
 		[/logged]
 		[/if]
     	<section id="category">
-    		<div class="title">[b:blog:categories.moduleName]</div>
+    		<div class="title">[f:main:sidebar.category]</div>
     		{blog:categories}
     	</section>
     	<section id="popular">
-    		<div class="title">[b:blog:popular.moduleName]</div>
+    		<div class="title">[f:main:sidebar.popular]</div>
     		{blog:popular}
     	</section>
     	<section id="adv">

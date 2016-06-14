@@ -9,7 +9,7 @@
 	<div class="block-content">
 		<h2>{topic}</h2>
 		<p>{message}</p>
-		<div class="message-panel">
+		<div class="panel">
 			<a href="/messages/send/{from-login}" class="btn-primary">[f:messages:read.reply]</a>
 			[remove]<a href="{remove-link}" class="remove">[f:messages:read.remove]</a>[/remove]
 		</div>

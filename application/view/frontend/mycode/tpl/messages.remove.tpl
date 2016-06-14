@@ -7,8 +7,8 @@
 			<input type="hidden" name="remove[id]" value="{id}">
 			[f:messages:remove.description]
 			<div class="panel">
-				<button class="btn-primary" type="submit">[b:core:options.yes]</button>
-				<a href="{PATH}messages">[b:core:options.no]</a>
+				<button class="btn-primary" type="submit">[f:messages:remove.yes]</button>
+				<a href="{PATH}messages">[f:messages:remove.no]</a>
 			</div>
 		</form>
 	</div>
