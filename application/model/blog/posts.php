@@ -414,7 +414,7 @@ class Posts extends AppModel {
 					->result_array();
 
 				if ($views === false) {
-					return new Response(1, "danger", $this->_lang->get(null, "core", "internalError", [$this->_db->getError()]));
+					return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 				} elseif (count($views) < 1) {
 					// Update post views
 					$this->_db

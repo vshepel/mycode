@@ -77,7 +77,7 @@
 					</a>
 					<ul class="dropdown-menu" aria-labelledby="user-dropdown">
 						<li><a href="{profile-link}"><span class="fa fa-fw fa-user"></span> [f:main:user.account]</a></li>
-						<li><a href="{messages-link}"><span class="fa fa-fw fa-envelope"></span> [b:messages:moduleName]</a></li>
+						[if installed-module:messages]<li><a href="{messages-link}"><span class="fa fa-fw fa-envelope"></span> [b:messages:moduleName]</a></li>[/if]
 						<li><a href="{logout-link}"><span class="fa fa-fw fa-sign-out"></span> [f:main:user.logout]</a></li>
 					</ul>
 				</li>

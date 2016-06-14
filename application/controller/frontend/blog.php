@@ -25,6 +25,7 @@ use AppController;
 use model\blog\Posts;
 use model\blog\Categories;
 use model\blog\Comments;
+use model\blog\PostsModeration;
 use model\blog\Rating;
 
 use harmony\http\HTTP;
@@ -53,8 +54,9 @@ class Blog extends AppController {
 		"archive/([0-9]+)" => "archive",
 		
 		"calendar/([0-9]+)/([0-9]+)" => "calendar",
-		
-		"rating/([A-Za-z0-9]+)/([0-9]+)" => "rating"
+		"rating/([A-Za-z0-9]+)/([0-9]+)" => "rating",
+		"add/([0-9]+)" => "add",
+		"add" => null,
 	);
 
 	private $_posts;
@@ -161,5 +163,21 @@ class Blog extends AppController {
 			"code" => 0,
 			"calendar" => $this->_posts->getCalendar($args[0], $args[1])
 		]);
+	}
+
+	public function action_add($args) {
+		$moder = new PostsModeration();
+
+		if (isset($_POST["title"], $_POST["url"], $_POST["category"], $_POST["text"], $_POST["tags"], $_POST["lang"])) {
+			$result = $moder->add(
+				$_POST["title"], $_POST["url"], $_POST["category"], $_POST["text"], $_POST["tags"], $_POST["lang"]
+			);
+
+			$this->_view->alert($result->type, $result->message);
+			if ($result->code == 0) $moder = new PostsModeration(); // Renew model
+		}
+
+		$category = isset($args[0]) ? $args[0] : null;
+		$this->_view->responseRender($moder->addPage($category));
 	}
 }

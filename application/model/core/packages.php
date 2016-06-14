@@ -400,7 +400,7 @@ class Packages extends AppModel {
 			if (is_file($dir . DS . "install.sql") && $sql = file_get_contents($dir . DS . "install.sql")) {
 				foreach (explode(";", $sql) as $query) {
 					$query = str_replace("{PREFIX}", DBPREFIX, $query);
-					if (!empty($query) && !$this->_db->query($query)->result()) {
+					if (!empty(str_replace([" ", "\n", "\r"], "", $query)) && !$this->_db->query($query)->result()) {
 						return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 					}
 				}
