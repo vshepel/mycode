@@ -59,6 +59,8 @@ class Settings extends AppModel {
 
 			$response->view = "blog.settings";
 			$response->tags = [
+				"not-empty-categories" => $this->_config->get("blog", "main.not_empty_categories", false),
+
 				"posts-editors" => $editors,
 				"posts-rating-active" => $this->_config->get("blog", "posts.rating_active", true),
 				"posts-advanced-views" => $this->_config->get("blog", "posts.advanced_views", true),
@@ -88,6 +90,8 @@ class Settings extends AppModel {
 			return new Response(3, "warning", $this->_lang->get("core", "emptyFields"));
 		} else {
 			$this->_config->save("blog", [
+				"main.not_empty_categories" => isset($values["main_not_empty_categories"]),
+
 				"posts.editor" => $values["posts_editor"],
 				"posts.rating_active" => isset($values["posts_rating_active"]),
 				"posts.advanced_views" => isset($values["posts_advanced_views"]),

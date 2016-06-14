@@ -1,6 +1,15 @@
 [include "blog.tabs"]
 
 <form method="post" class="form-horizontal">
+	<h3 align="center"><span class="fa fa-home"></span> [f:blog:settings.main]</h3>
+
+	<div class="form-group">
+		<label class="control-label col-sm-6">[f:blog:settings.main.notEmptyCategories]</label>
+		<div class="col-sm-6">
+			<input class="form-control" type="checkbox" name="main_not_empty_categories"[not-empty-categories] checked[/not-empty-categories]>
+		</div>
+	</div>
+
 	<h3 align="center"><span class="fa fa-newspaper-o"></span> [f:blog:settings.posts]</h3>
 
 	<div class="form-group">
