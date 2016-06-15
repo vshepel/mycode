@@ -24,9 +24,10 @@ class ArrayConverters {
 	/**
 	 * Convert Array to File
 	 * @param array $array Array
+	 * @param bool $currentDate Put current date to file
 	 * @return string File content
 	 */
-	public static function arrayToFile(array $array) {
-		return "<?php return " . var_export($array, true) . ";";
+	public static function arrayToFile(array $array, $currentDate) {
+		return "<?php\n//Updated: " . date("c", time()) . "\nreturn " . var_export($array, true) . ";";
 	}
 }

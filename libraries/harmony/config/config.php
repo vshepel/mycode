@@ -117,7 +117,7 @@ class Config {
 
 		
 		$file = $this->_dir . DS . $name . ".php";
-		$config = ArrayConverters::arrayToFile($this->_config[$name]);
+		$config = ArrayConverters::arrayToFile($this->_config[$name], true);
 
 		if (!@file_put_contents($file, $config))
 			throw new Exception("Config error: error save file {$file}");

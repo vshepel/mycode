@@ -13,9 +13,9 @@
 	<span class="fa fa-newspaper-o"></span> [f:blog:list.total] <span class="badge">{num}</span>
 </div>
 <div class="pull-right">
-	<a href="{SITE_PATH}blog/add" class="btn btn-xs btn-primary">
+	[if has-permission:"blog.posts.add"]<a href="{SITE_PATH}blog/add" class="btn btn-xs btn-primary">
 		<span class="glyphicon glyphicon-plus"></span> [b:blog:add.moduleName]
-	</a>
+	</a>[/if]
 </div>
 <div class="clearfix"></div>
 
