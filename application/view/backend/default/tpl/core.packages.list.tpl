@@ -1,9 +1,18 @@
 [include "core.packages.tabs"]
 
 [if num!="0"]<ul class="nav nav-pills">
-  <li id="toggle-all" class="toggle active"><a href="#" onclick="showAll(); return false;">[f:core:packages.list.toggle.all]</a></li>
-  <li id="toggle-module" class="toggle"><a href="#" onclick="show('module'); return false;">[f:core:packages.list.toggle.packages]</a></li>
-  <li id="toggle-library" class="toggle"><a href="#" onclick="show('library'); return false;">[f:core:packages.list.toggle.libraries]</a></li>
+	<li id="toggle-all" class="toggle active"><a href="#" onclick="showAll(); return false;">
+		<span class="main-row-icon fa fa-institution"></span>
+		[f:core:packages.list.toggle.all]
+	</a></li>
+	<li id="toggle-module" class="toggle"><a href="#" onclick="show('module'); return false;">
+		<span class="main-row-icon fa fa-briefcase"></span>
+		[f:core:packages.list.toggle.packages]
+	</a></li>
+	<li id="toggle-library" class="toggle"><a href="#" onclick="show('library'); return false;">
+		<span class="main-row-icon fa fa-archive"></span>
+		[f:core:packages.list.toggle.libraries]
+	</a></li>
 </ul><br>
 
 <table class="table table-bordered">

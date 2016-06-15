@@ -84,28 +84,35 @@ class Posts extends AppModel {
 	/**
 	 * Get post text
 	 * @param string $text Original post text
+	 * @param bool $parse = true Parse text
 	 * @param bool $short = false Get short text?
 	 * @return string
+	 * @throws \Exception
 	 */
-	public static function getText($text, $short = false) {
-		if ($short) {
-			$text = explode("[separator]", $text)[0];
+	public static function getText($text, $parse = true, $short = false) {
+		// Return text if not need parse
+		if (!$parse) {
+			if ($short) {
+				$text = explode("[separator]", $text)[0];
+			} else {
+				$text = str_replace("[separator]", "", $text);
+			}
+
+			return $text;
 		} else {
-			$text = str_replace("[separator]", "", $text);
-		}
+			$editor = Registry::getInstance()->get("Config")->get("blog", "posts.editor", "BBCode");
 
-		$editor = Registry::getInstance()->get("Config")->get("blog", "posts.editor", "BBCode");
+			switch ($editor) {
+				case "Markdown":
+					$parsedown = new Parsedown();
+					return $parsedown->parse($text);
 
-		switch ($editor) {
-			case "Markdown":
-				$parsedown = new Parsedown();
-				return $parsedown->parse($text);
-			
-			case "BBCode":
-				return BBCodeParser::parse($text); 
-				
-			default:
-				return $text;
+				case "BBCode":
+					return BBCodeParser::parse($text);
+
+				default:
+					return $text;
+			}
 		}
 	}
 
@@ -219,7 +226,7 @@ class Posts extends AppModel {
 			// Posts query
 			$this->_db
 				->select(array(
-					"id", "title", "url", "text", "category", "comments_num", "views_num", "rating",
+					"id", "title", "url", "text", "text_parsed", "category", "comments_num", "views_num", "rating",
 					"tags", "lang",
 					array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 					"show", "show_main", "show_category", "author"
@@ -296,8 +303,8 @@ class Posts extends AppModel {
 						"author-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["author"]),
 						"author-avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
 
-						"full-text" => Posts::getText($row["text"]),
-						"short-text" => Posts::getText($row["text"], true),
+						"full-text" => Posts::getText($row["text_parsed"], false),
+						"short-text" => Posts::getText($row["text_parsed"], false, true),
 						
 						"tags" => $this->makeTagsLinks($row["tags"]),
 						"lang" => $row["lang"],
@@ -377,7 +384,7 @@ class Posts extends AppModel {
 		// Get post
 		$array = $this->_db
 			->select(array(
-				"id", "title", "url", "text", "category", "tags", "lang",
+				"id", "title", "url", "text", "text_parsed", "category", "tags", "lang",
 				"comments_num", "views_num", "rating", array ("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 				"allow_comments", "author"
 			))
@@ -534,8 +541,8 @@ class Posts extends AppModel {
 				"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
 				"title" => $row["title"],
 
-				"full-text" => Posts::getText($row["text"]),
-				"short-text" => Posts::getText($row["text"], true),
+				"full-text" => Posts::getText($row["text_parsed"], false),
+				"short-text" => Posts::getText($row["text_parsed"], false, true),
 
 				"tags" => $this->makeTagsLinks($row["tags"]),
 				"lang" => $row["lang"],
@@ -637,7 +644,7 @@ class Posts extends AppModel {
 			if (!$this->_editQuery) {
 				$row = $this->_db
 					->select(array(
-						"id", "url", "title", "text", "category",
+						"id", "url", "title", "text", "text_parsed", "category",
 						"tags", "lang",
 						"allow_comments", "show", "show_main", "show_category"
 					))
@@ -772,6 +779,7 @@ class Posts extends AppModel {
 				"url" => $url,
 				"category" => $category,
 				"text" => $text,
+				"text_parsed" => Posts::getText($text),
 
 				"tags" => $tags,
 				"lang" => $lang,
@@ -984,7 +992,7 @@ class Posts extends AppModel {
 			 */
 			$this->_db
 				->select(array(
-					"id", "title", "url", "text", "category", "comments_num", "views_num", "rating",
+					"id", "title", "url", "text", "text_parsed", "category", "comments_num", "views_num", "rating",
 					"tags", "lang",
 					array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 					"show", "show_main", "show_category", "author"
@@ -1041,8 +1049,8 @@ class Posts extends AppModel {
 						"author-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["author"]),
 						"author-avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
 
-						"full-text" => Posts::getText($row["text"]),
-						"short-text" => Posts::getText($row["text"], true),
+						"full-text" => Posts::getText($row["text_parsed"], false),
+						"short-text" => Posts::getText($row["text_parsed"], false, true),
 
 						"tags" => $this->makeTagsLinks($row["tags"]),
 						"lang" => $row["lang"],
@@ -1315,7 +1323,7 @@ class Posts extends AppModel {
 				 */
 				$array = $this->_db
 					->select(array(
-						"id", "title", "url", "text", "category", "comments_num", "views_num", "rating",
+						"id", "title", "url", "text", "text_parsed", "category", "comments_num", "views_num", "rating",
 						"tags", "lang", array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 						"show", "author"
 					))
@@ -1369,8 +1377,8 @@ class Posts extends AppModel {
 							"author-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["author"]),
 							"author-avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
 
-							"full-text" => Posts::getText($row["text"]),
-							"short-text" => Posts::getText($row["text"], true),
+							"full-text" => Posts::getText($row["text_parsed"], false),
+							"short-text" => Posts::getText($row["text_parsed"], false, true),
 
 							"tags" => $this->makeTagsLinks($row["tags"]),
 							"lang" => $row["lang"],

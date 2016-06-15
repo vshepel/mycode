@@ -27,7 +27,7 @@
 			<a class="navbar-brand" href="{PATH}">
 				<img alt="LOGO" src="{PATH}images/harmony-fav.png" height="20">
 			</a>
-			<a class="navbar-brand" href="{PATH}">HarmonyCMS Control Panel</a>
+			<a class="navbar-brand" href="{PATH}">[b:core:controlPanel]</a>
 			<button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target=".navbar-collapse">
 				<span class="sr-only">Toggle navigation</span>
 				<span class="icon-bar"></span>

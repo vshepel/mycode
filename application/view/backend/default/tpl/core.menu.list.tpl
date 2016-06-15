@@ -1,6 +1,10 @@
 <ul class="nav nav-tabs" role="tablist">
-	<li[if type="frontend"] class="active"[/if]><a href="{ADMIN_PATH}core/menu/list/frontend">[b:core:menu.type.frontend]</a></li>
-	<li[if type="backend"] class="active"[/if]><a href="{ADMIN_PATH}core/menu/list/backend">[b:core:menu.type.backend]</a></li>
+	<li[if type="frontend"] class="active"[/if]><a href="{ADMIN_PATH}core/menu/list/frontend">
+        <span class="main-row-icon fa fa-globe"></span> [b:core:menu.type.frontend]
+    </a></li>
+	<li[if type="backend"] class="active"[/if]><a href="{ADMIN_PATH}core/menu/list/backend">
+        <span class="main-row-icon fa fa-dashboard"></span> [b:core:menu.type.backend]
+    </a></li>
 </ul><br>
 
 [f:core:menu.list.total] <span class="badge">{num}</span><br><br>
