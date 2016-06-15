@@ -2,6 +2,16 @@
 
 <form method="post" class="form-horizontal">
 	<div class="form-group">
+		<label class="control-label col-sm-3">[f:blog:edit.form.author] *</label>
+		<div class="col-sm-9">
+			<div class="input-group">
+				<span class="input-group-addon" id="basic-addon1"><span class="fa fa-user"></span></span>
+				<input class="form-control" type="text" name="author" value="{author-login}" disabled>
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group">
 		<label class="control-label col-sm-3">[f:blog:edit.form.title] *</label>
 		<div class="col-sm-9">
 			<div class="input-group">

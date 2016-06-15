@@ -8,7 +8,7 @@
 		[logged]<p>
 			[owner]<a class="btn btn-success" href="{edit-link}"><span class="glyphicon glyphicon-pencil"></span> [f:user:profile.link.edit]</a>
 			<a class="btn btn-danger" href="{sessions-link}"><span class="glyphicon glyphicon-list-alt"></span> [f:user:profile.link.sessions]</a>[/owner]
-			[not-owner]<a class="btn btn-info" href="{message-send-link}"><span class="glyphicon glyphicon-send"></span> [f:user:profile.link.message-send]</a>[/not-owner]
+			[not-owner][if installed-module:messages]<a class="btn btn-info" href="{message-send-link}"><span class="glyphicon glyphicon-send"></span> [f:user:profile.link.message-send]</a>[/if][/not-owner]
 		</p>[/logged]
 	</div>
 </div>

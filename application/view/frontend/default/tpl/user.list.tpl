@@ -12,7 +12,9 @@
 			<h4 class="media-heading"><a href="{profile-link}">{username}</a><small> [if name!=""]({name})[/if] [online][f:user:list.user.online][/online][offline][f:user:list.user.offline] {last-online-date} в {last-online-time}[/offline]</small></h4>
 			{group}
 		</div>
-		<div class="pull-right"><a href="{message-send-link}" style="font-size:30px"><span class="fa fa-envelope"></span></a></div>
+		[if installed-module:messages]<div class="pull-right">
+			<a href="{message-send-link}" style="font-size:30px"><span class="fa fa-envelope"></span></a>
+		</div>[/if]
 		<div class="clearfix"></div>
 	</div>
 </div>

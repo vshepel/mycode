@@ -609,16 +609,7 @@ class Posts extends AppModel {
 		
 		$this->_editQuery = true;
 
-		if ($this->exists($postId, false))
-			return $this->add($title, $url, $category, $text, $tags, $lang, $allowComments, $show, $showMain, $showCaregory, $postId);
-		else {
-			$response = new Response();
-
-			$response->code = 3;
-			$response->message = $this->_lang->get("blog", "edit.notFound");
-
-			return $response;
-		}
+		return $this->add($title, $url, $category, $text, $tags, $lang, $allowComments, $show, $showMain, $showCaregory, $postId);
 	}
 
 	/**
@@ -645,7 +636,7 @@ class Posts extends AppModel {
 				$row = $this->_db
 					->select(array(
 						"id", "url", "title", "text", "text_parsed", "category",
-						"tags", "lang",
+						"tags", "lang", "author",
 						"allow_comments", "show", "show_main", "show_category"
 					))
 					->from(DBPREFIX . "blog_posts")
@@ -671,6 +662,10 @@ class Posts extends AppModel {
 
 							"tags" => $row["tags"],
 							"lang" => $row["lang"],
+
+							"author-id" => $row["author"],
+							"author-login" => $this->_user->getUserLogin($row["author"]),
+							"author-name" => $this->_user->getUserName($row["author"]),
 							
 							"allow-comments" => ($row["allow_comments"] > 0),
 							"show" => ($row["show"] > 0),
@@ -733,9 +728,11 @@ class Posts extends AppModel {
 	 * @param int $postId = null Edit post ID
 	 * @return Response
 	 */
-	public function add($title, $url, $category, $text, $tags, $lang, $allowComments, $show, $showMain, $showCategory, $postId = null) {
-		if (!$this->_user->hasPermission("blog.posts.edit") && $postId === null) 
+	public function add($title, $url, $category, $text, $tags, $lang, $allowComments, $show, $showMain, $showCategory, $postId = null, $author = null) {
+		$edit = ($postId !== null);
+		if (!$this->_user->hasPermission("blog.posts.add") && $edit) {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
+		}
 		
 		$title = StringFilters::filterHtmlTags($title);
 		$url = StringFilters::filterForUrl(empty($url) ? $title : $url);
@@ -769,11 +766,24 @@ class Posts extends AppModel {
 
 		$response = new Response();
 
-		if (empty($title) || empty($text)) {
+		$query = $this->_db
+			->select(["author"])
+			->from(DBPREFIX . "blog_posts")
+			->where("id", "=", intval($postId))
+			->and_where("show", "=", 1)
+			->result_array();
+		
+		if (!isset($query[0])) {
 			$response->code = 2;
+			$response->type = "danger";
+			$response->message = $this->_lang->get("blog", "edit.notExists");
+		} elseif (empty($title) || empty($text)) {
+			$response->code = 3;
 			$response->type = "warning";
 			$response->message = $this->_lang->get("core", "emptyFields");
-		} else {			
+		} else {
+			$author = ($author !== null ? $author : ($edit ? $query[0]["author"] : $this->_user->get("id")));
+
 			$values = array(
 				"title" => $title,
 				"url" => $url,
@@ -788,7 +798,7 @@ class Posts extends AppModel {
 				"show" => $show ? 1 : 0,
 				"show_main" => $showMain ? 1 : 0,
 				"show_category" => $showCategory ? 1 : 0,
-				"author" => $this->_user->get("id")
+				"author" => $author
 			);
 
 			$edit = ($postId !== null);
