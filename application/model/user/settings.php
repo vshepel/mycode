@@ -54,7 +54,8 @@ class Settings extends AppModel {
 			$response->view = "user.settings";
 			$response->tags = [
 				"groups" => $groups,
-				"active-time" => $this->_config->get("user", "activeTime", 60)
+				"active-time" => $this->_config->get("user", "activeTime", 60),
+				"avatar-compress" => $this->_config->get("user", "avatarCompress", 80)
 			];
 		}
 
@@ -71,12 +72,13 @@ class Settings extends AppModel {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		else {
 			if (
-				isset($values["guest-group"], $values["active-time"]) &&
-				(!empty($values["guest-group"]) && !empty($values["active-time"]))
+				isset($values["guest_group"], $values["active_time"], $values["avatar_compress"]) &&
+				(!empty($values["guest_group"]) && !empty($values["active_time"]) && !empty($values["avatar_compress"]))
 			) {
 				$this->_config->save("user", [
-					"guestGroup" => $values["guest-group"],
-					"activeTime" => $values["active-time"]
+					"guestGroup" => $values["guest_group"],
+					"activeTime" => intval($values["active_time"]),
+					"avatarCompress" => intval($values["avatar_compress"])
 				]);
 							
 				return new Response(0, "success", $this->_lang->get("page", "settings.success"));

@@ -42,7 +42,7 @@ class UploadFiles {
 
 	/**
 	 * Get Singleton instance
-	 * @return Files
+	 * @return UploadFiles
 	 */
 	public static function getInstance() {
 		if (empty(self::$_instance))

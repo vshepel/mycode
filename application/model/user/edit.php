@@ -395,14 +395,28 @@ class Edit extends AppModel {
 									$files->delete("avatar", "original_" . $avatar);
 								}
 
+								// Values
+								$compress = $this->_config->get("user", "avatarCompress", 80);
+								$type = IMAGETYPE_JPEG;
+
 								// Save new avatar
-								$resize->resize(100, 100)->save($filePath);
-								
-								// Compress original
+								$resize->resize(200, 200)->save($filePath, $type, $compress);
+
+								// Load original
 								$orig = new ImageResize();
-								$orig->load($originalFilePath)
-									->resize($orig->getWidth(), $orig->getHeight())
-									->save($originalFilePath);
+								$orig->load($originalFilePath);
+
+								// Change original image size
+								$new_x = $orig->getWidth(); $new_y = $orig->getHeight();
+								$max_x = 1280; $max_y = 1280;
+								if ($new_x > $max_x || $new_y > $max_y) {
+									$max = ($new_x > $new_y) ? $new_x : $new_y;
+									$new_x = $new_x * ($max_x / $max);
+									$new_y = $new_y * ($max_y / $max);
+								}
+
+								// Compress original
+								$orig->resize($new_x, $new_y)->save($originalFilePath, $type, $compress);
 
 								$this->_user->update($userId, array (
 									"avatar" => $name
