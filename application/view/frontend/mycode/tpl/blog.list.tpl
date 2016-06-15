@@ -7,7 +7,7 @@
 	<div class="post_text">
 		<a href="{link}">
 			<span>{title}</span>
-			{short-text}
+			<div class="markdown-body">{short-text}</div>
 		</a>
 	</div>
 	<div class="post_tags">
