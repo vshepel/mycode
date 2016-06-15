@@ -17,7 +17,7 @@
             color: $grey80;
         }
         .project_name {
-            color: $grey60;
+            color: $text;
         }
         &.disable {
             a {
@@ -40,7 +40,7 @@
                         right: inherit;
                         left: 0;
                         width: 70px;
-                        background: $grey60;
+                        background: $text;
                     }
                 }
             }
@@ -261,10 +261,13 @@
                 display: block;
                 word-wrap: break-word;
                 color: $text;
+                &:hover {
+                    text-decoration: none;
+                }
             }
             span {
                 font: {
-                    color: $grey60;
+                    color: $text;
                     weight: 700;
                     size: 1.2em;
                 }
@@ -278,9 +281,9 @@
         }
         .post_tags {
             margin: 30px 0 0;
-            color: $grey60;
+            color: $text;
             a {
-                color: $grey60;
+                color: $text;
             }
             i {
                 font-size: 1.2em;
@@ -293,7 +296,7 @@
             a,
             > span {
                 margin: 0 15px 0 0;
-                color: $grey60;
+                color: $text;
             }
             i {
                 font-size: 1.2em;
@@ -430,7 +433,7 @@
             margin: 0 5px 0 0;
             &.active {
                 font-weight: 700;
-                color: $grey60;
+                color: $text;
             }
         }
     }
@@ -542,7 +545,7 @@
     .general {
         font-size: 1.2em;
         padding: 35px 40px;
-        color: $grey60;
+        color: $text;
         border-bottom: 1px solid $grey95;
         > * {
             display: inline-block;
@@ -577,7 +580,7 @@
                 font-size: 2em;
                 display: block;
                 margin: 0 0 10px 0;
-                color: $grey60;
+                color: $text;
             }
         }
         .about {
@@ -591,7 +594,7 @@
                 span,
                 a {
                     white-space: nowrap;
-                    color: $grey60;
+                    color: $text;
                 }
             }
         }
@@ -710,7 +713,7 @@
             color: $grey70;
             span {
                 display: block;
-                color: $grey60;
+                color: $text;
             }
         }
     }

@@ -227,10 +227,14 @@ body {
     width: 230px;
     margin: 0 26px 0 0;
     padding: 15px 0;
-    span {
+    > span {
         display: block;
         margin: 0 0 15px;
         color: $grey85;
+        overflow: hidden;
+        a {
+            margin: 0 0 0 10px;
+        }
     }
     input,
     textarea,
