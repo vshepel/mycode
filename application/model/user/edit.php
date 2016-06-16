@@ -123,15 +123,12 @@ class Edit extends AppModel {
 					// Languages
 					$languages = "";
 					$active = $this->_get("lang");
-					foreach(scandir(LANG) as $lang) {
-						if (!in_array($lang, [".", ".."])) {
-							$ini = parse_ini_file(LANG . DS . $lang . DS . "core.ini");
-							$languages .= $this->_view->parse("user.edit.selector", [
-								"name" => $ini["lang.name"],
-								"value" => $lang,
-								"active" => ($lang == $active)
-							]);
-						}
+					foreach ($this->_lang->getLangs() as $lang => $name) {
+						$languages[] = [
+							"name" => $name,
+							"value" => $lang,
+							"active" => ($lang == $active)
+						];
 					}
 					
 					// Groups

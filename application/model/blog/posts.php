@@ -766,18 +766,20 @@ class Posts extends AppModel {
 
 		$response = new Response();
 
-		$query = $this->_db
-			->select(["author"])
-			->from(DBPREFIX . "blog_posts")
-			->where("id", "=", intval($postId))
-			->and_where("show", "=", 1)
-			->result_array();
+		if ($edit) {
+			$query = $this->_db
+				->select(["author"])
+				->from(DBPREFIX . "blog_posts")
+				->where("id", "=", intval($postId))
+				->and_where("show", "=", 1)
+				->result_array();
 		
-		if (!isset($query[0])) {
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("blog", "edit.notExists");
-		} elseif (empty($title) || empty($text)) {
+			if (!isset($query[0])) {
+				return new Response(2, "danger", $this->_lang->get("blog", "edit.notExists"));
+			}
+		}
+
+		if (empty($title) || empty($text)) {
 			$response->code = 3;
 			$response->type = "warning";
 			$response->message = $this->_lang->get("core", "emptyFields");

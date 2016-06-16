@@ -531,6 +531,9 @@ class Packages extends AppModel {
 			// Remove meta file
 			Files::delete($meta["meta-name"]);
 
+			// Cache cleaning
+			$this->_packages = $this->_cache->remove("core.packages");
+
 			$response->type = "success";
 			$response->message = $this->_lang->get("core", "packages.remove.success");
 		} else {
