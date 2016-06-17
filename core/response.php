@@ -19,7 +19,7 @@
  */
 
 class Response {
-	public function Response($code = 0, $type = "", $message = "", $view = "", $tags = array(), $layout = null) {
+	public function __construct($code = 0, $type = "", $message = "", $view = "", $tags = array(), $layout = null) {
 		$this->code = $code;
 		$this->type = $type;
 		$this->message = $message;
