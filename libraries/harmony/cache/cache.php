@@ -61,11 +61,11 @@ class Cache {
 	 */
 	public function push($path, $name, $content) {
 		if ($this->_enable) {
-			$content = json_encode($content);
+			$content = serialize($content);
 			$name = str_replace(DS, DOT, $name);
 
 			$dir = $this->_dir . DS . $path;
-			$fileName = $dir . DS . $name . ".json";
+			$fileName = $dir . DS . $name . ".dat";
 
 			if (!file_exists($dir)) Files::mkdir($dir);
 
@@ -83,10 +83,10 @@ class Cache {
 	public function get($path, $name) {
 		if ($this->_enable) {
 			$name = str_replace(DS, DOT, $name);
-			$fileName = $this->_dir . DS . $path . DS . $name . ".json";
+			$fileName = $this->_dir . DS . $path . DS . $name . ".dat";
 
 			if (file_exists($fileName) && $file = file_get_contents($fileName)) {
-				$file = json_decode($file, true);
+				$file = unserialize($file);
 
 				return $file;
 			}
@@ -104,11 +104,11 @@ class Cache {
 		if ($this->_enable) {
 			if ($name === null && file_exists($this->_dir . DS . $path))
 				Files::delete($this->_dir . DS . $path);
-			elseif (file_exists($this->_dir . DS . $path . DS . $name . ".json"))
-				unlink($this->_dir . DS . $path . DS . $name . ".json");
+			elseif (file_exists($this->_dir . DS . $path . DS . $name . ".dat"))
+				unlink($this->_dir . DS . $path . DS . $name . ".dat");
 		}
 	}
-	
+
 	/**
 	 * Clear cache
 	 */

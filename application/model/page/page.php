@@ -31,13 +31,11 @@ class Page extends AppModel {
 	/**
 	 * @var array Add tags
 	 */
-	private $_addTags = array (
-		"tags" => array (
-			"name" => "",
-			"url" => "",
-			"text" => ""
-		)
-	);
+	private $_addTags = [
+		"name" => "",
+		"url" => "",
+		"text" => ""
+	];
 
 	/**
 	 * @var array|null
@@ -79,14 +77,29 @@ class Page extends AppModel {
 			))
 			->from(DBPREFIX . "pages")
 			->where("url", "=", $name)
+			->and_where("lang", "=", $this->_lang->getLang())
 			->result_array();
 
 		if ($array === false) {
-			$response->code = 1;
-			$title = $this->_lang->get("core", "internalError");
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
-		} elseif (isset($array[0])) {
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [""]));
+		}
+
+		// Any language
+		if (!isset($array[0])) {
+			$array = $this->_db
+				->select(array (
+					"id", "name", "text"
+				))
+				->from(DBPREFIX . "pages")
+				->where("url", "=", $name)
+				->result_array();
+
+			if ($array === false) {
+				return new Response(1, "danger", $this->_lang->get("core", "internalError", [""]));
+			}
+		}
+
+		if (isset($array[0])) {
 			$row = $array[0];
 			$title = $row["name"];
 			$response->view = "page";
@@ -137,10 +150,10 @@ class Page extends AppModel {
 
 			$array = $this->_db
 				->select(array(
-					"id" ,"name", "url"
+					"id" ,"name", "url", "lang"
 				))
 				->from(DBPREFIX . "pages")
-				->order_by("id", $this->_config->get("page", "list.sort", "DESC"))
+				->order_by("url", $this->_config->get("page", "list.sort", "DESC"))
 				->limit($pagination->getSqlLimits())
 				->result_array();
 
@@ -152,15 +165,13 @@ class Page extends AppModel {
 				$rows = [];
 
 				foreach ($array as $row) {
-					$rows[] = [
-						"id" => $row["id"],
-						"name" => $row["name"],
-						"url" => $row["url"],
+					$row["language"] = $this->_lang->getLangName($row["lang"]);
 
+					$rows[] = array_merge($row, [
 						"page-link" => SITE_PATH . "page/" . $row["url"],
 						"edit-link" => ADMIN_PATH . "page/edit/" . $row["id"],
 						"remove-link" => ADMIN_PATH . "page/remove/" . $row["id"]
-					];
+					]);
 				}
 
 				$response->view = "page.list";
@@ -181,29 +192,30 @@ class Page extends AppModel {
 	 * @param string $name Page name
 	 * @param string $url Page url
 	 * @param string $text Page text
+	 * @param string $lang anguage name
 	 * @param int|null $pageId Edit page ID
 	 * @return Response
 	 */
-	public function add($name, $url, $text, $pageId = null) {
+	public function add($name, $url, $text, $lang, $pageId = null) {
 		if (!$this->_user->hasPermission("page.add") && $pageId === null) 
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		
 		$this->_addTags = array (
-			"tags" => array (
-				"name" => $name,
-				"url" => $url,
-				"text" => $text
-			)
+			"name" => $name,
+			"url" => $url,
+			"text" => $text,
+			"lang" => $lang
 		);
 
 		$response = new Response();
 
+		// Filtering tags
 		$name = StringFilters::filterHtmlTags($name);
 		$url = StringFilters::filterHtmlTags($url);
-		$text = StringFilters::filterHtmlTags($text);
-		$pageId = ($pageId === null) ? null : $pageId;
+		$lang = StringFilters::filterHtmlTags($lang);
+		$pageId = ($pageId === null) ? null : intval($pageId);
 
-		if (empty($name) || empty($url) || empty($text)) {
+		if (empty($name) || empty($url) || empty($text) || empty($lang)) {
 			$response->code = 3;
 			$response->type = "warning";
 			$response->message = $this->_lang->get("core", "emptyFields");
@@ -214,14 +226,14 @@ class Page extends AppModel {
 				$this->_db
 					->select("count(*)")
 					->from(DBPREFIX . "pages")
-					->where("url", "=", $url);
+					->where("url", "=", $url)
+					->and_where("lang", "=", $lang);
 
-				if ($pageId != null)
-					$this->_db
-						->and_where("id", "!=", $pageId);
+				if ($pageId != null) {
+					$this->_db->and_where("id", "!=", $pageId);
+				}
 
-				$num = $this->_db
-					->result_array();
+				$num = $this->_db->result_array();
 
 				if ($num[0][0] > 0) {
 					$response->code = 3;
@@ -230,7 +242,7 @@ class Page extends AppModel {
 				} else {
 					$result = $this->_db
 						->insert_into(DBPREFIX . "pages")
-						->values($this->_addTags["tags"])
+						->values($this->_addTags)
 						->result();
 
 					if ($result === false) {
@@ -245,8 +257,8 @@ class Page extends AppModel {
 			} else {
 				$result = $this->_db
 					->update(DBPREFIX . "pages")
-					->set($this->_addTags["tags"])
-					->where("id", "=", intval($pageId))
+					->set($this->_addTags)
+					->where("id", "=", $pageId)
 					->result();
 
 				if ($result === false) {
@@ -277,8 +289,20 @@ class Page extends AppModel {
 
 		$response = new Response();
 
+		// Languages
+		$langs = [];
+		$current = isset($this->_addTags["lang"]) ? $this->_addTags["lang"] : $this->_lang->getLang();
+		foreach ($this->_lang->getLangs() as $lang => $name)
+			$langs[] = [
+				"id" => $lang,
+				"name" => $name,
+				"current" => ($current == $lang)
+			];
+
 		$response->view = "page.add";
-		$response->tags = $this->_addTags["tags"];
+		$response->tags = array_merge($this->_addTags, [
+			"langs" => $langs
+		]);
 
 		return $response;
 	}
@@ -288,14 +312,15 @@ class Page extends AppModel {
 	 * @param string $name Page name
 	 * @param string $url Page url
 	 * @param string $text Page text
+	 * @param string $lang Language name
 	 * @param int|null $pageId Edit page ID
 	 * @return Response
 	 */
-	public function edit($name, $url, $text, $pageId) {
+	public function edit($name, $url, $text, $lang, $pageId) {
 		if (!$this->_user->hasPermission("page.edit"))
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		
-		return $this->add($name, $url, $text, $pageId);
+		return $this->add($name, $url, $text, $lang, $pageId);
 	}
 
 	/**
@@ -321,23 +346,34 @@ class Page extends AppModel {
 			if ($this->_editQuery === null) {
 				$row = $this->_db
 					->select(array(
-						"id", "name", "url", "text"
+						"id", "name", "url", "text", "lang"
 					))
 					->from(DBPREFIX . "pages")
 					->where("id", "=", $pageId)
 					->result_array();
 
-				if ($row === false) {
-					$response->code = 1;
-					$response->type = "danger";
-					$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
-
-					return $response;
+				if (!isset($row[0])) {
+					return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 				} else {
 					$response->tags = $row[0];
 				}
 			} else
 				$response->tags = $this->_editQuery;
+
+			// Languages
+			$langs = [];
+			foreach ($this->_lang->getLangs() as $lang => $name)
+				$langs[] = [
+					"id" => $lang,
+					"name" => $name,
+					"current" => ($response->tags["lang"] == $lang)
+				];
+
+			$response->tags = array_merge($response->tags, [
+				"langs" => $langs,
+				"list-link" => ADMIN_PATH . "page/list",
+				"remove-link" => ADMIN_PATH . "page/remove/" . $pageId
+			]);
 		} else {
 			$response->code = 3;
 			$response->type = "danger";

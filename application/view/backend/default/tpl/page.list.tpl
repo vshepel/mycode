@@ -7,6 +7,7 @@
 		<th style="width: 40px">#</th>
 		<th>[f:page:list.table.title]</th>
 		<th>URL</th>
+		<th>[f:page:list.table.language]</th>
 		<th style="width: 80px;"></th>
 	</tr></thead>
 	<tbody>
@@ -14,7 +15,8 @@
 			<tr>
 				<td>{id}</td>
 				<td><a href="{page-link}">{name}</a></td>
-				<td>{url}</td>
+				<td>{SITE_PATH}page/{url}</td>
+				<td>{language}</td>
 				<td style="padding: 3px">
 					<div class="btn-group btn-group-sm btn-group-justified">
 						[if has-permission:page.edit]<a href="{edit-link}" class="btn btn-success"><span class="glyphicon glyphicon-pencil"></span></a>[/if]

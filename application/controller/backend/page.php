@@ -76,9 +76,9 @@ class Page extends AppController {
 	}
 
 	public function action_add() {
-		if (isset($_POST["name"], $_POST["url"], $_POST["text"])) {
+		if (isset($_POST["name"], $_POST["url"], $_POST["text"], $_POST["lang"])) {
 			$result = $this->_page->add(
-				$_POST["name"], $_POST["url"], $_POST["text"]
+				$_POST["name"], $_POST["url"], $_POST["text"], $_POST["lang"]
 			);
 
 			if ($result->code == 0)
@@ -93,9 +93,9 @@ class Page extends AppController {
 	public function action_edit($args) {
 		$pageId = $args[0];
 
-		if (isset($_POST["name"], $_POST["url"], $_POST["text"]) && $pageId !== false) {
+		if (isset($_POST["name"], $_POST["url"], $_POST["text"], $_POST["lang"]) && $pageId !== false) {
 			$result = $this->_page->edit(
-				$_POST["name"], $_POST["url"], $_POST["text"], $pageId
+				$_POST["name"], $_POST["url"], $_POST["text"], $_POST["lang"], $pageId
 			);
 
 			if ($result->code == 0)

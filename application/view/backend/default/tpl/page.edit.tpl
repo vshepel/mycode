@@ -6,14 +6,20 @@
 	<div class="form-group">
 		<label class="control-label col-sm-3">[f:page:edit.form.title] *</label>
 		<div class="col-sm-9">
-			<input class="form-control" type="text" name="name" value="{name}">
+			<div class="input-group">
+				<span class="input-group-addon" id="basic-addon1"><span class="fa fa-header"></span></span>
+				<input class="form-control" type="text" name="name" value="{name}">
+			</div>
 		</div>
 	</div>
 
 	<div class="form-group">
 		<label class="control-label col-sm-3">URL *</label>
 		<div class="col-sm-9">
-			<input class="form-control" type="text" name="url" value="{url}">
+			<div class="input-group">
+				<span class="input-group-addon" id="basic-addon1"><span class="fa fa-link"></span></span>
+				<input class="form-control" type="text" name="url" value="{url}">
+			</div>
 		</div>
 	</div>
 
@@ -24,9 +30,23 @@
 	</div>
 
 	<div class="form-group">
+		<label class="control-label col-sm-3">[f:page:edit.form.lang]</label>
+		<div class="col-sm-9">
+			<div class="input-group">
+				<span class="input-group-addon" id="basic-addon1"><span class="fa fa-language"></span></span>
+				<select class="form-control" name="lang">[foreach langs]
+					<option value="{id}"[current] selected[/current]>{name}</option>
+					[/foreach]</select>
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group">
 		<label class="control-label col-sm-3"></label>
 		<div class="col-sm-9">
-			<button class="btn btn-primary">[f:page:edit.form.submit]</button>
+			<button class="btn btn-success"><span class="fa fa-save"></span> [f:page:edit.form.submit]</button>
+			<a href="{list-link}"  class="btn btn-primary"><span class="fa fa-remove"></span> [f:page:edit.link.cancel]</a>
+			<a href="{remove-link}" class="btn btn-danger"><span class="fa fa-trash"></span> [f:page:edit.link.remove]</a>
 		</div>
 	</div>
 </form>
