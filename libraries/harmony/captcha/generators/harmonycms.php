@@ -39,6 +39,19 @@ class HarmonyCMS extends Generator {
 
 	private $_colors = array("90", "110", "130", "150", "170", "190", "210");
 
+	/**
+	 * @var resource Captcha image
+	 */
+	private $_captcha = null;
+
+	/**
+	 * @var string Captcha font path
+	 */
+	private $_font = LIB . DS . "harmony" . DS . "captcha" . DS . "captcha-font.ttf";
+
+	/**
+	 * @var string Generate string
+	 */
 	private $_string = "";
 
 	private function _genBackground() {
@@ -78,6 +91,46 @@ class HarmonyCMS extends Generator {
 		}
 	}
 
+	/**
+	 * Render image
+	 */
+	public function out() {
+		header("Content-type: image/gif");
+		imagegif($this->_captcha);
+		exit;
+	}
+
+	/**
+	 * Check captcha to correct
+	 * @param string $captcha Captcha string
+	 * @return bool
+	 */
+	public function isCorrect($captcha) {
+		$sCaptcha = Sessions::get("captcha");
+
+		if ($sCaptcha !== false) {
+			Sessions::set("captcha", "");
+			return ($sCaptcha == $captcha);
+		}
+		else
+			return false;
+	}
+
+	/**
+	 * @return string getCaptcha
+	 */
+	public function getCaptcha() {
+		$captcha_link = SITE_PATH . "core/captcha";
+		return <<<HTML
+<img id="captcha" src="{$captcha_link}" alt="Captcha">
+<a href="#" onclick="getElementById('captcha').src='{$captcha_link}?'+ new Date().getTime(); return false"><span class="fa fa-refresh"></span></a>
+HTML;
+	}
+
+	/**
+	 * Generate captcha
+	 * @return $this
+	 */
 	public function gen() {
 		$this->_captcha = imagecreatetruecolor($this->_width, $this->_height);
 		$background = imagecolorallocate($this->_captcha, 255, 255, 255);

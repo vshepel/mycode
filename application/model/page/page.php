@@ -75,7 +75,7 @@ class Page extends AppModel {
 
 		$array = $this->_db
 			->select(array (
-				"name", "text"
+				"id", "name", "text"
 			))
 			->from(DBPREFIX . "pages")
 			->where("url", "=", $name)
@@ -86,14 +86,18 @@ class Page extends AppModel {
 			$title = $this->_lang->get("core", "internalError");
 			$response->type = "danger";
 			$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
-		} elseif (count($array) > 0) {
-			$title = $array[0]["name"];
+		} elseif (isset($array[0])) {
+			$row = $array[0];
+			$title = $row["name"];
 			$response->view = "page";
 
-			$response->tags =  array (
-				"title" => $array[0]["name"],
-				"content" => $array[0]["text"]
-			);
+			$response->tags = [
+				"id" => $row["id"],
+				"title" => $row["name"],
+				"content" => $row["text"],
+				"edit-link" => ADMIN_PATH . "page/edit/" . $row["id"],
+				"remove-link" => ADMIN_PATH . "page/remove/" . $row["id"]
+			];
 		} else
 			throw new NotFoundException();
 

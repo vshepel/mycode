@@ -37,7 +37,7 @@
 	</div>
 
 	<div class="form-group">
-		<label class="control-label col-sm-3"><img id="captcha" src="{captcha-link}" alt="Captcha"><a href="#" onclick="getElementById('captcha').src='{captcha-link}?'+ new Date().getTime()"><span class="fa fa-refresh"></span></a></label>
+		<label class="control-label col-sm-3">{captcha}</label>
 		<div class="col-sm-9">
 			<input class="form-control" type="text" maxlength="4" name="register[captcha]" style="width:140px;height:80px;font-size:28pt">
 		</div>

@@ -494,9 +494,7 @@ class UserModule extends AppModel {
 				"email" => $this->_email,
 				"login" => $this->_login,
 				"name" => $this->_name,
-				"captcha-link" => $this->_registry
-					->get("Captcha")
-					->getCaptchaLink()
+				"captcha" => $this->_registry->get("Captcha")->getCaptcha()
 			);
 		}
 

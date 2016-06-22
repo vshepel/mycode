@@ -20,91 +20,26 @@
 
 namespace harmony\captcha;
 
-use harmony\http\Sessions;
-
 abstract class Generator {
-	/**
-	 * @var object Sessions object
-	 */
-	protected $_sessions;
-
-	/**
-	 * @var resource Captcha image
-	 */
-	protected $_captcha = null;
-
-	/**
-	 * @var string Captcha font path
-	 */
-	protected $_font = null;
-	
-	/**
-	 * Set font
-	 * @param string $font Font path
-	 * @return $this
-	 */
-	public function setFont($font) {
-		$this->_font = $font;
-	}
-
-	/**
-	 * Get Captcha URL
-	 * @return string
-	 */
-	public function getCaptchaLink() {
-		return SITE_PATH . "core/captcha";
-	}
-
-	/**
-	 * Set string
-	 * @param string $string String
-	 */
-	public function setString($string) {
-		Sessions::set("captcha", $string);
-	}
-
-	/**
-	 * Get string
-	 * @return string|false
-	 */
-	public function getString() {
-		return Sessions::get("captcha");
-	}
-
-	/**
-	 * @return resource Get image
-	 */
-	public function getImage() {
-		return $this->_captcha;
-	}
-
 	/**
 	 * Render image
 	 */
-	public function out() {
-		header("Content-type: image/gif");
-		imagegif($this->_captcha);
-		exit;
-	}
+	abstract function out();
 
 	/**
-	 * Check captcha to correct
+	 * Check captcha for correct
 	 * @param string $captcha Captcha string
 	 * @return bool
 	 */
-	public function isCorrect($captcha) {
-		$sCaptcha = $this->getString();
-
-		if ($sCaptcha !== false) {
-			$this->setString("");
-			return ($sCaptcha == $captcha);
-		}
-		else
-			return false;
-	}
+	abstract function isCorrect($captcha);
 
 	/**
-	 * Gen captcha image
+	 * @return string Get Captcha code
+	 */
+	abstract function getCaptcha();
+
+	/**
+	 * Generate captcha
 	 * @return $this
 	 */
 	abstract function gen();

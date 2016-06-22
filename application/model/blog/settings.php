@@ -66,6 +66,7 @@ class Settings extends AppModel {
 				"posts-advanced-views" => $this->_config->get("blog", "posts.advanced_views", true),
 				"posts-switching" => $this->_config->get("blog", "posts.posts_switching", true),
 				"posts-read-mark" => $this->_config->get("blog", "posts.read_mark", true),
+				"posts-only-local-language" => $this->_config->get("blog", "posts.only_local_language", false),
 
 				"comments-interval" => $this->_config->get("blog", "comments.interval", 10),
 				"comments-length-min" => $this->_config->get("blog", "comments.length.min", 3),
@@ -97,11 +98,14 @@ class Settings extends AppModel {
 				"posts.advanced_views" => isset($values["posts_advanced_views"]),
 				"posts.switching" => isset($values["posts_switching"]),
 				"posts.read_mark" => isset($values["posts_read_mark"]),
+				"posts.only_local_language" => isset($values["posts_only_local_language"]),
 
 				"comments.interval" => $values["comments_interval"],
 				"comments.length.min" => $values["comments_length_min"],
 				"comments.length.max" => $values["comments_length_max"]
 			]);
+
+			$this->_cache->remove("blog");
 
 			return new Response(0, "success", $this->_lang->get("page", "settings.success"));
 		}

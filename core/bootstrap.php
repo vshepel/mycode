@@ -207,9 +207,6 @@ HTML;
 				$config->get("database", "password"),
 				$config->get("database", "base")
 			);
-			
-		// Set captcha font
-		$this->_registry->get("Captcha")->setFont(LIB . DS . "harmony" . DS . "captcha" . DS . "captcha-font.ttf");
 
 		// Display settings
 		$this->_registry

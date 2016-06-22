@@ -47,6 +47,13 @@
 		</div>
 	</div>
 
+	<div class="form-group">
+		<label class="control-label col-sm-6">[f:blog:settings.posts.onlyLocalLanguage]</label>
+		<div class="col-sm-6">
+			<input class="form-control" type="checkbox" name="posts_only_local_language"[posts-only-local-language] checked[/posts-only-local-language]>
+		</div>
+	</div>
+
 	<h3 align="center"><span class="fa fa-comment"></span> [f:blog:settings.comments]</h3>
 
 	<div class="form-group">

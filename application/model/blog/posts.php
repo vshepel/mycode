@@ -203,11 +203,17 @@ class Posts extends AppModel {
 			
 		if ($show) $this->_db->and_where("show", ">", 0);
 
+		// Category
 		if ($category !== null) {
 			$this->_db->and_where("category", "=", $category);
 			if ($show) $this->_db->and_where("show_category", ">", 0);
 		} else {
 			if ($show) $this->_db ->and_where("show_main", ">", 0);
+		}
+
+		// Only local language
+		if ($this->_config->get("blog", "posts.only_local_language", false)) {
+			$this->_db->and_where("lang", "=", $this->_lang->getLang());
 		}
 
 		$num = $this->_db->result_array();
@@ -236,11 +242,17 @@ class Posts extends AppModel {
 				
 			if ($show) $this->_db->and_where("show", ">", 0);
 
+			// Category
 			if ($category !== null) {
 				$this->_db->and_where("category", "=", $category);
 				if ($show) $this->_db->and_where("show_category", ">", 0);
 			} else {
 				if ($show) $this->_db ->and_where("show_main", ">", 0);
+			}
+
+			// Only local language
+			if ($this->_config->get("blog", "posts.only_local_language", false)) {
+				$this->_db->and_where("lang", "=", $this->_lang->getLang());
 			}
 
 			$array = $this->_db
@@ -968,6 +980,11 @@ class Posts extends AppModel {
 			->from(DBPREFIX . "blog_posts")
 			->where("id", ">", 0)
 			->and_where("show", ">", 0);
+
+		// Only local language
+		if ($this->_config->get("blog", "posts.only_local_language", false)) {
+			$this->_db->and_where("lang", "=", $this->_lang->getLang());
+		}
 			
 		if (isset($args[0])) $this->_db->and_where("date_format(timestamp, '%Y')", "=", $args[0], false);
 		if (isset($args[1])) $this->_db->and_where("date_format(timestamp, '%Y-%m')", "=", $args[0] . "-" . $args[1], false);
@@ -1010,7 +1027,12 @@ class Posts extends AppModel {
 					"show", "show_main", "show_category", "author"
 				))
 				->from(DBPREFIX . "blog_posts")
-				->where("id", ">", 0);
+				->where("show", ">", 0);
+
+			// Only local language
+			if ($this->_config->get("blog", "posts.only_local_language", false)) {
+				$this->_db->and_where("lang", "=", $this->_lang->getLang());
+			}
 				
 			if (isset($args[0])) $this->_db->and_where("date_format(timestamp, '%Y')", "=", $args[0], false);
 			if (isset($args[1])) $this->_db->and_where("date_format(timestamp, '%Y-%m')", "=", $args[0] . "-" . $args[1], false);
@@ -1124,6 +1146,7 @@ class Posts extends AppModel {
 		$array = $this->_db
 			->select(["id", "title", "rating"])
 			->from(DBPREFIX . "blog_posts")
+			->where("show", "=", 1)
 			->order_by("rating")->desc()
 			->limit([0, $this->_config->get("blog", "popular.count", 10)])
 			->result_array();
@@ -1155,12 +1178,20 @@ class Posts extends AppModel {
 		$cache = $this->_cache->get("blog", $cache_name);
 		
 		if ($cache === false) {
-			$array = $this->_db
+			$this->_db
 				->select([
 					["DATE_FORMAT(timestamp,'%m-%Y')", "date", false],
 					["count(`id`)", "num", false]
 				])
 				->from(DBPREFIX . "blog_posts")
+				->where("show", "=", 1);
+
+			// Only local language
+			if ($this->_config->get("blog", "posts.only_local_language", false)) {
+				$this->_db->and_where("lang", "=", $this->_lang->getLang());
+			}
+
+			$array = $this->_db
 				->group_by("date")
 				->order_by("date")->desc()
 				->result_array();
@@ -1266,12 +1297,18 @@ class Posts extends AppModel {
 				$vday = ($v2 < 10 ? "0" : "") . $v2;
 				
 				// Posts count
-				$posts = $this->_db
-				->select("count(*)")
-				->from(DBPREFIX . "blog_posts")
-				->where("date_format(timestamp, '%Y-%m-%d')", "=", $year . "-" . $month . "-" . $vday, false)
-				->and_where("show", "=", 1)
-				->result_array();
+				$this->_db
+					->select("count(*)")
+					->from(DBPREFIX . "blog_posts")
+					->where("date_format(timestamp, '%Y-%m-%d')", "=", $year . "-" . $month . "-" . $vday, false)
+					->and_where("show", "=", 1);
+
+				// Only local language
+				if ($this->_config->get("blog", "posts.only_local_language", false)) {
+					$this->_db->and_where("lang", "=", $this->_lang->getLang());
+				}
+
+				$posts = $this->_db->result_array();
 				$posts = isset($posts[0][0]) ? $posts[0][0] : 0;
 				
 				$current = ($year . "-" . $month . "-" . $vday == $today) ? "-current" : "";
@@ -1308,10 +1345,17 @@ class Posts extends AppModel {
 		$minLength = $this->_config->get("blog", "search.posts.queryMinLength", 3);
 
 		if (Strings::length($query) >= $minLength) {
-			$num = $this->_db
+			$this->_db
 				->select("count(*)")
 				->from(DBPREFIX . "blog_posts")
-				->where("show", "=", 1)
+				->where("show", "=", 1);
+
+			// Only local language
+			if ($this->_config->get("blog", "posts.only_local_language", false)) {
+				$this->_db->and_where("lang", "=", $this->_lang->getLang());
+			}
+
+			$num = $this->_db
 				->query("AND (`title` LIKE '%{$this->_db->safe($query)}%'")
 				->or_where("title", "LIKE", "")
 				->or_where("text", "LIKE", "%{$query}%")
@@ -1333,14 +1377,21 @@ class Posts extends AppModel {
 				/**
 				 * Posts query
 				 */
-				$array = $this->_db
+				$this->_db
 					->select(array(
 						"id", "title", "url", "text", "text_parsed", "category", "comments_num", "views_num", "rating",
 						"tags", "lang", array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 						"show", "author"
 					))
 					->from(DBPREFIX . "blog_posts")
-					->where("show", "=", 1)
+					->where("show", "=", 1);
+
+				// Only local language
+				if ($this->_config->get("blog", "posts.only_local_language", false)) {
+					$this->_db->and_where("lang", "=", $this->_lang->getLang());
+				}
+
+				$array = $this->_db
 					->query("AND (`title` LIKE '%{$this->_db->safe($query)}%'")
 					->or_where("title", "LIKE", "")
 					->or_where("text", "LIKE", "%{$query}%")
