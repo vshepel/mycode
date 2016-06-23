@@ -19,6 +19,7 @@
  */
 
 class Router {
+	// Objects
 	/**
 	 * @var object Config object
 	 */
@@ -34,9 +35,7 @@ class Router {
 	 */
 	private $_user;
 
-	/**
-	 * Vars
-	 */
+	// Vars
 
 	/**
 	 * @var string Request string
@@ -49,11 +48,6 @@ class Router {
 	private $_routes = array ();
 
 	/**
-	 * @var string Side type
-	 */
-	private $_type;
-
-	/**
 	 * @var string Module name
 	 */
 	private $_module;
@@ -64,8 +58,16 @@ class Router {
 	private $_action;
 
 	/**
-	 * Methods
+	 * @var string Side type
 	 */
+	private $_type;
+
+	/**
+	 * @var null|object Controller object
+	 */
+	private $_object = null;
+
+	// Methods
 
 	/**
 	 * Constructor
@@ -123,6 +125,14 @@ class Router {
 	 */
 	public function getType() {
 		return $this->_type;
+	}
+
+	/**
+	 * Get controller object
+	 * @return null|object
+	 */
+	public function getObject() {
+		return $this->_object;
 	}
 
 	/**
@@ -193,6 +203,7 @@ class Router {
 	
 			$controller_class = "\\controller\\{$this->_type}\\" . $this->_module;
 			$controller = new $controller_class;
+			$this->_object = $controller;
 	
 			if (is_array($controller->__routes))
 				$this->_customRoutes($controller->__routes, $controller->__default);

@@ -141,11 +141,6 @@ class Blog extends AppController {
 				$a[] = $args[$i];
 		}
 		
-		// TODO: Add Blog Calendar for layout template
-		/*if (isset($args[0], $args[1])) $this->_view->addMainTag("blog-calendar",
-			$this->_posts->getCalendar($args[1], $args[0])
-		);*/
-		
 		$this->_view->responseRender($this->_posts->archive($a, $page));
 	}
 	

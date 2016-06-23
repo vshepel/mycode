@@ -169,14 +169,23 @@ class HarmonyCMS extends Parser {
 			"#\\{([A-Za-z0-9._-]+):([A-Za-z0-9._-]+):(.*)\\}#i"
 		], function ($args) {
 			try {
+				$name = $args[1];
 				$cc = null;
-				if (isset($this->_models[$args[1]])) {
-					$cc = $this->_models[$args[1]];
+
+				if (isset($this->_models[$name])) {
+					$cc = $this->_models[$name];
 				} else {
-					$this->_router->existsController($args[1], "frontend");
-					$cname = "controller\\frontend\\" . $args[1];
-					$cc = new $cname;
-					$this->_models[$args[1]] = $cc;
+					if ($this->_router->getType() == FRONTEND && $this->_router->getModule() == $name) {
+						$cc = $this->_router->getObject();
+					}
+
+					if ($cc === null) {
+						$this->_router->existsController($name, "frontend");
+						$cname = "controller\\frontend\\" . $name;
+						$cc = new $cname;
+					}
+
+					$this->_models[$name] = $cc;
 				}
 
 				return $cc->getProperty($args[2], (isset($args[3]) ? $args[3] : null));

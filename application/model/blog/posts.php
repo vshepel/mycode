@@ -1005,7 +1005,7 @@ class Posts extends AppModel {
 		if (isset($args[0])) $this->_db->and_where("date_format(timestamp, '%Y')", "=", $args[0], false);
 		if (isset($args[1])) $this->_db->and_where("date_format(timestamp, '%Y-%m')", "=", $args[0] . "-" . $args[1], false);
 		if (isset($args[2])) $this->_db->and_where("date_format(timestamp, '%Y-%m-%d')", "=", $args[0] . "-" . $args[1] . "-" . $args[2], false);
-		
+
 		if (isset($args[0]) && isset($args[1])) {
 			$this->_calendar_year = $args[0];
 			$this->_calendar_month = $args[1];
@@ -1234,11 +1234,29 @@ class Posts extends AppModel {
 
 		return $list;
 	}
-	
+
+	/**
+	 * @var null|int Calendar year active
+	 */
 	private $_calendar_year = null;
+
+	/**
+	 * @var null|int Calendar month active
+	 */
 	private $_calendar_month = null;
-	
+
+	/**
+	 * Get calendar code
+	 * @param int $month = null Month number
+	 * @param int $year = null Year number
+	 * @return string
+	 */
 	public function getCalendar($month = null, $year = null) {
+		if ($year == null && $month == null) {
+			$year = $this->_calendar_year;
+			$month = $this->_calendar_month;
+		}
+
 		if ($year == null) $year = date("Y");
 		if ($month == null) $month = date("m");
 
@@ -1250,7 +1268,7 @@ class Posts extends AppModel {
 			$pmonth = $month-1;
 			$pyear = $year;
 		}
-		
+
 		// Next month
 		if (intval($month) >= 12) {
 			$nmonth = 1;
@@ -1259,82 +1277,89 @@ class Posts extends AppModel {
 			$nmonth = $month+1;
 			$nyear = $year;
 		}
-		
+
 		if ($pmonth < 10) $pmonth = "0" . $pmonth;
 		if ($nmonth < 10) $nmonth = "0" . $nmonth;
-		
-		// Building calendar
-		$seconds_in_a_day = 60*60*24;
-		$start_day= mktime (0, 0, 0, $month, 1, $year);	   
-		$date_array = getdate ($start_day);
-		$calendar = array ();
-			
-		for ($i = 0; $i < 6; $i++) {
-			for ($j = 0; $j < 7; $j++) {
-				$current_day = getdate ($start_day);
-				if ($current_day["mon"] != $date_array["mon"]) break;
-				if ($current_day["wday"]-1 == $j && $current_day["wday"] != 0) {
-					$calendar[$i][$j] = $current_day["mday"];
-					$start_day += $seconds_in_a_day;
-				} else if ($current_day["wday"] == 0 && $j == 6) {
-					$calendar[$i][$j] = $current_day["mday"];
-					$start_day += $seconds_in_a_day;
-				} else {
-					$calendar[$i][$j] = "";
-				}
-			}
-		}
 
 		// Header
 		$cal  = "<table id=\"calendar\" class=\"calendar\"><tr><th colspan='7' class=\"monthselect\">";
 		$cal .= "<a class=\"monthlink\" onclick=\"app.blog.calendar('{$pmonth}','{$pyear}'); return false;\" href=\"" . SITE_PATH . "blog/archive/{$pyear}/{$pmonth}\" title=\"" . $this->_lang->get("core", "month." . intval($pmonth)) . " {$pyear}\">«</a> ";
 		$cal .= $this->_lang->get("core", "month." . intval($month)) . " {$year} ";
-		
+
 		if (mktime(0, 0, 0, $nmonth, 0, $nyear) > time()) $cal .= "»";
-		else $cal .= "<a class=\"monthlink\" onclick=\"app.blog.calendar('{$nmonth}','{$nyear}'); return false;\" href=\"" . SITE_PATH . "blog/archive/{$nyear}/{$nmonth}\" title=\"" . $this->_lang->get("core", "month." . intval($nmonth)) . " {$nyear}\">»</a> ";			
-		
-		$cal .= "</th></tr><tr>";
-		
-		// Week days
-		for($i = 1; $i <= 7; $i++) {
-			$sday = $this->_lang->get("core", "weekday.short." . $i);
-			$fday = $this->_lang->get("core", "weekday.full." . $i);
-			$cal .= "<th class=\"" . (($i < 6) ? "workday" : "weekday") . "\" title=\"{$fday}\">{$sday}</th>";
-		}
-		
-		$cal .= "</tr>";
-		$today = $this->_core->getDateInFormat(time(), "Y-m-d");
-		
-		// Render calendar
-		foreach ($calendar as $v1) {
-			$cal .= "<tr>";
-			for ($i = 0; $i < count($v1); $i++) {
-				$v2 = $v1[$i];
-				$vday = ($v2 < 10 ? "0" : "") . $v2;
-				
-				// Posts count
-				$this->_db
-					->select("count(*)")
-					->from(DBPREFIX . "blog_posts")
-					->where("date_format(timestamp, '%Y-%m-%d')", "=", $year . "-" . $month . "-" . $vday, false)
-					->and_where("show", "=", 1);
+		else $cal .= "<a class=\"monthlink\" onclick=\"app.blog.calendar('{$nmonth}','{$nyear}'); return false;\" href=\"" . SITE_PATH . "blog/archive/{$nyear}/{$nmonth}\" title=\"" . $this->_lang->get("core", "month." . intval($nmonth)) . " {$nyear}\">»</a> ";
 
-				// Only local language
-				if ($this->_config->get("blog", "posts.only_local_language", false)) {
-					$this->_db->and_where("lang", "=", $this->_lang->getLang());
+		$cal .= "</th></tr>";
+
+		// Building calendar
+		$content = $this->_cache->get("blog", "calendar_" . $nyear . "-" . $nmonth);
+		if ($content === false) {
+			$seconds_in_a_day = 60 * 60 * 24;
+			$start_day = mktime(0, 0, 0, $month, 1, $year);
+			$date_array = getdate($start_day);
+			$calendar = array();
+
+			for ($i = 0; $i < 6; $i++) {
+				for ($j = 0; $j < 7; $j++) {
+					$current_day = getdate($start_day);
+					if ($current_day["mon"] != $date_array["mon"]) break;
+					if ($current_day["wday"] - 1 == $j && $current_day["wday"] != 0) {
+						$calendar[$i][$j] = $current_day["mday"];
+						$start_day += $seconds_in_a_day;
+					} else if ($current_day["wday"] == 0 && $j == 6) {
+						$calendar[$i][$j] = $current_day["mday"];
+						$start_day += $seconds_in_a_day;
+					} else {
+						$calendar[$i][$j] = "";
+					}
 				}
-
-				$posts = $this->_db->result_array();
-				$posts = isset($posts[0][0]) ? $posts[0][0] : 0;
-				
-				$current = ($year . "-" . $month . "-" . $vday == $today) ? "-current" : "";
-				$rname = ($posts > 0) ? "<a href=\"" . SITE_PATH . "blog/archive/{$year}/{$month}/{$vday}\" " . (($posts > 0) ? " class=\"weekday-active-v\"" : "") . "title=\"{$posts}\">{$v2}</a>" : $v2;
-				$cal .= "<td class=\"" . (($i < 5) ? "workday" : "weekday") . " day{$current}\">{$rname}</td>";
 			}
-			$cal .= "</tr>";
+
+			$content = "<tr>";
+
+			// Week days
+			for ($i = 1; $i <= 7; $i++) {
+				$sday = $this->_lang->get("core", "weekday.short." . $i);
+				$fday = $this->_lang->get("core", "weekday.full." . $i);
+				$content .= "<th class=\"" . (($i < 6) ? "workday" : "weekday") . "\" title=\"{$fday}\">{$sday}</th>";
+			}
+
+			$content .= "</tr>";
+			$today = $this->_core->getDateInFormat(time(), "Y-m-d");
+
+			// Render calendar
+			foreach ($calendar as $v1) {
+				$content .= "<tr>";
+				for ($i = 0; $i < count($v1); $i++) {
+					$v2 = $v1[$i];
+					$vday = ($v2 < 10 ? "0" : "") . $v2;
+
+					// Posts count
+					$this->_db
+						->select("count(*)")
+						->from(DBPREFIX . "blog_posts")
+						->where("date_format(timestamp, '%Y-%m-%d')", "=", $year . "-" . $month . "-" . $vday, false)
+						->and_where("show", "=", 1);
+
+					// Only local language
+					if ($this->_config->get("blog", "posts.only_local_language", false)) {
+						$this->_db->and_where("lang", "=", $this->_lang->getLang());
+					}
+
+					$posts = $this->_db->result_array();
+					$posts = isset($posts[0][0]) ? $posts[0][0] : 0;
+
+					$current = ($year . "-" . $month . "-" . $vday == $today) ? "-current" : "";
+					$rname = ($posts > 0) ? "<a href=\"" . SITE_PATH . "blog/archive/{$year}/{$month}/{$vday}\" " . (($posts > 0) ? " class=\"weekday-active-v\"" : "") . "title=\"{$posts}\">{$v2}</a>" : $v2;
+					$content .= "<td class=\"" . (($i < 5) ? "workday" : "weekday") . " day{$current}\">{$rname}</td>";
+				}
+				$content .= "</tr>";
+			}
+
+			$this->_cache->push("blog", "calendar_" . $nyear . "-" . $nmonth, $content); // Save cache
 		}
 		
-		$cal .= "</table>";
+		$cal .= $content . "</table>";
 		return $cal;
 	}
 
