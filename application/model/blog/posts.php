@@ -25,6 +25,7 @@ use harmony\http\HTTP;
 use Registry;
 use Response;
 use NotFoundException;
+use Exception;
 
 use harmony\pagination\Pagination;
 use harmony\parsers\BBCodeParser;
@@ -152,7 +153,7 @@ class Posts extends AppModel {
 		$tarray = explode(", ", $tags);
 
 		foreach ($tarray as &$tag) {
-			$tag = "<a href=\"" . SITE_PATH . "blog/tag/{$tag}\">{$tag}</a>";
+			$tag = "<a href=\"" . SITE_PATH . "blog/tag/" . urlencode($tag) . "\">{$tag}</a>";
 		}
 
 		return implode(", ", $tarray);
@@ -177,10 +178,11 @@ class Posts extends AppModel {
 	 * Get posts by category and page
 	 * @param int $category Posts category (NULL, for all categories)
 	 * @param int $page Posts page
+	 * @param string $tag = null Tag name
 	 * @param bool $show = true Show allowed to display posts?
 	 * @return Response
 	 */
-	public function get($category, $page, $show = true) {	  
+	public function get($category, $page, $tag = null, $show = true) {
 		$this->_core->addBreadcrumbs($this->_lang->get("blog", "moduleName"), "blog");
 		
 		if (!$this->_user->hasPermission("blog.posts.list")) 
@@ -193,8 +195,9 @@ class Posts extends AppModel {
 		$show = (bool)($show);
 
 		// Number query
-		if ($this->_type == BACKEND)
+		if ($this->_type == BACKEND) {
 			$this->_core->addBreadcrumbs($this->_lang->get("blog", "list.moduleName"), "blog/posts");
+		}
 
 		$this->_db
 			->select("count(*)")
@@ -214,6 +217,12 @@ class Posts extends AppModel {
 		// Only local language
 		if ($this->_config->get("blog", "posts.only_local_language", false)) {
 			$this->_db->and_where("lang", "=", $this->_lang->getLang());
+		}
+
+		// Tag
+		if ($tag !== null) {
+			$this->_db->and_where("tags", "LIKE", "%{$tag}%");
+			$this->_core->addBreadcrumbs($tag, "blog/tag/" . $tag);
 		}
 
 		$num = $this->_db->result_array();
@@ -253,6 +262,11 @@ class Posts extends AppModel {
 			// Only local language
 			if ($this->_config->get("blog", "posts.only_local_language", false)) {
 				$this->_db->and_where("lang", "=", $this->_lang->getLang());
+			}
+
+			// Tag
+			if ($tag !== null) {
+				$this->_db->and_where("tags", "LIKE", "%{$tag}%");
 			}
 
 			$array = $this->_db
@@ -740,7 +754,7 @@ class Posts extends AppModel {
 	 * @param int $postId = null Edit post ID
 	 * @return Response
 	 */
-	public function add($title, $url, $category, $text, $tags, $lang, $allowComments, $show, $showMain, $showCategory, $postId = null, $author = null) {
+	public function add($title, $url, $category, $text, $tags, $lang, $allowComments, $show, $showMain, $showCategory, $postId = null) {
 		$edit = ($postId !== null);
 		if (!$this->_user->hasPermission("blog.posts.add") && $edit) {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
@@ -778,6 +792,8 @@ class Posts extends AppModel {
 
 		$response = new Response();
 
+		$author = $this->_user->get("id");
+
 		if ($edit) {
 			$query = $this->_db
 				->select(["author"])
@@ -789,6 +805,8 @@ class Posts extends AppModel {
 			if (!isset($query[0])) {
 				return new Response(2, "danger", $this->_lang->get("blog", "edit.notExists"));
 			}
+
+			$author = $query[0]["author"];
 		}
 
 		if (empty($title) || empty($text)) {
@@ -796,8 +814,6 @@ class Posts extends AppModel {
 			$response->type = "warning";
 			$response->message = $this->_lang->get("core", "emptyFields");
 		} else {
-			$author = ($author !== null ? $author : ($edit ? $query[0]["author"] : $this->_user->get("id")));
-
 			$values = array(
 				"title" => $title,
 				"url" => $url,
@@ -1320,6 +1336,121 @@ class Posts extends AppModel {
 		
 		$cal .= "</table>";
 		return $cal;
+	}
+
+	/**
+	 * Get tags array
+	 * @return array
+	 * @throws Exception
+	 */
+	public function getTagsArray() {
+		$cache = $this->_cache->get("blog", "tags");
+		if ($cache !== false) return $cache;
+
+		$array = $this->_db
+			->select(["tags"])
+			->from(DBPREFIX . "blog_posts")
+			->where("show", ">", 0)
+			->and_where("tags", "!=", "")
+			->result_array();
+
+		if ($array == false) {
+			throw new Exception("Error get tags: " . $this->_db->getError());
+		}
+
+		$tags = [];
+
+		// Making tags array
+		foreach ($array as $row) {
+			foreach (explode(", ", $row["tags"]) as $tag) {
+				if (isset($tags[$tag])) {
+					$tags[$tag]["count"]++;
+				} else {
+					$tags[$tag]= ["name" => $tag, "count" => 1];
+				}
+			}
+		}
+
+		// Sorting tags by name
+		usort($tags, function ($a, $b) {
+			if ($a["name"] == $b["name"]) {
+				return 0;
+			} else {
+				return strcasecmp($a["name"], $b["name"]);
+			}
+		});
+
+		// Minumum and maximum value
+		$min = 0; $max = 0;
+		foreach ($tags as $tag) {
+			$c = $tag["count"];
+			if ($min == 0 || $c < $min) $min = $c;
+			if ($max < $c) $max = $c;
+		}
+		$range = $max-$min;
+
+		// Adding size item
+		$sizes = ["xsmall", "small", "medium", "large", "xlarge"];
+		foreach ($tags as &$tag) {
+			$tag["size"] = $sizes[intval(($tag["count"] - $min) / ($range) * 4)];
+		}
+
+		$this->_cache->push("blog", "tags", $tags);
+		return $tags;
+	}
+
+	/**
+	 * Get tags cloud
+	 * @return string
+	 */
+	public function getTagsCloud() {
+		$cache = $this->_cache->get("blog", "tagscloud");
+		if ($cache !== false) return $cache;
+
+		$tags = $this->getTagsArray();
+
+		// Sorting tags by size
+		usort($tags, function ($a, $b) {
+			if ($a["size"] == $b["size"]) {
+				return 0;
+			} else {
+				return strcasecmp($a["size"], $b["size"]);
+			}
+		});
+
+		// Splice array
+		array_splice($tags, 40);
+
+		// Sorting tags by name
+		usort($tags, function ($a, $b) {
+			if ($a["name"] == $b["name"]) {
+				return 0;
+			} else {
+				return strcasecmp($a["name"], $b["name"]);
+			}
+		});
+
+		// Minumum and maximum value
+		$min = 0; $max = 0;
+		foreach ($tags as $tag) {
+			$c = $tag["count"];
+			if ($min == 0 || $c < $min) $min = $c;
+			if ($max < $c) $max = $c;
+		}
+
+		$range = $max-$min;
+		$sizes = ["xsmall", "small", "medium", "large", "xlarge"];
+
+		foreach ($tags as $tag) {
+			$tag["size"] = $sizes[intval(($tag["count"] - $min) / ($range) * 4)];
+			$tag["link"] = SITE_PATH . "blog/tag/" . urlencode($tag["name"]);
+			$this->_view->add("blog.tag.tagscloud", $tag);
+		}
+
+		$result = $this->_view->get("blog.tag.tagscloud");
+		$this->_cache->push("blog", "tagscloud", $result);
+
+		return $result;
 	}
 
 	/**

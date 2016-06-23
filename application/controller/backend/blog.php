@@ -104,7 +104,7 @@ class Blog extends AppController {
 			$page = isset($args[0]) ? $args[0] : 1;
 		}
 
-		$this->_view->responseRender($this->_posts->get($category, $page, false));
+		$this->_view->responseRender($this->_posts->get($category, $page, null, false));
 	}
 
 	public function action_remove($args) {

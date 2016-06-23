@@ -41,7 +41,9 @@ class Blog extends AppController {
 		
 		"(cat)/([0-9]+)/page/([0-9]+)" => "list",
 		"(cat)/([0-9]+)" => "list",
-		"page/([0-9]+)" => "list",
+		"(tag)/(.+)/page/([0-9]+)" => "list",
+		"(tag)/(.+)" => "list",
+		"(page)/([0-9]+)" => "list",
 		"search/(.*)/page/([0-9]+)" => "search",
 		"search/(.*)" => "search",
 		"search" => null,
@@ -76,6 +78,7 @@ class Blog extends AppController {
 			case "archive": return $this->_posts->getArchive();
 			case "calendar": return $this->_posts->getCalendar();
 			case "popular": return $this->_posts->getPopular();
+			case "tags-cloud": return $this->_posts->getTagsCloud();
 			case "user-posts-count": return $this->_posts->getUserPostsCount($arg);
 			case "user-comments-count":
 				$comments_model = new Comments();
@@ -87,18 +90,26 @@ class Blog extends AppController {
 	}
 
 	public function action_list($args) {
-		if (isset($args[0]) && $args[0] == "cat") {
-			$category = $args[1];
-			$page = isset($args[2]) ? $args[2] : 1;
+		$category = null;
+		$page = 1;
+		$tag = null;
 
-			// Active Category
-			Categories::getInstance()->activeCategory = $category;
-		} else {
-			$category = null;
-			$page = isset($args[0]) ? $args[0] : 1;
+		if (isset($args[0])) {
+			if ($args[0] == "cat") {
+				$category = $args[1];
+				$page = isset($args[2]) ? $args[2] : 1;
+
+				// Active Category
+				Categories::getInstance()->activeCategory = $category;
+			} elseif ($args[0] == "tag") {
+				$tag = urldecode($args[1]);
+				$page = isset($args[2]) ? $args[2] : 1;
+			} elseif ($args[0] == "page") {
+				$page = intval($args[1]);
+			}
 		}
 
-		$this->_view->responseRender($this->_posts->get($category, $page));
+		$this->_view->responseRender($this->_posts->get($category, $page, $tag));
 	}
 
 	public function action_post($args) {

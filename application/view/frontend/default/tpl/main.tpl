@@ -108,6 +108,10 @@
 			{content}
 		</section>
 	</div>
+
+	[if installed-module:blog]<div class="well well-sm">
+		{blog:tags-cloud}
+	</div>[/if]
 </main>
 
 <footer>

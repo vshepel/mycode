@@ -60,8 +60,7 @@ class MySQLi extends Driver {
 
 	public function getError() {
 		$error = mysqli_error($this->_db);
-
-		return (empty($error) ? "" : ($error . " ")) . (($this->_lastSql === "") ? "" : "in query: {$this->_lastSql}");
+		return empty($error) ? "" : ($error . (($this->_lastSql === "") ? "" : " in query: {$this->_lastSql}"));
 	}
 
 	public function result() {
