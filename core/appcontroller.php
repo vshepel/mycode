@@ -60,6 +60,14 @@ abstract class AppController {
 	}
 
 	/**
+	 * Get URLs array (for sitemap)
+	 * @return array
+	 */
+	public function getUrls() {
+		return [];
+	}
+
+	/**
 	 * Constructor
 	 * @throws \Exception
 	 */

@@ -1379,7 +1379,7 @@ class Posts extends AppModel {
 			->and_where("tags", "!=", "")
 			->result_array();
 
-		if ($array == false) {
+		if ($array === false) {
 			throw new Exception("Error get tags: " . $this->_db->getError());
 		}
 

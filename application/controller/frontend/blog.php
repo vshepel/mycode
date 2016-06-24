@@ -72,6 +72,13 @@ class Blog extends AppController {
 		$this->_core->addJS(PATH . "js/blog.js");
 	}
 
+	public function getUrls() {
+		return array_merge(
+			Categories::getInstance()->getUrls(),
+			$this->_posts->getUrls()
+		);
+	}
+
 	public function getProperty($name, $arg) {
 		switch ($name) {
 			case "categories": return Categories::getInstance()->getList();

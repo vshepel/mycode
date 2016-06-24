@@ -22,6 +22,7 @@ namespace model\page;
 
 use AppModel;
 use Response;
+use Exception;
 use NotFoundException;
 
 use harmony\pagination\Pagination;
@@ -447,5 +448,32 @@ class Page extends AppModel {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Get pages URLs
+	 * @return array
+	 * @throws Exception
+	 */
+	public function getUrls() {
+		$urls = [];
+
+		$array = $this->_db
+			->select(["url"])
+			->from(DBPREFIX . "pages")
+			->result_array();
+
+		if ($array === false) {
+			throw new Exception("Error get urls: " . $this->_db->getError());
+		}
+
+		foreach ($array as $row) {
+			$urls[] = [
+				"loc" => FSITE_PATH . "page/" . $row["url"],
+				"priority" => 0.5
+			];
+		}
+
+		return $urls;
 	}
 }

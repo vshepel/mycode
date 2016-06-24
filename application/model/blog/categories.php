@@ -22,6 +22,7 @@ namespace model\blog;
 
 use AppModel;
 use Response;
+use Exception;
 
 use harmony\strings\StringFilters;
 
@@ -261,5 +262,32 @@ class Categories extends AppModel {
 			return $this->_lang->get("blog", "defaultCategory");
 		else
 			return isset($this->_categories[$id]["name"]) ? $this->_categories[$id]["name"] : $this->_lang->get("blog", "unknownCategory");
+	}
+
+	/**
+	 * Get categories URLs
+	 * @return array
+	 * @throws Exception
+	 */
+	public function getUrls() {
+		$urls = [];
+
+		$array = $this->_db
+			->select(["id"])
+			->from(DBPREFIX . "blog_categories")
+			->result_array();
+
+		if ($array === false) {
+			throw new Exception("Error get categories urls: " . $this->_db->getError());
+		}
+
+		foreach ($array as $row) {
+			$urls[] = [
+				"loc" => FSITE_PATH . "blog/cat/" . $row["id"],
+				"priority" => 0.7
+			];
+		}
+
+		return $urls;
 	}
 }

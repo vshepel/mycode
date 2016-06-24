@@ -1,6 +1,6 @@
 <?php
 /**
- * Page Frontend Controller
+ * Sitemap Frontend Controller
  * @copyright Copyright (C) 2016 al3xable <al3xable@yandex.com>. All rights reserved.
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License version 3
  *
@@ -21,23 +21,13 @@
 namespace controller\frontend;
 
 use AppController;
-use model\page\Page as PageModel;
+use model\sitemap\Sitemap as SitemapModel;
 
-class Page extends AppController {
-	public $__default = "page";
-
-	public $__routes = array (
-		"([A-Za-z0-9\\/\\\\\\_\\-]+)" => "page"
-	);
-
-	public function getUrls() {
-		$model = new PageModel();
-		return $model->getUrls();
-	}
-
-	public function action_page($args) {
-		$name = (isset($args[0]) && !empty($args[0])) ? $args[0] : $this->_registry->get("Config")->get("page", "page", "main");
-		$model = new PageModel();
-		$this->_view->responseRender($model->page($name));
+class Sitemap extends AppController {
+	public function action_index() {
+		$model = new SitemapModel();
+		header("Content-Type: text/xml");
+		echo $model->getSitemapXml();
+		exit;
 	}
 }
