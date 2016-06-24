@@ -1660,4 +1660,27 @@ class Posts extends AppModel {
 
 		return $response;
 	}
+	
+	/**
+	 * Get posts URLs
+	 * @return array
+	 * @throws Exception
+	 */
+	public function getUrls() {
+		$urls = [];
+		$array = $this->_db
+			->select(["id", "url"])
+			->from(DBPREFIX . "blog_posts")
+			->result_array();
+		if ($array === false) {
+			throw new Exception("Error get posts urls: " . $this->_db->getError());
+		}
+		foreach ($array as $row) {
+			$urls[] = [
+				"loc" => FSITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
+				"priority" => 0.6
+			];
+		}
+		return $urls;
+	}
 }
