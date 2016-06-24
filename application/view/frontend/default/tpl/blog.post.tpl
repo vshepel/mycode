@@ -48,6 +48,17 @@
 				</ul>
 			</nav>
 		</p>
+
+		[has-related]<p>
+			<h3>[f:blog:post.related]</h3>
+			<ul>[foreach related]
+				<li style="display:block">
+					<div class="pull-left"><a href="{url}">{title}</a></div>
+					<div class="pull-right"><span class="fa fa-eye"></span> {views} &nbsp; <span class="fa fa-comments"></span> {comments}</div>
+					<div class="clearfix"></div>
+				</li>
+			[/foreach]</ul>
+		</p>[/has-related]
 	</div>
 </div>
 

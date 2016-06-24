@@ -2,15 +2,15 @@
 
 [if num!="0"]<ul class="nav nav-pills">
 	<li id="toggle-all" class="toggle active"><a href="#" onclick="showAll(); return false;">
-		<span class="main-row-icon fa fa-institution"></span>
+		<span class="main-row-icon fa fa-home"></span>
 		[f:core:packages.list.toggle.all]
 	</a></li>
 	<li id="toggle-module" class="toggle"><a href="#" onclick="show('module'); return false;">
-		<span class="main-row-icon fa fa-briefcase"></span>
+		<span class="main-row-icon fa fa-archive"></span>
 		[f:core:packages.list.toggle.packages]
 	</a></li>
 	<li id="toggle-library" class="toggle"><a href="#" onclick="show('library'); return false;">
-		<span class="main-row-icon fa fa-archive"></span>
+		<span class="main-row-icon fa fa-book"></span>
 		[f:core:packages.list.toggle.libraries]
 	</a></li>
 </ul><br>
@@ -78,8 +78,8 @@
 				  </button>
 			  </td>
 			  <td align="center">
-				  [if type="module"]<span class="fa fa-briefcase"></span>[/if]
-				  [if type="library"]<span class="fa fa-archive"></span>[/if]
+				  [if type="module"]<span class="fa fa-archive"></span>[/if]
+				  [if type="library"]<span class="fa fa-book"></span>[/if]
 			  </td>
 			  <td>
 				  [remove]<a href="{remove-link}" class="btn btn-xs btn-danger">

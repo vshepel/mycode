@@ -48,6 +48,13 @@
 	</div>
 
 	<div class="form-group">
+		<label class="control-label col-sm-6">[f:blog:settings.posts.related]</label>
+		<div class="col-sm-6">
+			<input class="form-control" type="checkbox" name="posts_related"[posts-related] checked[/posts-related]>
+		</div>
+	</div>
+
+	<div class="form-group">
 		<label class="control-label col-sm-6">[f:blog:settings.posts.onlyLocalLanguage]</label>
 		<div class="col-sm-6">
 			<input class="form-control" type="checkbox" name="posts_only_local_language"[posts-only-local-language] checked[/posts-only-local-language]>

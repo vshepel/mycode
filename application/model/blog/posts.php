@@ -550,6 +550,43 @@ class Posts extends AppModel {
 				}
 			}
 
+			// Related News
+			$related = [];
+
+			if ($this->_config->get("blog", "posts.related", true)) {
+				$cache = $this->_cache->get("blog", "related_" . $id);
+				if ($cache === false) {
+					$body = $row["text_parsed"];
+					$body = $this->_db->safe(strip_tags(stripslashes($row["title"] . " " . $body)));
+
+					$result = $this->_db
+						->select(array(
+							"id", "title", "url",
+							["views_num", "views"],
+							["comments_num", "comments"],
+						))
+						->from(DBPREFIX . "blog_posts")
+						->where("show", ">", 0)
+						->and_where("id", "!=", $id)
+						->and_where("MATCH (`title`, `text_parsed`) ", "AGAINST", "('{$body}')", false, false)
+						->limit([0, 5])
+						->result_array();
+
+					if ($result === false) {
+						return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+					}
+
+					foreach ($result as $rrow) {
+						$rrow["url"] = SITE_PATH . "blog/" . $rrow["id"] . "-" . $rrow["url"];
+						$related[] = $rrow;
+					}
+
+					$this->_cache->push("blog", "related_" . $id, $related);
+				} else {
+					$related = $cache;
+				}
+			}
+
 			// Comments
 			$comments = $comments_model->get($id, $commentsPage, $row["allow_comments"], $row["url"]);
 
@@ -598,6 +635,9 @@ class Posts extends AppModel {
 				"rating" => $row["rating"],
 				"rating-minus-active" => $ratingMinusActive,
 				"rating-plus-active" => $ratingPlusActive,
+
+				"has-related" => count($related) > 0,
+				"related" => $related,
 
 				"comments" => $comments,
 
@@ -1660,7 +1700,7 @@ class Posts extends AppModel {
 
 		return $response;
 	}
-	
+
 	/**
 	 * Get posts URLs
 	 * @return array
