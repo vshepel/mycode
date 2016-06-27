@@ -43,6 +43,8 @@ class Blog extends AppController {
 		"(cat)/([0-9]+)" => "list",
 		"(tag)/(.+)/page/([0-9]+)" => "list",
 		"(tag)/(.+)" => "list",
+		"(author)/(.+)/page/([0-9]+)" => "list",
+		"(author)/(.+)" => "list",
 		"(page)/([0-9]+)" => "list",
 		"search/(.*)/page/([0-9]+)" => "search",
 		"search/(.*)" => "search",
@@ -100,6 +102,7 @@ class Blog extends AppController {
 		$category = null;
 		$page = 1;
 		$tag = null;
+		$author = null;
 
 		if (isset($args[0])) {
 			if ($args[0] == "cat") {
@@ -111,12 +114,15 @@ class Blog extends AppController {
 			} elseif ($args[0] == "tag") {
 				$tag = urldecode($args[1]);
 				$page = isset($args[2]) ? $args[2] : 1;
+			} elseif ($args[0] == "author") {
+				$author = urldecode($args[1]);
+				$page = isset($args[2]) ? $args[2] : 1;
 			} elseif ($args[0] == "page") {
 				$page = intval($args[1]);
 			}
 		}
 
-		$this->_view->responseRender($this->_posts->get($category, $page, $tag));
+		$this->_view->responseRender($this->_posts->get($category, $page, $tag, $author));
 	}
 
 	public function action_post($args) {

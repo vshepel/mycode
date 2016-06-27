@@ -375,6 +375,28 @@ class User {
 				: false
 		) : false;
 	}
+
+	/**
+	 * Get user by login
+	 * @param string $login Login
+	 * @return bool
+	 */
+	public function getUserByLogin($login) {
+		$user = $this->_db
+			->select("*")
+			->from(DBPREFIX . "user_profiles")
+			->where("login", "=", $login)
+			->result_array();
+
+		if (isset($user[0])) {
+			$id = intval($user[0]["id"]);
+			$this->_users[$id] = $user[0];
+			return $user[0];
+		}
+
+		return false;
+	}
+	
 	/**
 	 * Get User Avatar Link By User ID
 	 * @param int $id User ID

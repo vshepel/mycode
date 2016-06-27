@@ -132,16 +132,16 @@ class Edit extends AppModel {
 					}
 					
 					// Groups
-					$groups = "";
+					$groups = [];
 					$group_change = $this->_user->hasPermission("user.edit.group");
 					if ($group_change) {
 						$active = $this->_get("group");
-						foreach($this->_user->getGroups() as $id => $row) {
-							$groups .= $this->_view->parse("user.edit.selector", [
+						foreach ($this->_user->getGroups() as $id => $row) {
+							$groups[] = [
 								"name" => $row[0] . " ({$id})",
 								"value" => $id,
 								"active" => ($id == $active)
-							]);
+							];
 						}
 					}
 

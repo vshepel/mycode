@@ -53,6 +53,14 @@ class Cache {
 	}
 
 	/**
+	 * Check cache for enabled
+	 * @return bool
+	 */
+	public function isEnabled() {
+		return $this->_enable;
+	}
+
+	/**
 	 * Push cache content
 	 * @param string $path Cache path
 	 * @param string $name Cache name

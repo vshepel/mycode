@@ -71,7 +71,7 @@
 		<div class="col-sm-9">
 			<select class="form-control" name="edit[lang]">
 				<option value="">[b:user:fields.lang]</option>
-				{langs}
+				[foreach langs]<option value="{value}"[active] selected[/active]>{name}</option>[/foreach]
 			</select>
 		</div>
 	</div>
@@ -80,7 +80,7 @@
 		<label class="control-label col-sm-3">[b:user:fields.group]: *</label>
 		<div class="col-sm-9">
 			<select class="form-control" name="edit[group]">
-				{groups}
+				[foreach groups]<option value="{value}"[active] selected[/active]>{name}</option>[/foreach]
 			</select>
 		</div>
 	</div>[/group-change]

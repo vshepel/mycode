@@ -29,7 +29,7 @@
 <hr>
 <h3><span class="fa fa-newspaper-o"></span> [b:blog:moduleName]</h3>
 <ul class="nav nav-pills" role="tablist">
-	<li role="presentation"><a href="#">[f:user:profile.blog.postsCount] <span class="badge">{blog:user-posts-count:{id}}</span></a></li>
-	<li role="presentation"><a href="#">[f:user:profile.blog.commentsCount] <span class="badge">{blog:user-comments-count:{id}}</span></a></li>
+	<li role="presentation"><a href="{SITE_PATH}blog/author/{username}">[f:user:profile.blog.postsCount] <span class="badge">{blog:user-posts-count:{id}}</span></a></li>
+	<li role="presentation"><a>[f:user:profile.blog.commentsCount] <span class="badge">{blog:user-comments-count:{id}}</span></a></li>
 </ul>
 [/if]

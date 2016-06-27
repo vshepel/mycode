@@ -179,10 +179,11 @@ class Posts extends AppModel {
 	 * @param int $category Posts category (NULL, for all categories)
 	 * @param int $page Posts page
 	 * @param string $tag = null Tag name
+	 * @param string $author Author login
 	 * @param bool $show = true Show allowed to display posts?
 	 * @return Response
 	 */
-	public function get($category, $page, $tag = null, $show = true) {
+	public function get($category, $page, $tag = null, $author = null, $show = true) {
 		$this->_core->addBreadcrumbs($this->_lang->get("blog", "moduleName"), "blog");
 		
 		if (!$this->_user->hasPermission("blog.posts.list")) 
@@ -194,11 +195,19 @@ class Posts extends AppModel {
 		$page = intval($page);
 		$show = (bool)($show);
 
-		// Number query
 		if ($this->_type == BACKEND) {
 			$this->_core->addBreadcrumbs($this->_lang->get("blog", "list.moduleName"), "blog/posts");
 		}
 
+		// User login
+		$author_id = null;
+		if ($author !== null) {
+			$this->_core->addBreadcrumbs($author, "blog/author/" . $author);
+			$row = $this->_user->getUserByLogin($author);
+			$author_id = ($row === false) ? 0 : $row["id"];
+		}
+
+		// Number query
 		$this->_db
 			->select("count(*)")
 			->from(DBPREFIX . "blog_posts")
@@ -224,6 +233,11 @@ class Posts extends AppModel {
 			$this->_db->and_where("tags", "LIKE", "%{$tag}%");
 			$this->_core->addBreadcrumbs($tag, "blog/tag/" . $tag);
 		}
+		
+		// Author
+		if ($author_id !== null) {
+			$this->_db->and_where("author", "=", $author_id);
+		}
 
 		$num = $this->_db->result_array();
 
@@ -234,7 +248,17 @@ class Posts extends AppModel {
 
 			return $response;
 		} else {
-			$paginationPrefix = (($this->_type == BACKEND) ? ADMIN_PATH . "blog/posts" : SITE_PATH . "blog") . "/" . (($category === null) ? "page/" : "cat/" . $category . "/page/");
+			$paginationPrefix = (($this->_type == BACKEND) ? ADMIN_PATH . "blog/posts" : SITE_PATH . "blog") . "/";
+
+			if ($category !== null) {
+				$paginationPrefix .= "cat/" . $category;
+			} elseif ($tag !== null) {
+				$paginationPrefix .= "tag/" . $tag;
+			} elseif ($author !== null) {
+				$paginationPrefix .= "author" . $author;
+			}
+
+			$paginationPrefix .= "/page/";
 			$num = $num[0][0];
 			$pagination = new Pagination($num, $page, $paginationPrefix, $this->_config->get("blog", "list.customPagination", array()));
 
@@ -267,6 +291,11 @@ class Posts extends AppModel {
 			// Tag
 			if ($tag !== null) {
 				$this->_db->and_where("tags", "LIKE", "%{$tag}%");
+			}
+
+			// Author
+			if ($author_id !== null) {
+				$this->_db->and_where("author", "=", $author_id);
 			}
 
 			$array = $this->_db
@@ -1389,7 +1418,7 @@ class Posts extends AppModel {
 					$posts = $this->_db->result_array();
 					$posts = isset($posts[0][0]) ? $posts[0][0] : 0;
 
-					$current = ($year . "-" . $month . "-" . $vday == $today) ? "-current" : "";
+					$current = (!$this->_cache->isEnabled() && $year . "-" . $month . "-" . $vday == $today) ? "-current" : "";
 					$rname = ($posts > 0) ? "<a href=\"" . SITE_PATH . "blog/archive/{$year}/{$month}/{$vday}\" " . (($posts > 0) ? " class=\"weekday-active-v\"" : "") . "title=\"{$posts}\">{$v2}</a>" : $v2;
 					$content .= "<td class=\"" . (($i < 5) ? "workday" : "weekday") . " day{$current}\">{$rname}</td>";
 				}

@@ -94,8 +94,7 @@ class PostsModeration extends AppModel {
 
 
             if ($category !== null)
-                $this->_db
-                    ->and_where("category", "=", $category);
+                $this->_db->and_where("category", "=", $category);
 
             $array = $this->_db
                 ->order_by("id")->asc()
@@ -107,8 +106,6 @@ class PostsModeration extends AppModel {
                 $response->type = "danger";
                 $response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
             } else {
-                $noRows = (count($array) == 0);
-
                 foreach ($array as $row) {
                     $anonymous = ($row["author"] == 0);
 
@@ -151,11 +148,6 @@ class PostsModeration extends AppModel {
                     "num" => $num,
                     "posts" => $this->_view->get("story/future/post"),
                     "pagination" => $pagination,
-                );
-
-                $response->blocks = array (
-                    "no-rows" => $noRows,
-                    "rows" => !$noRows,
                 );
             }
         }

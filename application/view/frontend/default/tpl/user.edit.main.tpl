@@ -70,7 +70,7 @@
 		<div class="col-sm-9">
 			<select class="form-control" name="edit[lang]">
 				<option value="">[b:user:fields.lang]</option>
-				{langs}
+				[foreach langs]<option value="{value}"[active] selected[/active]>{name}</option>[/foreach]
 			</select>
 		</div>
 	</div>
