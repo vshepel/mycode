@@ -123,10 +123,12 @@ class User extends AppController {
 			if (isset($reg["email"], $reg["login"], $reg["password"], $reg["password_2"], $reg["name"], $reg["captcha"])) {
 				$auth = $this->_model->register($reg["email"], $reg["login"], $reg["password"], $reg["password_2"], $reg["name"], $reg["captcha"]);
 
-				if ($auth->code == 0 && !$this->_ajax)
-					HTTP::redirect(SITE_PATH . "user/auth");
-				else
+				if ($auth->code == 0 && !$this->_ajax) {
+					$this->_model->auth($reg["login"], $reg["password"], false);
+					HTTP::redirect(SITE_PATH);
+				} else {
 					$this->_view->alert($auth->type, $auth->message);
+				}
 			}
 		}
 

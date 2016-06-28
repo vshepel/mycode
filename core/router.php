@@ -136,23 +136,6 @@ class Router {
 	}
 
 	/**
-	 * @param array $routes
-	 * @param string $default
-	 */
-	private function _customRoutes($routes, $default) {
-		$this->_action = $default;
-
-		foreach ($routes as $pattern => $action) {
-			if (preg_match("~" . $this->_module . "/" . $pattern . "~", $this->_request, $matches)) {
-				$this->_action = ($action !== null) ? $action : $pattern;
-				$this->_routes = array_slice($matches, 1);
-				break;
-			}
-		}
-	}
-
-
-	/**
 	 * Check controller for exists
 	 * @param string $module Module name
 	 * @param string $type Side type
@@ -164,56 +147,69 @@ class Router {
 	}
 
 	/**
-	 * Initialization
-	 * @throws \Exception
-	 */
-	private function _init() {
-		$this->_routes = array_slice(explode("/", $this->_request), 1);
-		$this->_module = $this->get(0) ? $this->get(0) : $this->_config->get("core", "moduleFrontend", "page");
-		$this->_action = $this->get(1) ? $this->get(1) : null;
-
-		$type = ($this->get(0) == "admin") ? BACKEND : FRONTEND;
-
-		if ($type == BACKEND)
-			if (!$this->_user->hasPermission("admin")) {
-				$this->_type = FRONTEND;
-				$this->page_404();
-			} else {
-				Registry::getInstance()
-					->get("Core")
-					->setType($type)
-					->addBreadcrumbs("ControlPanel", "");
-
-				$this->_module = $this->get(1) ? $this->get(1) : $this->_config->get("core", "moduleBackend", "core");
-				$this->_action = $this->get(2) ? $this->get(2) : null;
-			}
-
-		$this->_type = $type;
-		
-		define("SIDETYPE", $this->_type);
-	}
-
-	/**
 	 * Start router
 	 */
 	public function start() {
 		try {
-			$this->_init();
+			$this->_routes = array_slice(explode("/", $this->_request), 1);
+			$type = ($this->get(0) == "admin") ? BACKEND : FRONTEND;
+
+			if ($type == BACKEND) {
+				if (!$this->_user->hasPermission("admin")) {
+					$this->_type = FRONTEND;
+					throw new NotFoundException();
+				} else {
+					Registry::getInstance()->get("Core")
+						->setType($type)
+						->addBreadcrumbs("ControlPanel", "");
+
+					$this->_module = $this->get(1) ? $this->get(1) : $this->_config->get("core", "moduleBackend", "core");
+					$this->_action = $this->get(2) ? $this->get(2) : null;
+				}
+			} else {
+				$this->_module = $this->get(0) ? $this->get(0) : $this->_config->get("core", "moduleFrontend", "page");
+				$this->_action = $this->get(1) ? $this->get(1) : null;
+			}
+
+			$this->_type = $type;
+			define("SIDETYPE", $this->_type);
+
 			$this->existsController($this->_module, $this->_type);
-	
+
 			$controller_class = "\\controller\\{$this->_type}\\" . $this->_module;
 			$controller = new $controller_class;
 			$this->_object = $controller;
-	
-			if (is_array($controller->__routes))
-				$this->_customRoutes($controller->__routes, $controller->__default);
+
+			// Custom routes
+			if (is_array($controller->__routes)) {
+				$custom_action = null;
+
+				foreach ($controller->__routes as $pattern => $action) {
+					if (preg_match("~" . $this->_module . "/" . $pattern . "~", $this->_request, $matches)) {
+						$custom_action = ($action !== null) ? $action : $pattern;
+						$this->_routes = array_slice($matches, 1);
+						break;
+					}
+				}
+
+				if ($custom_action === null) {
+					if ($this->_action === null) {
+						$this->_action = $controller->__default;
+					} else {
+						throw new NotFoundException();
+					}
+				} else {
+					$this->_action = $custom_action;
+				}
+			}
 	
 			$action = "action_" . (($this->_action === null) ? $controller->__default : $this->_action);
 	
 			if (method_exists($controller, $action)) {
 				$controller->$action($this->_routes);
-			} else
+			} else {
 				throw new NotFoundException();
+			}
 		} catch (NotFoundException $e) {
 			$this->page_404();
 		}
