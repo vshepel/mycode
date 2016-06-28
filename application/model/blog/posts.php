@@ -168,7 +168,8 @@ class Posts extends AppModel {
 		$count = $this->_db
 			->select("count(*)")
 			->from(DBPREFIX . "blog_posts")
-			->where("author", "=", intval($uid))
+			->where("show", "=", 1)
+			->and_where("author", "=", intval($uid))
 			->result_array();
 
 		return isset($count[0][0]) ? $count[0][0] : 0;
