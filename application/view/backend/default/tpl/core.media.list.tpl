@@ -7,7 +7,7 @@
 <div class="media">
 	<div class="media-left">
 		<a href="{file-link}"> 
-			<img src="{icon-link}" style="width: 48px; height: 64px;" class="media-object">
+			<img src="{icon-link}" style="width: 48px" class="media-object">
 		</a>
 	</div>
 	<div class="media-body">
