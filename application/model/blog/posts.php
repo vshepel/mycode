@@ -249,14 +249,14 @@ class Posts extends AppModel {
 
 			return $response;
 		} else {
-			$paginationPrefix = (($this->_type == BACKEND) ? ADMIN_PATH . "blog/posts" : SITE_PATH . "blog") . "/";
+			$paginationPrefix = (($this->_type == BACKEND) ? ADMIN_PATH . "blog/posts" : SITE_PATH . "blog");
 
 			if ($category !== null) {
-				$paginationPrefix .= "cat/" . $category;
+				$paginationPrefix .= "/cat/" . $category;
 			} elseif ($tag !== null) {
-				$paginationPrefix .= "tag/" . $tag;
+				$paginationPrefix .= "/tag/" . $tag;
 			} elseif ($author !== null) {
-				$paginationPrefix .= "author" . $author;
+				$paginationPrefix .= "/author" . $author;
 			}
 
 			$paginationPrefix .= "/page/";

@@ -88,7 +88,7 @@
 		[if SELF="/user/profile/{username}"]
 		[logged]
 		<section id="panel">
-			<a href="/messages/list">
+			<a href="/messages">
 				<i class="mdi mdi-email"></i> [f:messages:list.title]
 			</a>
 			<a href="/user/edit">

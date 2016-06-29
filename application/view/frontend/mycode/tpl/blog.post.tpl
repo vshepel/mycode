@@ -4,7 +4,7 @@
 	</div>
 	<div class="post_text">
 		<h1>{title}</h1>
-		{short-text}
+		{full-text}
 	</div>
 	<div class="post_tags">
 		<i class="mdi mdi-label"></i> {tags}
