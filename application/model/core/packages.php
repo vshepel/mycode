@@ -62,11 +62,11 @@ class Packages extends AppModel {
 							(isset($ini["package.description"]) ? $ini["package.description"] : "")
 						),
 						
-						"backend-image" => isset($ini["backend.image"]) ? $ini["backend.image"] : "",
+						"backend-image" => isset($ini["backend.image"]) ? $ini["backend.image"] : "default.png",
 						"backend-link" => isset($ini["backend.link"]) ? ADMIN_PATH . $ini["backend.link"] : "",
 						
 						"backend-title" => (isset($ini["backend.title." . $lang]) ? $ini["backend.title." . $lang] :
-							(isset($ini["backend.title"]) ? $ini["backend.title"] : "")
+							(isset($ini["backend.title"]) ? $ini["backend.title"] : $name)
 						),
 						"backend-description" => (isset($ini["backend.description." . $lang]) ? $ini["backend.description." . $lang] :
 							(isset($ini["backend.description"]) ? $ini["backend.description"] : "")
