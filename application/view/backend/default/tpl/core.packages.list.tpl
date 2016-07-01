@@ -17,6 +17,7 @@
 
 <table class="table table-bordered">
 	<thead><tr>
+		<th width="32"></th>
 		<th>[f:core:packages.list.table.title]</th>
 		<th>[f:core:packages.list.table.description]</th>
 		<th>[f:core:packages.list.table.author]</th>
@@ -63,6 +64,7 @@
 		  </div>
 
 		  <tr class="package package-type-{type}[dependent] info[/dependent][unused] warning[/unused][conflict] danger[/conflict]">
+			  <td><img src="{PATH}images/modules/{backend-image}" width="32" alt="{name}"></td>
 			  <td><a href="{frontend-link}">{name}</a> ({version})</td>
 			  <td>{description}</td>
 			  <td>{author}</td>
