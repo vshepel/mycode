@@ -270,6 +270,8 @@ class Media extends AppModel {
 						$response->tags["user-login"] = $this->_user->getUserLogin($row[0]["user"]);
 						$response->tags["user-link"] = SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row[0]["user"]);
 						$response->tags["user-id"] = $row[0]["user"];
+						$response->tags["list-link"] = ADMIN_PATH . "core/media";
+						$response->tags["remove-link"] = ADMIN_PATH . "core/media/remove/" . $row[0]["id"];
 					}
 			} else {
 				$response->code = 3;
