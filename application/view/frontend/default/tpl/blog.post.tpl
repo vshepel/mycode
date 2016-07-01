@@ -4,7 +4,7 @@
 			<h2>{title}</h2>
 		</div>
 		<div class="pull-right"><br>
-			[if has-permission:"blog.posts.add"]<a href="{SITE_PATH}blog/add" class="btn btn-primary">
+			[if has-permission:blog.posts.add]<a href="{SITE_PATH}blog/add" class="btn btn-primary">
 				<span class="glyphicon glyphicon-plus"></span>
 			</a>[/if]
 		</div>

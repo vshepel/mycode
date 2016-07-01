@@ -10,11 +10,11 @@
 		<tbody>
 		<tr>
 			<td>[f:core:statistics.system.version]</td>
-			<td>{version}</td>
+			<td width="25%">{version}</td>
 		</tr>
 		<tr>
 			<td>[f:core:statistics.system.cacheSize]</td>
-			<td>
+			<td width="25%">
 				<form method="post">
 					{cache-size} <button class="btn btn-xs btn-danger" name="clear_cache" type="submit"><span class="glyphicon glyphicon-trash"></span></button>
 				</form>
@@ -22,21 +22,15 @@
 		</tr>
 		<tr>
 			<td>[f:core:statistics.system.uploadsSize]</td>
-			<td>
-				{uploads-size}
-			</td>
+			<td width="25%">{uploads-size}</td>
 		</tr>
 		<tr>
 			<td>[f:core:statistics.system.freeSpace]</td>
-			<td>
-				{free-space}
-			</td>
+			<td width="25%">{free-space}</td>
 		</tr>
 		<tr>
 			<td>[f:core:statistics.system.debug]</td>
-			<td>
-				{debug}
-			</td>
+			<td width="25%">{debug}</td>
 		</tr>
 		</tbody>
 	</table>
@@ -54,19 +48,19 @@
 		<tbody>
 		<tr>
 			<td>[f:core:statistics.server.os]</td>
-			<td>{os}</td>
+			<td width="25%">{os}</td>
 		</tr>
 		<tr>
 			<td>[f:core:statistics.server.phpVersion]</td>
-			<td>{php-version}</td>
+			<td width="25%">{php-version}</td>
 		</tr>
 		<tr>
 			<td>[f:core:statistics.server.postMaxSize]</td>
-			<td>{post-max-size}</td>
+			<td width="25%">{post-max-size}</td>
 		</tr>
 		<tr>
 			<td>[f:core:statistics.server.uploadMaxFilesize]</td>
-			<td>{upload-max-filesize}</td>
+			<td width="25%">{upload-max-filesize}</td>
 		</tr>
 		</tbody>
 	</table>
@@ -84,19 +78,19 @@
 		<tbody>
 		<tr>
 			<td>[f:core:statistics.db.driver]</td>
-			<td>{db-driver}</td>
+			<td width="25%">{db-driver}</td>
 		</tr>
 		<tr>
 			<td>[f:core:statistics.db.version]</td>
-			<td>{db-version}</td>
+			<td width="25%">{db-version}</td>
 		</tr>
 		<tr>
 			<td>[f:core:statistics.db.size]</td>
-			<td>{db-size}</td>
+			<td width="25%">{db-size}</td>
 		</tr>
 		<tr>
 			<td>[f:core:statistics.db.tables]</td>
-			<td>{db-tables}</td>
+			<td width="25%">{db-tables}</td>
 		</tr>
 		</tbody>
 	</table>

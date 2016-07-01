@@ -264,6 +264,8 @@ class Settings extends AppModel {
 			}
 		}
 
+		$this->_cache->clear();
+
 		return $response;
 	}
 }

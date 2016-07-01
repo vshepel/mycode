@@ -23,6 +23,7 @@ namespace controller\backend;
 use AppController;
 
 use model\blog\Posts;
+use model\blog\PostsModeration;
 use model\blog\Statistics;
 use model\blog\Settings;
 use model\blog\Categories;
@@ -38,6 +39,10 @@ class Blog extends AppController {
 		"statistics" => null,
 		"settings" => null,
 		"categories" => null,
+		"moderation/(good)/([0-9]+)" => "moderation_act",
+		"moderation/(bad)/([0-9]+)" => "moderation_act",
+		"moderation/page/([0-9]+)" => "posts",
+		"moderation" => null,
 		"posts/(cat)/([0-9]+)/page/([0-9]+)" => "posts",
 		"posts/(cat)/([0-9]+)" => "posts",
 		"posts/page/([0-9]+)" => "posts",
@@ -94,6 +99,28 @@ class Blog extends AppController {
 		$this->_view->responseRender($categories);
 	}
 
+	public function action_moderation_act($args) {
+		$model = new PostsModeration();
+		$id = intval($args[1]);
+
+		if ($args[0] == "good") {
+			$post = $model->good($id);
+			if ($post === false) {
+				HTTP::redirect(ADMIN_PATH . "blog/moderation");
+			} else {
+				HTTP::redirect(ADMIN_PATH . "blog/edit/" . $post);
+			}
+		} elseif ($args[0] == "bad") {
+			$model->bad($id);
+			HTTP::redirect(ADMIN_PATH . "blog/moderation");
+		}
+	}
+
+	public function action_moderation($args) {
+		$model = new PostsModeration();
+		$page = isset($args[0]) ? $args[0] : 1;
+		$this->_view->responseRender($model->get(null, $page));
+	}
 
 	public function action_posts($args) {
 		if (isset($args[0]) && $args[0] == "cat") {
@@ -146,10 +173,7 @@ class Blog extends AppController {
 				isset($_POST["allow_comments"]), isset($_POST["show"]), isset($_POST["show_main"]), isset($_POST["show_category"])
 			);
 
-			if ($result->code == 0)
-				HTTP::redirect(ADMIN_PATH . "blog/posts");
-			else
-				$this->_view->alert($result->type, $result->message);
+			$this->_view->alert($result->type, $result->message);
 		}
 
 		$this->_view->responseRender($this->_posts->editPage($postId));

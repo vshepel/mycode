@@ -2,4 +2,10 @@ User-agent: *
 Disallow: /core/
 Disallow: /user/
 Disallow: /messages/
+Disallow: /?cpp=true
 
+User-agent: Yandex
+Disallow: /core/
+Disallow: /user/
+Disallow: /messages/
+Disallow: /?cpp=true

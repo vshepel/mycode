@@ -88,16 +88,24 @@ class Media extends AppModel {
 			$num = count($array);
 
 			function image($name) {
-				if (in_array($name, ["zip", "tar"]))
+				if (in_array($name, ["zip", "rar", "tar", "tgz", "txz"]))
 					return "archive";
 				if (in_array($name, ["mp3", "flac", "m4a", "mid", "midi", "imy", "ogg", "wav", "aiff", "ape", "wma"]))
 					return "audio";
-				if (in_array($name, ["html", "htm", "css", "js", "json", "xml", "java", "c", "cs", "cpp", "php", "py", "sql", "sh", "bat"]))
+				if (in_array($name, ["html", "htm", "css", "js", "json", "xml", "java", "c", "cs", "cpp", "php", "py", "sql", "md"]))
 					return "code";
-				if (in_array($name, ["doc", "docx", "odt", "pdf", "djvu"]))
+				if (in_array($name, ["doc", "docx", "odt"]))
 					return "document";
-				if (in_array($name, ["ppt", "pptx", "odp", "jpeg", "jpg", "png", "gif"]))
+				if (in_array($name, ["sh", "bat", "exe", "so", "dll"]))
+					return "executable";
+				if (in_array($name, ["ttf", "ttc", "otf", "dfont", "woff", "woff2", "eot"]))
+					return "font";
+				if (in_array($name, ["ppt", "pptx", "odp"]))
 					return "interactive";
+				if (in_array($name, ["pdf", "djvu"]))
+					return "pdf";
+				if (in_array($name, ["jpeg", "jpg", "png", "gif", "svg"]))
+					return "picture";
 				if (in_array($name, ["xls", "xlsx", "ods"]))
 					return "spreadsheet";
 				if (in_array($name, ["txt", "text"]))
@@ -262,6 +270,8 @@ class Media extends AppModel {
 						$response->tags["user-login"] = $this->_user->getUserLogin($row[0]["user"]);
 						$response->tags["user-link"] = SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row[0]["user"]);
 						$response->tags["user-id"] = $row[0]["user"];
+						$response->tags["list-link"] = ADMIN_PATH . "core/media";
+						$response->tags["remove-link"] = ADMIN_PATH . "core/media/remove/" . $row[0]["id"];
 					}
 			} else {
 				$response->code = 3;

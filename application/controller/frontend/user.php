@@ -192,6 +192,15 @@ class User extends AppController {
 					$model->get()
 				);
 			break;
+
+			default:
+				$link = $model->getLink($args[0]);
+				if ($link === false) {
+					HTTP::redirect(SITE_PATH);
+				} else {
+					$model->removeById($args[0]);
+					HTTP::redirect($link);
+				}
 		}
 	}
 }

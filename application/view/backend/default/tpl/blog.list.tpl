@@ -19,7 +19,7 @@
 			<td><a href="{link}">{title}</a>[not-show] <span class="glyphicon glyphicon-eye-close">[/not-show]</td>
 			<td><a href="{category-link}">{category-name}</a>[not-show-category] <span class="glyphicon glyphicon-eye-close">[/not-show-category]</td>
 			<td>{date}, {time}</td>
-			<td><a href="{author-link}">{author-login}</a></td>
+			<td><a href="{author-link}"><img src="{author-avatar-link}" class="img-circle" style="height:24px"></a> <a href="{author-link}">{author-login}</a></td>
 			<td>{comments-num}</td>
 			<td>{views-num}</td>
 			<td style="padding: 3px">
