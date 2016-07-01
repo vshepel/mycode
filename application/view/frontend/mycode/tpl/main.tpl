@@ -58,7 +58,7 @@
 					[logged]
 					[if has-permission:blog.add]
 					<li class="write">
-						<a class="btn-primary" href="blog/add">[f:main:panel.write]</a>
+						<a class="btn-primary" href="{SITE_PATH}blog/add">[f:main:panel.write]</a>
 					</li>
 					[/if]
 					<li class="search_icon links"><a href="#"><i class="mdi mdi-magnify"></i></a></li>
@@ -90,11 +90,7 @@
 		[if SELF="/user/profile/{username}"]
 		[logged]
 		<section id="panel">
-<<<<<<< HEAD
 			<a href="/messages/inbox">
-=======
-			<a href="/messages">
->>>>>>> ed15a69cd5515988bbe53502bb773c05edc39f62
 				<i class="mdi mdi-email"></i> [f:messages:list.title]
 			</a>
 			<a href="/user/edit">
