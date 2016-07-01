@@ -54,7 +54,7 @@ class Notifications extends AppModel {
 	}
 
 	/**
-	 * Get TimeList by User
+	 * Get notofications by User
 	 * @param int $user User ID
 	 * @return Response
 	 * @throws Exception
@@ -87,7 +87,7 @@ class Notifications extends AppModel {
 					"id" => $row["id"],
 					"user" => $this->_user->getUserLogin($row["user"]),
 					"profile-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["user"]),
-					"link" => $link,
+					"link" => SITE_PATH . "user/notifications/" . $row["id"],
 
 					"iso-datetime" => $this->_core->getISODateTime($row["timestamp"]),
 					"date" => $date,
@@ -116,12 +116,44 @@ class Notifications extends AppModel {
 	}
 
 	/**
+	 * Get link of message
+	 * @param int $id Notification ID
+	 * @param int $user = null User ID
+	 * @return string|bool Link (false if link not found)
+	 * @throws Exception
+	 */
+	public function getLink($id, $user = null) {
+		if ($user === null) {
+			$user = $this->_user->get("id");
+		}
+
+		$query = $this->_db
+			->select(array(
+				"id", "link"
+			))
+			->from(DBPREFIX . "user_notifications")
+			->where("user", "=", $user)
+			->and_where("id", "=", $id)
+			->result_array();
+
+		if ($query === false) {
+			throw new Exception("Notification Get Error: " . $this->_db->getError());
+		}
+
+		if (isset($query[0]["link"])) {
+			return $query[0]["link"];
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * Remove Notification item by ID
 	 * @param int $id Item ID
 	 * @param bool $checkUser Remove notification from this user
 	 * @throws Exception
 	 */
-	public function removeById($id, $checkUser = false) {
+	public function removeById($id, $checkUser = true) {
 		$id = intval($id);
 
 		$this->_db
@@ -129,13 +161,14 @@ class Notifications extends AppModel {
 			->where("id", "=", $id);
 
 		if ($checkUser) {
-			$this->_db->and_where("id", "=", $id);
+			$this->_db->and_where("user", "=", $this->_user->get("id"));
 		}
 
 		$remove = $this->_db->result();
 
-		if ($remove === false)
+		if ($remove === false) {
 			throw new Exception("Notifications Remove Error: " . $this->_db->getError());
+		}
 	}
 
 	/**
