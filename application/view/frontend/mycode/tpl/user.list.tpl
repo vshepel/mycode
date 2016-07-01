@@ -11,10 +11,12 @@
 		</a>
 	</div>
 	<a class="user_link" href="{profile-link}">[if name!=""]{name}[/if][if name=""]{username}[/if]</a>
-	<span class="status">[online]<span class="online">[f:user:profile.online]</span>[/online][offline][f:user:profile.offline] {last-online-date} в {last-online-time}[/offline]</span>
+	<span class="status">[online]<span class="online">[f:user:profile.online]</span>[/online][offline][f:user:profile.offline] {last-online-date} [f:user:profile.in] {last-online-time}[/offline]</span>
+	[logged]
 	<div class="panel">
 		<a href="{message-send-link}" class="btn-primary"><i class="mdi mdi-email"></i></a>
 	</div>
+	[/logged]
 </article>
 [/foreach]
 

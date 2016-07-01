@@ -3,7 +3,7 @@
 		<img src="{avatar-link}" alt="{username}">
 		<div>
 			[if name!=""]{name}[/if][if name=""]{username}[/if][if group-id="1"] <span class="group-label">{group}</span>[/if]
-			<small>[online][f:user:profile.online][/online][offline][f:user:profile.offline] {last-online-date} в {last-online-time}[/offline]</small>
+			<small>[online][f:user:profile.online][/online][offline][f:user:profile.offline] {last-online-date} [f:user:profile.in] {last-online-time}[/offline]</small>
 		</div>
 		<!-- <div class="rating">
 			<i class="mdi mdi-fire"></i> 1 342

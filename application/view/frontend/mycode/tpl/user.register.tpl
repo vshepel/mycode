@@ -31,6 +31,11 @@
 				<span>[f:user:form.passre]</span>
 				<input type="password" name="register[password_2]" />
 			</div>
+			<div class="break"></div>
+			<div class="field">
+				<span>{captcha}</span>
+				<input type="text" maxlength="4" name="register[captcha]" />
+			</div>
 			<div class="panel">
 				<button class="btn-primary">
 					[f:user:register.form.btn]

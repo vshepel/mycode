@@ -2,7 +2,7 @@
 <html lang="[b:core:lang.fname]">
 <head>
 	{meta}
-	<title>{title} &bull; MYCODE.PRO</title>
+	<title>[if MODACT="blog/list"]MYCODE - Make it happen[/if][if MODACT!="blog/list"]{title} &bull; MYCODE.PRO[/if]</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
 
 	{link}
@@ -56,9 +56,11 @@
 			<li class="user_panel">
 				<ul>
 					[logged]
+					[if has-permission:"blog.add"]
 					<li class="write">
 						<a class="btn-primary" href="blog/add">[f:main:panel.write]</a>
 					</li>
+					[/if]
 					<li class="search_icon links"><a href="#"><i class="mdi mdi-magnify"></i></a></li>
 					<li class="write_icon links"><a href="{add-link}"><i class="mdi mdi-pencil"></i></a></li>
 					<li id="notification-open" class="links">
@@ -88,7 +90,7 @@
 		[if SELF="/user/profile/{username}"]
 		[logged]
 		<section id="panel">
-			<a href="/messages/list">
+			<a href="/messages/inbox">
 				<i class="mdi mdi-email"></i> [f:messages:list.title]
 			</a>
 			<a href="/user/edit">
