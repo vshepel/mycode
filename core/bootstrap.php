@@ -135,14 +135,14 @@ HTML;
 			if ($classFile !== false) {
 				require_once($classFile);
 
-				if (!class_exists($className)) {
+				if (class_exists($className) || interface_exists($className)) {
+					return true;
+				} else {
 					echo "<b>Class {$className} not exist in file {$classFile}</b><pre>";
 					debug_print_backtrace();
 					echo "</pre>";
 					exit;
 				}
-
-				return true;
 			} else
 				throw new Exception("Class not found: " . $className);
 		});

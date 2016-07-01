@@ -58,7 +58,7 @@ class Posts extends AppModel {
 
 			"tags" => "",
 			"lang" => "",
-			
+
 			"allow-comments" => true,
 			"show" => true,
 			"show-main" => true,
@@ -145,7 +145,7 @@ class Posts extends AppModel {
 	 * Make a links for tags string
 	 * @param string $tags Tags string
 	 * @return string
-     */
+	 */
 	public function makeTagsLinks($tags) {
 		if ($tags == "") return "";
 
@@ -162,7 +162,7 @@ class Posts extends AppModel {
 	 * Get User posts count by User ID
 	 * @param int $uid User ID
 	 * @return int
-     */
+	 */
 	public function getUserPostsCount($uid) {
 		$count = $this->_db
 			->select("count(*)")
@@ -185,12 +185,12 @@ class Posts extends AppModel {
 	 */
 	public function get($category, $page, $tag = null, $author = null, $show = true) {
 		$this->_core->addBreadcrumbs($this->_lang->get("blog", "moduleName"), "blog");
-		
-		if (!$this->_user->hasPermission("blog.posts.list")) 
+
+		if (!$this->_user->hasPermission("blog.posts.list"))
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
-		
+
 		$response = new Response();
-		
+
 		$category = ($category === null) ? null : intval($category);
 		$page = intval($page);
 		$show = (bool)($show);
@@ -212,7 +212,7 @@ class Posts extends AppModel {
 			->select("count(*)")
 			->from(DBPREFIX . "blog_posts")
 			->where("id", ">", 0);
-			
+
 		if ($show) $this->_db->and_where("show", ">", 0);
 
 		// Category
@@ -233,7 +233,7 @@ class Posts extends AppModel {
 			$this->_db->and_where("tags", "LIKE", "%{$tag}%");
 			$this->_core->addBreadcrumbs($tag, "blog/tag/" . $tag);
 		}
-		
+
 		// Author
 		if ($author_id !== null) {
 			$this->_db->and_where("author", "=", $author_id);
@@ -272,7 +272,7 @@ class Posts extends AppModel {
 				))
 				->from(DBPREFIX . "blog_posts")
 				->where("id", ">", 0);
-				
+
 			if ($show) $this->_db->and_where("show", ">", 0);
 
 			// Category
@@ -360,7 +360,7 @@ class Posts extends AppModel {
 
 						"full-text" => Posts::getText($row["text_parsed"], false),
 						"short-text" => Posts::getText($row["text_parsed"], false, true),
-						
+
 						"tags" => $this->makeTagsLinks($row["tags"]),
 						"lang" => $row["lang"],
 						"language" => $this->_lang->getLangName($row["lang"]),
@@ -427,10 +427,10 @@ class Posts extends AppModel {
 	 */
 	public function page($id, $commentsPage, $comments_model) {
 		$this->_core->addBreadcrumbs($this->_lang->get("blog", "moduleName"), "blog");
-		
-		if (!$this->_user->hasPermission("blog.posts.read")) 
+
+		if (!$this->_user->hasPermission("blog.posts.read"))
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
-		
+
 		$response = new Response();
 
 		$id = intval($id);
@@ -643,7 +643,7 @@ class Posts extends AppModel {
 				"category-id" => $row["category"],
 				"category-name" => Categories::getInstance()->getName($row["category"]),
 				"category-link" => SITE_PATH . "blog/cat/" . $row["category"],
-				
+
 				"archive-link" => SITE_PATH . "blog/archive/" . date("Y/m/d", $row["timestamp"]),
 				"edit-link" => ADMIN_PATH . "blog/edit/" . $row["id"],
 				"remove-link" => ADMIN_PATH . "blog/remove/" . $row["id"],
@@ -674,7 +674,7 @@ class Posts extends AppModel {
 				"previous-title" => $previousTitle,
 				"next-link" => $next,
 				"next-title" => $nextTitle,
-				
+
 				"edit" => $this->_user->hasPermission("admin.blog.posts.edit"),
 				"remove" => $this->_user->hasPermission("admin.blog.posts.remove")
 			);
@@ -699,9 +699,9 @@ class Posts extends AppModel {
 	 * @return Response
 	 */
 	public function edit($postId, $title, $url, $category, $text, $tags, $lang, $allowComments, $show, $showMain, $showCaregory) {
-		if (!$this->_user->hasPermission("blog.posts.edit")) 
+		if (!$this->_user->hasPermission("blog.posts.edit"))
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
-		
+
 		$this->_editQuery = true;
 
 		return $this->add($title, $url, $category, $text, $tags, $lang, $allowComments, $show, $showMain, $showCaregory, $postId);
@@ -716,8 +716,8 @@ class Posts extends AppModel {
 		$this->_core
 			->addBreadcrumbs($this->_lang->get("blog", "moduleName"), "blog")
 			->addBreadcrumbs($this->_lang->get("blog", "edit.moduleName"));
-			
-		if (!$this->_user->hasPermission("blog.posts.edit")) 
+
+		if (!$this->_user->hasPermission("blog.posts.edit"))
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 
 		$postId = intval($postId);
@@ -727,57 +727,49 @@ class Posts extends AppModel {
 		$response->view = "blog.edit";
 
 		if ($this->exists($postId, false)) {
+			$row = $this->_db
+				->select(array(
+					"id", "url", "title", "text", "text_parsed", "category",
+					"tags", "lang", "author",
+					"allow_comments", "show", "show_main", "show_category"
+				))
+				->from(DBPREFIX . "blog_posts")
+				->where("id", "=", $postId)
+				->result_array();
+
+			if ($row === false) {
+				return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+			}
+
+			$row = $row[0];
+
 			if (!$this->_editQuery) {
-				$row = $this->_db
-					->select(array(
-						"id", "url", "title", "text", "text_parsed", "category",
-						"tags", "lang", "author",
-						"allow_comments", "show", "show_main", "show_category"
-					))
-					->from(DBPREFIX . "blog_posts")
-					->where("id", "=", $postId)
-					->result_array();
+				$this->_addTags = array (
+					"category" => $row["category"],
 
-				if ($row === false) {
-					$response->code = 1;
-					$response->type = "danger";
-					$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
+					"tags" => array (
+						"title" => $row["title"],
+						"url" => $row["url"],
+						"text" => $row["text"],
 
-					return $response;
-				} else {
-					$row = $row[0];
+						"tags" => $row["tags"],
+						"lang" => $row["lang"],
 
-					$this->_addTags = array (
-						"category" => $row["category"],
-
-						"tags" => array (
-							"title" => $row["title"],
-							"url" => $row["url"],
-							"text" => $row["text"],
-
-							"tags" => $row["tags"],
-							"lang" => $row["lang"],
-
-							"author-id" => $row["author"],
-							"author-login" => $this->_user->getUserLogin($row["author"]),
-							"author-name" => $this->_user->getUserName($row["author"]),
-							
-							"allow-comments" => ($row["allow_comments"] > 0),
-							"show" => ($row["show"] > 0),
-							"show-main" => ($row["show_main"] > 0),
-							"show-category" => ($row["show_category"] > 0)
-						)
-					);
-				}
+						"allow-comments" => ($row["allow_comments"] > 0),
+						"show" => ($row["show"] > 0),
+						"show-main" => ($row["show_main"] > 0),
+						"show-category" => ($row["show_category"] > 0)
+					)
+				);
 			}
 
 			// Categories
 			$categories = [];
-			foreach (Categories::getInstance()->get() as $id => $row)
+			foreach (Categories::getInstance()->get() as $id => $category)
 				$categories[] = [
 					"id" => $id,
-					"name" => $row["name"],
-					"num" => $row["num"],
+					"name" => $category["name"],
+					"num" => $category["num"],
 					"current" => ($this->_addTags["category"] == $id)
 				];
 
@@ -792,6 +784,10 @@ class Posts extends AppModel {
 
 			$response->tags = array_merge($this->_addTags["tags"], array (
 				"editor" => $this->_editor,
+
+				"author-id" => $row["author"],
+				"author-login" => $this->_user->getUserLogin($row["author"]),
+				"author-name" => $this->_user->getUserName($row["author"]),
 
 				"categories" => $categories,
 				"langs" => $langs,
@@ -828,7 +824,7 @@ class Posts extends AppModel {
 		if (!$this->_user->hasPermission("blog.posts.add") && $edit) {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
-		
+
 		$title = StringFilters::filterHtmlTags($title);
 		$url = StringFilters::filterForUrl(empty($url) ? $title : $url);
 		$category = intval($category);
@@ -851,7 +847,7 @@ class Posts extends AppModel {
 
 				"tags" => $tags,
 				"lang" => $lang,
-				
+
 				"allow-comments" => $allowComments,
 				"show" => $show,
 				"show-main" => $showMain,
@@ -869,7 +865,7 @@ class Posts extends AppModel {
 				->from(DBPREFIX . "blog_posts")
 				->where("id", "=", intval($postId))
 				->result_array();
-		
+
 			if (!isset($query[0])) {
 				return new Response(2, "danger", $this->_lang->get("blog", "edit.notExists"));
 			}
@@ -935,8 +931,8 @@ class Posts extends AppModel {
 		$this->_core
 			->addBreadcrumbs($this->_lang->get("blog", "moduleName"), "blog")
 			->addBreadcrumbs($this->_lang->get("blog", "add.moduleName"));
-			
-		if (!$this->_user->hasPermission("blog.posts.edit")) 
+
+		if (!$this->_user->hasPermission("blog.posts.edit"))
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 
 		$response = new Response();
@@ -977,9 +973,9 @@ class Posts extends AppModel {
 	 * @return Response
 	 */
 	public function remove($id) {
-		if (!$this->_user->hasPermission("blog.posts.remove")) 
+		if (!$this->_user->hasPermission("blog.posts.remove"))
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
-		
+
 		$response = new Response();
 		$id = intval($id);
 
@@ -1017,10 +1013,10 @@ class Posts extends AppModel {
 		$this->_core
 			->addBreadcrumbs($this->_lang->get("blog", "moduleName"), "blog")
 			->addBreadcrumbs($this->_lang->get("blog", "remove.moduleName"));
-			
-		if (!$this->_user->hasPermission("blog.posts.remove")) 
+
+		if (!$this->_user->hasPermission("blog.posts.remove"))
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
-		
+
 		$response = new Response();
 		$id = intval($id);
 
@@ -1036,27 +1032,27 @@ class Posts extends AppModel {
 
 		return $response;
 	}
-	
+
 	/**
 	 * Get posts by category and page
 	 * @param array $args Year, month and day of posts
 	 * @param int $page
 	 * @return Response
 	 */
-	public function archive($args, $page) {	  
+	public function archive($args, $page) {
 		$this->_core
 			->addBreadcrumbs($this->_lang->get("blog", "moduleName"), "blog")
 			->addBreadcrumbs($this->_lang->get("blog", "archive.moduleName"), "blog/archive");
-		
+
 		// Access denied
-		if (!$this->_user->hasPermission("blog.posts.archive")) 
+		if (!$this->_user->hasPermission("blog.posts.archive"))
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
-		
+
 		// Incorrect args
 		if (
-			isset($args[1]) && ($args[1] < 1 || $args[1] > 12) 
+			isset($args[1]) && ($args[1] < 1 || $args[1] > 12)
 		) return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
-		
+
 		$response = new Response();
 
 		$this->_db
@@ -1069,7 +1065,7 @@ class Posts extends AppModel {
 		if ($this->_config->get("blog", "posts.only_local_language", false)) {
 			$this->_db->and_where("lang", "=", $this->_lang->getLang());
 		}
-			
+
 		if (isset($args[0])) $this->_db->and_where("date_format(timestamp, '%Y')", "=", $args[0], false);
 		if (isset($args[1])) $this->_db->and_where("date_format(timestamp, '%Y-%m')", "=", $args[0] . "-" . $args[1], false);
 		if (isset($args[2])) $this->_db->and_where("date_format(timestamp, '%Y-%m-%d')", "=", $args[0] . "-" . $args[1] . "-" . $args[2], false);
@@ -1091,14 +1087,14 @@ class Posts extends AppModel {
 			$paginationPrefix = SITE_PATH . "blog/archive/page/";
 			$num = $num[0][0];
 			$pagination = new Pagination($num, $page, $paginationPrefix, $this->_config->get("blog", "archive.customPagination", array()));
-			
+
 			// Breadcrumbs
 			$title = "";
 			if (isset($args[2])) $title .= $args[2] . " ";
 			if (isset($args[1])) $title .= $this->_lang->get("core", "month." . intval($args[1])) . " ";
 			if (isset($args[0])) $title .= $args[0];
 			$this->_core->addBreadcrumbs($title);
-			
+
 
 			/**
 			 * Posts query
@@ -1117,7 +1113,7 @@ class Posts extends AppModel {
 			if ($this->_config->get("blog", "posts.only_local_language", false)) {
 				$this->_db->and_where("lang", "=", $this->_lang->getLang());
 			}
-				
+
 			if (isset($args[0])) $this->_db->and_where("date_format(timestamp, '%Y')", "=", $args[0], false);
 			if (isset($args[1])) $this->_db->and_where("date_format(timestamp, '%Y-%m')", "=", $args[0] . "-" . $args[1], false);
 			if (isset($args[2])) $this->_db->and_where("date_format(timestamp, '%Y-%m-%d')", "=", $args[0] . "-" . $args[1] . "-" . $args[2], false);
@@ -1134,7 +1130,7 @@ class Posts extends AppModel {
 			} else {
 				// Posts list
 				$rows = [];
-				
+
 				foreach ($array as $row) {
 					// Rating Active
 					$ratingPlusActive = false;
@@ -1234,7 +1230,7 @@ class Posts extends AppModel {
 			->order_by("rating")->desc()
 			->limit([0, $this->_config->get("blog", "popular.count", 10)])
 			->result_array();
-		
+
 		if (is_array($array)) {
 			foreach($array as $row) {
 				$link = SITE_PATH . "blog/" . $row["id"];
@@ -1260,7 +1256,7 @@ class Posts extends AppModel {
 		$list = "";
 		$cache_name = "archive." . $this->_lang->getLang();
 		$cache = $this->_cache->get("blog", $cache_name);
-		
+
 		if ($cache === false) {
 			$this->_db
 				->select([
@@ -1279,20 +1275,20 @@ class Posts extends AppModel {
 				->group_by("date")
 				->order_by("date")->desc()
 				->result_array();
-				
+
 			if (is_array($array)) {
 				foreach($array as $row) {
 					$date = explode("-", $row["date"]);
 					$link = SITE_PATH . "blog/archive/{$date[1]}/{$date[0]}";
 					$date[0] = $this->_lang->get("core", "month." . intval($date[0]));
-					
+
 					$list .= $this->_view->parse("blog.tag.archive", [
 						"link" => $link,
 						"num" => $row["num"],
 						"name" => $date[0] . " " . $date[1],
 					]);
 				}
-				
+
 				$this->_cache->push("blog", $cache_name, $list);
 			} else {
 				$list = $this->_db->getError();
@@ -1426,7 +1422,7 @@ class Posts extends AppModel {
 
 			$this->_cache->push("blog", "calendar_" . $nyear . "-" . $nmonth, $content); // Save cache
 		}
-		
+
 		$cal .= $content . "</table>";
 		return $cal;
 	}

@@ -173,10 +173,7 @@ class Blog extends AppController {
 				isset($_POST["allow_comments"]), isset($_POST["show"]), isset($_POST["show_main"]), isset($_POST["show_category"])
 			);
 
-			if ($result->code == 0)
-				HTTP::redirect(ADMIN_PATH . "blog/posts");
-			else
-				$this->_view->alert($result->type, $result->message);
+			$this->_view->alert($result->type, $result->message);
 		}
 
 		$this->_view->responseRender($this->_posts->editPage($postId));
