@@ -131,15 +131,14 @@ class Posts extends AppModel {
 			->where("id", "=", intval($postId));
 
 		if ($show)
-			$this->_db
-				->and_where("show", "=", 1);
+			$this->_db->and_where("show", "=", 1);
 
 		$result = $this->_db->result_array();
 
 		if (isset($result[0][0]))
 			return ($result[0][0] > 0);
 		else
-			throw new \Exception("Error check post for exists: {$this->_db->getError()}");
+			throw new \Exception("Error check post for exists: " . $this->_db->getError());
 	}
 
 	/**
@@ -869,7 +868,6 @@ class Posts extends AppModel {
 				->select(["author"])
 				->from(DBPREFIX . "blog_posts")
 				->where("id", "=", intval($postId))
-				->and_where("show", "=", 1)
 				->result_array();
 		
 			if (!isset($query[0])) {

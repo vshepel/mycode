@@ -10,12 +10,16 @@
 	<li[if ACTION="categories"] class="active"[/if]><a href="{ADMIN_PATH}blog/categories">
 		<span class="main-row-icon fa fa-folder"></span> [b:blog:categories.moduleName]
 	</a></li>
+
+	<li[if ACTION="moderation"] class="active"[/if]><a href="{ADMIN_PATH}blog/moderation">
+		<span class="main-row-icon fa fa-plus-square"></span> [b:blog:moderation.moduleName]
+	</a></li>
 	
 	<li[if ACTION="posts"] class="active"[/if]><a href="{ADMIN_PATH}blog/posts">
 		<span class="main-row-icon fa fa-list"></span> [b:blog:list.moduleName]
 	</a></li>
 	
 	<li[if ACTION="add"] class="active"[/if]><a href="{ADMIN_PATH}blog/add">
-		<span class="main-row-icon fa fa-plus"></span> [b:blog:add.moduleName]
+		<span class="main-row-icon fa fa-pencil"></span> [b:blog:add.moduleName]
 	</a></li>
 </ul><br>
