@@ -56,7 +56,7 @@
 			<li class="user_panel">
 				<ul>
 					[logged]
-					[if has-permission:"blog.add"]
+					[if has-permission:blog.add]
 					<li class="write">
 						<a class="btn-primary" href="blog/add">[f:main:panel.write]</a>
 					</li>
