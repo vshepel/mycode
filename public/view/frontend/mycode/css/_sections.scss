@@ -259,7 +259,7 @@
             line-height: 1.9em;
             word-wrap: break-word;
             a {
-                display: block;
+                display: inline-block;
                 word-wrap: break-word;
                 color: $text;
                 &:hover {
@@ -272,7 +272,7 @@
                     weight: 700;
                     size: 1.2em;
                 }
-                display: block;
+                display: inline-block;
                 margin: 0 0 15px;
             }
             h1 {

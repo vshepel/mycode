@@ -20,7 +20,7 @@
 		</div>
 		<ul class="about">
 			<li>
-				<i class="mdi mdi-link"></i> [if url!=""]<a href="{url}" target="_blank">{url}</a>[/if][if url=""]<span>[f:user:profile.empty]</span>[/if]
+				<i class="mdi mdi-link"></i> [if url!=""]<a href="http://{url}" target="_blank">{url}</a>[/if][if url=""]<span>[f:user:profile.empty]</span>[/if]
 			</li>
 			<li>
 				<i class="mdi mdi-email"></i> [if public-email!=""]<a href="mailto:{public-email}">{public-email}</a>[/if][if public-email=""]<span>[f:user:profile.empty]</span>[/if]
