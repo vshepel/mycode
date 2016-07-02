@@ -13,9 +13,9 @@
 			</div>
 			<div class="field">
 				<span>[f:user:form.lang]</span>
-				<select name="edit[lang]">
+				<select class="form-control" name="edit[lang]">
 					<option value="">[b:user:fields.lang]</option>
-					{langs}
+					[foreach langs]<option value="{value}"[active] selected[/active]>{name}</option>[/foreach]
 				</select>
 			</div>
 			<div class="break"></div>
