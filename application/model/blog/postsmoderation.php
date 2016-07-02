@@ -32,6 +32,7 @@ class PostsModeration extends AppModel {
 		"url" => "",
 		"category" => 0,
 		"text" => "",
+		"image-link" => "",
 		"tags" => "",
 		"lang" => ""
 	];
@@ -81,7 +82,7 @@ class PostsModeration extends AppModel {
 
 			$this->_db
 				->select(array(
-					"id", "title", "text", "category", "author",
+					"id", "title", "text", "image_link", "category", "author",
 					array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 				))
 				->from(DBPREFIX . "blog_posts_moderation")
@@ -114,6 +115,7 @@ class PostsModeration extends AppModel {
                     "author-avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
 
                     "text" => Posts::getText($row["text"]),
+					"image-link" => $row["image_link"],
 
                     "category-id" => $row["category"],
                     "category-name" => Categories::getInstance()->getName($row["category"]),
@@ -154,7 +156,7 @@ class PostsModeration extends AppModel {
 		// Get post data
 		$post = $this->_db
 			->select([
-				"id", "url", "title", "category", "text", "tags", "lang", "author",
+				"id", "url", "title", "category", "text", "image_link", "tags", "lang", "author",
 				array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 			])
 			->from(DBPREFIX . "blog_posts_moderation")
@@ -173,6 +175,7 @@ class PostsModeration extends AppModel {
 					"text" => $row["text"],
 					"text_parsed" => Posts::getText($row["text"]),
 
+					"image_link" => $row["image_link"],
 					"tags" => $row["tags"],
 					"lang" => $row["lang"],
 
@@ -228,16 +231,18 @@ class PostsModeration extends AppModel {
 	 * @param string $url Post url
 	 * @param int $category Category ID
 	 * @param string $text Post content
+	 * @param string $image Image Link
 	 * @param string $tags Post tags
 	 * @param string $lang Post lang
 	 * @return Response
 	 */
-	public function add($title, $url, $category, $text, $tags, $lang) {
+	public function add($title, $url, $category, $text, $image, $tags, $lang) {
 		$response = new Response();
 
 		$title = StringFilters::filterStringForPublic($title);
 		$url = StringFilters::filterStringForPublic($url);
 		$category = intval($category);
+		$image = StringFilters::filterStringForPublic($image);
 		$tags = StringFilters::filterTagsString($tags);
 		$lang = StringFilters::filterStringForPublic($lang);
 
@@ -246,6 +251,7 @@ class PostsModeration extends AppModel {
 			"url" => $url,
 			"category" => $category,
 			"text" => $text,
+			"image-link" => $image,
 			"tags" => $tags,
 			"lang" => $lang
 		);
@@ -281,6 +287,7 @@ class PostsModeration extends AppModel {
 					"url" => $url,
 					"category" => $category,
 					"text" => $text,
+					"image_link" => $image,
 					"tags" => $tags,
 					"lang" => $lang,
 					"author" => $this->_user->get("id"),

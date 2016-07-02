@@ -187,9 +187,9 @@ class Blog extends AppController {
 	public function action_add($args) {
 		$moder = new PostsModeration();
 
-		if (isset($_POST["title"], $_POST["url"], $_POST["category"], $_POST["text"], $_POST["tags"], $_POST["lang"])) {
+		if (isset($_POST["title"], $_POST["url"], $_POST["category"], $_POST["text"], $_POST["image_link"], $_POST["tags"], $_POST["lang"])) {
 			$result = $moder->add(
-				$_POST["title"], $_POST["url"], $_POST["category"], $_POST["text"], $_POST["tags"], $_POST["lang"]
+				$_POST["title"], $_POST["url"], $_POST["category"], $_POST["text"], $_POST["image_link"], $_POST["tags"], $_POST["lang"]
 			);
 
 			$this->_view->alert($result->type, $result->message);
