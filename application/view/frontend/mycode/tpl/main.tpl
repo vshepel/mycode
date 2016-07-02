@@ -2,7 +2,7 @@
 <html lang="[b:core:lang.fname]">
 <head>
 	{meta}
-	<title>[if MODACT="blog/list"]MYCODE - Make it happen[/if][if MODACT!="blog/list"]{title} &bull; MYCODE.PRO[/if]</title>
+	<title>[if MODACT="blog/list"]MYCODE - Make it happen[/if][if MODACT!="blog/list"]{title}[/if]</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
 
 	{link}
