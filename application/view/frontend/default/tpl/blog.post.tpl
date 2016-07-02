@@ -33,7 +33,8 @@
 			</a>[/remove]
 		</div>
 		<div class="clearfix"></div>
-		
+
+		[if image-link!=""]<p align="center"><img src="{image-link}" alt="{title}" style="max-width:100%"></p>[/if]
 		<p>{full-text}</p>
 
 		[if tags!=""]<p class="pull-left"><span class="fa fa-tags"></span> {tags}</p>[/if]

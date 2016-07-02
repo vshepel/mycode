@@ -56,6 +56,7 @@ class Posts extends AppModel {
 			"url" => "",
 			"text" => "",
 
+			"image-link" => "",
 			"tags" => "",
 			"lang" => "",
 
@@ -265,7 +266,7 @@ class Posts extends AppModel {
 			// Posts query
 			$this->_db
 				->select(array(
-					"id", "title", "url", "text", "text_parsed", "category", "comments_num", "views_num", "rating",
+					"id", "title", "url", "text_parsed", "image_link", "category", "comments_num", "views_num", "rating",
 					"tags", "lang",
 					array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 					"show", "show_main", "show_category", "author"
@@ -361,6 +362,7 @@ class Posts extends AppModel {
 						"full-text" => Posts::getText($row["text_parsed"], false),
 						"short-text" => Posts::getText($row["text_parsed"], false, true),
 
+						"image-link" => $row["image_link"],
 						"tags" => $this->makeTagsLinks($row["tags"]),
 						"lang" => $row["lang"],
 						"language" => $this->_lang->getLangName($row["lang"]),
@@ -439,7 +441,7 @@ class Posts extends AppModel {
 		// Get post
 		$array = $this->_db
 			->select(array(
-				"id", "title", "url", "text", "text_parsed", "category", "tags", "lang",
+				"id", "title", "url", "text_parsed", "category", "image_link", "tags", "lang",
 				"comments_num", "views_num", "rating", array ("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 				"allow_comments", "author"
 			))
@@ -636,6 +638,7 @@ class Posts extends AppModel {
 				"full-text" => Posts::getText($row["text_parsed"], false),
 				"short-text" => Posts::getText($row["text_parsed"], false, true),
 
+				"image-link" => $row["image_link"],
 				"tags" => $this->makeTagsLinks($row["tags"]),
 				"lang" => $row["lang"],
 				"language" => $this->_lang->getLangName($row["lang"]),
@@ -690,6 +693,7 @@ class Posts extends AppModel {
 	 * @param string $url Post url
 	 * @param int $category Post category
 	 * @param string $text Post text
+	 * @param string $image Image link
 	 * @param string $tags Tags
 	 * @param string $lang Post language
 	 * @param bool $allowComments Allow comments?
@@ -698,13 +702,13 @@ class Posts extends AppModel {
 	 * @param bool $showCaregory Show posts on category?
 	 * @return Response
 	 */
-	public function edit($postId, $title, $url, $category, $text, $tags, $lang, $allowComments, $show, $showMain, $showCaregory) {
+	public function edit($postId, $title, $url, $category, $text, $image, $tags, $lang, $allowComments, $show, $showMain, $showCaregory) {
 		if (!$this->_user->hasPermission("blog.posts.edit"))
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 
 		$this->_editQuery = true;
 
-		return $this->add($title, $url, $category, $text, $tags, $lang, $allowComments, $show, $showMain, $showCaregory, $postId);
+		return $this->add($title, $url, $category, $text, $image, $tags, $lang, $allowComments, $show, $showMain, $showCaregory, $postId);
 	}
 
 	/**
@@ -730,7 +734,7 @@ class Posts extends AppModel {
 			$row = $this->_db
 				->select(array(
 					"id", "url", "title", "text", "text_parsed", "category",
-					"tags", "lang", "author",
+					"image_link", "tags", "lang", "author",
 					"allow_comments", "show", "show_main", "show_category"
 				))
 				->from(DBPREFIX . "blog_posts")
@@ -752,6 +756,7 @@ class Posts extends AppModel {
 						"url" => $row["url"],
 						"text" => $row["text"],
 
+						"image-link" => $row["image_link"],
 						"tags" => $row["tags"],
 						"lang" => $row["lang"],
 
@@ -810,6 +815,7 @@ class Posts extends AppModel {
 	 * @param string $url Post url
 	 * @param int $category Post category
 	 * @param string $text Post text
+	 * @param string $image Image link
 	 * @param string $tags Tags
 	 * @param string $lang Post language
 	 * @param bool $allowComments Allow comments?
@@ -819,7 +825,7 @@ class Posts extends AppModel {
 	 * @param int $postId = null Edit post ID
 	 * @return Response
 	 */
-	public function add($title, $url, $category, $text, $tags, $lang, $allowComments, $show, $showMain, $showCategory, $postId = null) {
+	public function add($title, $url, $category, $text, $image, $tags, $lang, $allowComments, $show, $showMain, $showCategory, $postId = null) {
 		$edit = ($postId !== null);
 		if (!$this->_user->hasPermission("blog.posts.add") && $edit) {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
@@ -845,6 +851,7 @@ class Posts extends AppModel {
 				"url" => $url,
 				"text" => $text,
 
+				"image-link" => $image,
 				"tags" => $tags,
 				"lang" => $lang,
 
@@ -885,6 +892,7 @@ class Posts extends AppModel {
 				"text" => $text,
 				"text_parsed" => Posts::getText($text),
 
+				"image_link" => $image,
 				"tags" => $tags,
 				"lang" => $lang,
 
@@ -1096,13 +1104,11 @@ class Posts extends AppModel {
 			$this->_core->addBreadcrumbs($title);
 
 
-			/**
-			 * Posts query
-			 */
+			// Posts query
 			$this->_db
 				->select(array(
-					"id", "title", "url", "text", "text_parsed", "category", "comments_num", "views_num", "rating",
-					"tags", "lang",
+					"id", "title", "url", "text_parsed", "category", "comments_num", "views_num", "rating",
+					"image_link", "tags", "lang",
 					array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 					"show", "show_main", "show_category", "author"
 				))
@@ -1166,6 +1172,7 @@ class Posts extends AppModel {
 						"full-text" => Posts::getText($row["text_parsed"], false),
 						"short-text" => Posts::getText($row["text_parsed"], false, true),
 
+						"image-link" => $row["image_link"],
 						"tags" => $this->makeTagsLinks($row["tags"]),
 						"lang" => $row["lang"],
 						"language" => $this->_lang->getLangName($row["lang"]),
@@ -1600,7 +1607,7 @@ class Posts extends AppModel {
 				$this->_db
 					->select(array(
 						"id", "title", "url", "text", "text_parsed", "category", "comments_num", "views_num", "rating",
-						"tags", "lang", array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
+						"image_link", "tags", "lang", array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 						"show", "author"
 					))
 					->from(DBPREFIX . "blog_posts")
@@ -1663,6 +1670,7 @@ class Posts extends AppModel {
 							"full-text" => Posts::getText($row["text_parsed"], false),
 							"short-text" => Posts::getText($row["text_parsed"], false, true),
 
+							"image-link" => $row["image_link"],
 							"tags" => $this->makeTagsLinks($row["tags"]),
 							"lang" => $row["lang"],
 							"language" => $this->_lang->getLangName($row["lang"]),
