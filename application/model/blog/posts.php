@@ -1224,7 +1224,7 @@ class Posts extends AppModel {
 	public function getPopular() {
 		$list = "";
 		$array = $this->_db
-			->select(["id", "title", "rating"])
+			->select(["id", "title", "url", "rating"])
 			->from(DBPREFIX . "blog_posts")
 			->where("show", "=", 1)
 			->order_by("rating")->desc()
@@ -1233,7 +1233,7 @@ class Posts extends AppModel {
 
 		if (is_array($array)) {
 			foreach($array as $row) {
-				$link = SITE_PATH . "blog/" . $row["id"];
+				$link = SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"];
 				$list .= $this->_view->parse("blog.tag.popular", [
 					"link" => $link,
 					"id" => $row["id"],
