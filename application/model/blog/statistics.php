@@ -64,6 +64,13 @@ class Statistics extends AppModel {
 			->result_array();
 
 		$tags["posts-comments"] = isset($num[0][0]) ? $num[0][0] : $this->_db->getError();
+
+		$num = $this->_db
+			->select("count(*)")
+			->from(DBPREFIX . "blog_posts_moderation")
+			->result_array();
+
+		$tags["posts-awaiting-moderation"] = isset($num[0][0]) ? $num[0][0] : $this->_db->getError();
 		
 		// COMMENTS
 		
