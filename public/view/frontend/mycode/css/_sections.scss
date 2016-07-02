@@ -256,8 +256,9 @@
         }
         .post_text {
             color: $text;
+            line-height: 1.9em;
+            word-wrap: break-word;
             a {
-                line-height: 1.9em;
                 display: block;
                 word-wrap: break-word;
                 color: $text;
