@@ -195,32 +195,24 @@ class UserModule extends AppModel {
 		$this->_core
 			->addBreadcrumbs($this->_lang->get("user", "list.moduleName"), "user/list");
 
-		/**
-		 * Check permissions for user list
-		 */
+		// Check permissions for user list
 		if ($this->_user->hasPermission("user.list")) {
-			/**
-			 * Users num query
-			 */
+			// Users num query
 			$num = $this->_db
 				->select("count(*)")
 				->from(DBPREFIX . "user_profiles")
 				->result_array();
 
-			/**
-			 * Database error
-			 */
+			// Database error
 			if ($num === false) {
 				$response->code = 1;
 				$response->type = "danger";
 				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
 			} else {
 				$num = $num[0][0];
-				$pagination = new Pagination($num, $page, SITE_PATH . "user/list/page/", $this->_config->get("user", "list.customPagination", array()));
+				$pagination = new Pagination($num, $page, ((SIDETYPE == BACKEND) ? ADMIN_PATH : SITE_PATH) . "user/list/page/", $this->_config->get("user", "list.customPagination", array()));
 
-				/**
-				 * Users list query
-				 */
+				// Users list query
 				$array = $this->_db
 					->select(array(
 						"id", "login", "active", "name", "group", "avatar"
@@ -230,18 +222,14 @@ class UserModule extends AppModel {
 					->limit($pagination->getSqlLimits())
 					->result_array();
 
-				/**
-				 * Database error
-				 */
+				// Database error
 				if ($array === false) {
 					$response->code = 1;
 					$response->type = "danger";
 					$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
 				}
 
-				/**
-				 * Make users list
-				 */
+				// Make users list
 				else {
 					$rows = [];
 
@@ -249,9 +237,7 @@ class UserModule extends AppModel {
 						$online = $this->_user->checkOnline($row["active"]);
 						$owner = ($row["login"] == $this->_user->get("login"));
 
-						/**
-						 * Tags
-						 */
+						// Tags
 						$rows[] = [
 							"id" => $row["id"],
 							"username" => $row["login"],
@@ -287,9 +273,7 @@ class UserModule extends AppModel {
 			}
 		}
 
-		/**
-		 * Access denied
-		 */
+		// Access denied
 		else {
 			$response->code = 2;
 			$response->type = "danger";

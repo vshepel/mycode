@@ -46,7 +46,7 @@ class PostsModeration extends AppModel {
 	}
 
 	/**
-	 * Get posts for future
+	 * Get posts for moderation
 	 * @param $category
 	 * @param $page
 	 * @return Response
@@ -76,7 +76,7 @@ class PostsModeration extends AppModel {
 		if ($num === false) {
             return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 		} else {
-			$paginationPrefix = PATH . "story/future/" . (($category === null) ? "page/" : "cat/" . $category . "/page/");
+			$paginationPrefix = ADMIN_PATH . "blog/moderation/" . (($category === null) ? "page/" : "cat/" . $category . "/page/");
 			$num = $num[0][0];
 			$pagination = new Pagination($num, $page, $paginationPrefix, $this->_config->get("blog", "moderation.list.customPagination", []));
 
@@ -119,7 +119,7 @@ class PostsModeration extends AppModel {
 
                     "category-id" => $row["category"],
                     "category-name" => Categories::getInstance()->getName($row["category"]),
-                    "category-link" => ADMIN_PATH . "blog/cat/" . $row["category"],
+                    "category-link" => ADMIN_PATH . "blog/moderation/cat/" . $row["category"],
 
                     "good-link" => ADMIN_PATH . "blog/moderation/good/" . $row["id"],
                     "bad-link" => ADMIN_PATH . "blog/moderation/bad/" . $row["id"],
@@ -226,7 +226,7 @@ class PostsModeration extends AppModel {
 	}
 
 	/**
-	 * Add post for future
+	 * Add post for moderation
 	 * @param string $title Post title
 	 * @param string $url Post url
 	 * @param int $category Category ID
