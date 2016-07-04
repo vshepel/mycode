@@ -180,10 +180,11 @@ class UserModule extends AppModel {
 	/**
 	 * Users list page
 	 * @param int $page Page num
+	 * @param string $query = null Search query
 	 * @return Response
 	 * @throws \Exception
 	 */
-	public function listPage($page) {
+	public function listPage($page, $query = null) {
 		$response = new Response();
 
 		$page = intval($page);
@@ -192,16 +193,26 @@ class UserModule extends AppModel {
 			$this->_core
 				->addBreadcrumbs($this->_lang->get("user", "moduleName"), "user");
 
-		$this->_core
-			->addBreadcrumbs($this->_lang->get("user", "list.moduleName"), "user/list");
+		$this->_core->addBreadcrumbs($this->_lang->get("user", "list.moduleName"), "user/list");
+
+		if ($query !== null) {
+			$this->_core->addBreadcrumbs($this->_lang->get("user", "search.moduleName"), "user/search");
+		}
 
 		// Check permissions for user list
 		if ($this->_user->hasPermission("user.list")) {
 			// Users num query
-			$num = $this->_db
+			$this->_db
 				->select("count(*)")
-				->from(DBPREFIX . "user_profiles")
-				->result_array();
+				->from(DBPREFIX . "user_profiles");
+
+			if ($query !== null) {
+				$this->_db
+					->where("login", "LIKE", "%{$query}%")
+					->or_where("name", "LIKE", "%{$query}%");
+			}
+
+			$num = $this->_db->result_array();
 
 			// Database error
 			if ($num === false) {
@@ -213,11 +224,19 @@ class UserModule extends AppModel {
 				$pagination = new Pagination($num, $page, ((SIDETYPE == BACKEND) ? ADMIN_PATH : SITE_PATH) . "user/list/page/", $this->_config->get("user", "list.customPagination", array()));
 
 				// Users list query
-				$array = $this->_db
+				$this->_db
 					->select(array(
 						"id", "login", "active", "name", "group", "avatar"
 					))
-					->from(DBPREFIX . "user_profiles")
+					->from(DBPREFIX . "user_profiles");
+
+				if ($query !== null) {
+					$this->_db
+						->where("login", "LIKE", "%{$query}%")
+						->or_where("name", "LIKE", "%{$query}%");
+				}
+
+				$array = $this->_db
 					->order_by("id", $this->_config->get("user", "list.sort", "DESC"))
 					->limit($pagination->getSqlLimits())
 					->result_array();
@@ -267,7 +286,8 @@ class UserModule extends AppModel {
 					$response->tags = array(
 						"num" => $num,
 						"rows" => $rows,
-						"pagination" => $pagination
+						"pagination" => $pagination,
+						"query" => ($query === null ? "" : $query)
 					);
 				}
 			}

@@ -1015,7 +1015,7 @@ class Posts extends AppModel {
 					->delete_from(DBPREFIX . "blog_rating")
 					->where("post", "=", $id)
 					->result();
-				
+
 				$response->type = "success";
 				$response->message = $this->_lang->get("blog", "remove.success");
 				$this->_cache->remove("blog"); // Clear cache
@@ -1602,7 +1602,6 @@ class Posts extends AppModel {
 
 			$num = $this->_db
 				->query("AND (`title` LIKE '%{$this->_db->safe($query)}%'")
-				->or_where("title", "LIKE", "")
 				->or_where("text", "LIKE", "%{$query}%")
 				->or_where("tags", "LIKE", "%{$query}%")
 				->query(")")
@@ -1638,7 +1637,6 @@ class Posts extends AppModel {
 
 				$array = $this->_db
 					->query("AND (`title` LIKE '%{$this->_db->safe($query)}%'")
-					->or_where("title", "LIKE", "")
 					->or_where("text", "LIKE", "%{$query}%")
 					->or_where("tags", "LIKE", "%{$query}%")
 					->query(")")

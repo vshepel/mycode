@@ -1,3 +1,12 @@
+<form method="post" class="form-horizontal" action="{SITE_PATH}user/search">
+	<div class="input-group">
+		<input type="text" name="query" class="form-control" placeholder="[f:user:search.holder]" value="{query}">
+	  <span class="input-group-btn">
+		<button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+	  </span>
+	</div>
+</form><br>
+
 [f:user:list.total] <span class="badge">{num}</span>
 
 <hr>
