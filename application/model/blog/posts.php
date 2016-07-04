@@ -1001,6 +1001,21 @@ class Posts extends AppModel {
 				$response->type = "danger";
 				$response->message = $this->_lang->get("main", "internalError", [$this->_db->getError()]);
 			} else {
+				$this->_db
+					->delete_from(DBPREFIX . "blog_comments")
+					->where("where", "=", $id)
+					->result();
+
+				$this->_db
+					->delete_from(DBPREFIX . "blog_views")
+					->where("post", "=", $id)
+					->result();
+
+				$this->_db
+					->delete_from(DBPREFIX . "blog_rating")
+					->where("post", "=", $id)
+					->result();
+				
 				$response->type = "success";
 				$response->message = $this->_lang->get("blog", "remove.success");
 				$this->_cache->remove("blog"); // Clear cache
