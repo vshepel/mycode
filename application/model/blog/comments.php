@@ -64,13 +64,8 @@ class Comments extends AppModel {
 		$response = new Response();
 
 		if (!$this->_user->isLogged() || !$this->_user->hasPermission("blog.comments.add")) {
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "accessDenied");
-
-			return $response;
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
-
 
 		// Check interval
 		$check_interval  = $this->_config->get("blog", "comments.interval", 10);
@@ -171,11 +166,7 @@ class Comments extends AppModel {
 		$allow = (bool)($allow);
 
 		if (!$this->_user->hasPermission("blog.comments.read")) {
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("blog", "comments.cantRead");
-
-			return $response;
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
 
 		$num = $this->_db
@@ -185,9 +176,7 @@ class Comments extends AppModel {
 			->result_array();
 
 		if ($num === false) {
-			$response->code = 1;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 		} else {
 			$num = $num[0][0];
 			if (!empty($url)) $url = "-" . $url;
@@ -226,9 +215,10 @@ class Comments extends AppModel {
 
 						"comment-message" => $row["comment"],
 
-						"remove" => false,
 						"online" => $online,
-						"offline" => !$online
+						"offline" => !$online,
+
+						"remove" => $this->_user->hasPermission("blog.comments.remove." . ($row["user"] == $this->_user->get("id") ? "my" : "others")),
 					];
 				}
 
@@ -257,5 +247,46 @@ class Comments extends AppModel {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Remove comment
+	 * @param int $id Comment ID
+	 * @return Response
+	 */
+	public function remove($id) {
+		$id = intval($id);
+
+		// Check comment for exists
+		$array = $this->_db
+			->select(["user"])
+			->from(DBPREFIX . "blog_comments")
+			->where("id", "=", $id)
+			->result_array();
+
+		if ($array === false) {
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		} else if (!isset($array[0]["user"])) {
+			return new Response(2, "danger", $this->_lang->get("blog", "comments.remove.notFound"));
+		}
+
+		$user = $array[0]["user"];
+
+		// Check for permission
+		if (!$this->_user->isLogged() || !$this->_user->hasPermission("blog.comments.remove." . ($user == $this->_user->get("id") ? "my" : "others"))) {
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
+		}
+
+		// Comment remove
+		$query = $this->_db
+			->delete_from(DBPREFIX . "blog_comments")
+			->where("id", "=", $id)
+			->result();
+
+		if ($query === false) {
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		}
+
+		return new Response(0, "success", $this->_lang->get("blog", "comments.remove.success"));
 	}
 }

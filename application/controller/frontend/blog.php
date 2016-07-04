@@ -60,7 +60,7 @@ class Blog extends AppController {
 		"calendar/([0-9]+)/([0-9]+)" => "calendar",
 		"rating/([A-Za-z0-9]+)/([0-9]+)" => "rating",
 		"add/([0-9]+)" => "add",
-		"add" => null,
+		"add" => null
 	);
 
 	private $_posts;
@@ -128,6 +128,11 @@ class Blog extends AppController {
 	public function action_post($args) {
 		$comments_model = new Comments();
 		$id = $args[0];
+
+		if (isset($_POST["removecomment"]["id"])) {
+			$comment = $comments_model->remove($_POST["removecomment"]["id"]);
+			$this->_view->alert($comment->type, $comment->message);
+		}
 
 		if (isset($_POST["comment"])) {
 			$comment = $comments_model->add($id, $_POST["comment"]);
