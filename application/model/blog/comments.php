@@ -261,7 +261,7 @@ class Comments extends AppModel {
 
 		// Check comment for exists
 		$array = $this->_db
-			->select(["user"])
+			->select(["where", "user"])
 			->from(DBPREFIX . "blog_comments")
 			->where("id", "=", $id)
 			->result_array();
@@ -283,6 +283,19 @@ class Comments extends AppModel {
 		$query = $this->_db
 			->delete_from(DBPREFIX . "blog_comments")
 			->where("id", "=", $id)
+			->result();
+
+		if ($query === false) {
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		}
+
+		// Comments number update in post
+		$query = $this->_db
+			->update(DBPREFIX . "blog_posts")
+			->set(array(
+				"comments_num" => array ("comments_num", "-", 1, false)
+			))
+			->where("id", "=", $array[0]["where"])
 			->result();
 
 		if ($query === false) {
