@@ -56,13 +56,18 @@
 			<li class="user_panel">
 				<ul>
 					[logged]
+					[if has-permission:admin]
+					<li class="write">
+						<a class="btn-primary" href="{SITE_PATH}admin">Control Panel</a>
+					</li>
+					[/if]
 					[if has-permission:blog.add]
 					<li class="write">
 						<a class="btn-primary" href="{SITE_PATH}blog/add">[f:main:panel.write]</a>
 					</li>
 					[/if]
 					<li class="search_icon links"><a href="#"><i class="mdi mdi-magnify"></i></a></li>
-					<li class="write_icon links"><a href="{add-link}"><i class="mdi mdi-pencil"></i></a></li>
+					<li class="write_icon links"[if has-permission:blog.add]><a href="{SITE_PATH}blog/add"><i class="mdi mdi-pencil"></i></a></li>[/if]
 					<li id="notification-open" class="links">
 						<a href="#">
 							<i class="mdi mdi-bell">[new-notifications]<span class="new"></span>[/new-notifications]</i>

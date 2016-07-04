@@ -7,9 +7,13 @@
 			<a class="pull-left" href="{author-link}">
 				<img src="{author-avatar-link}" alt="{author-login}">
 			</a>
+			[remove]<form method="post" class="pull-left">
+				<input type="hidden" name="removecomment[id]" value="{id}">
+				<button style="background:none;border:0;color:#999;padding:0">remove</button>
+			</form>[/remove]
 		</div>
 		<div class="item-text">
-			<a href="{author-link}">{author-login}</a> [f:blog:comments.page.says]..
+			<a href="{author-link}">{author-login}</a> [f:blog:comments.page.says]...
 			<div class="text">
 				{comment-message}
 			</div>
