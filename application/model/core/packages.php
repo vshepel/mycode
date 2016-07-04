@@ -85,7 +85,7 @@ class Packages extends AppModel {
 					$meta["version-compare"] = (
 						isset($meta["required-min"]) && isset($meta["required-max"]) &&
 						version_compare(VERSION, $meta["required-min"], '>=') &&
-						version_compare(VERSION, $meta["required-max"], '<=')
+						(empty($meta["required-min"] || version_compare(VERSION, $meta["required-max"], '<=')))
 					);
 					
 					// Save in array
@@ -174,7 +174,7 @@ class Packages extends AppModel {
 
 		return false;
 	}
-	
+
 	/**
 	 * Get list page
 	 * @return Response
@@ -220,7 +220,7 @@ class Packages extends AppModel {
 
 		return $response;
 	}
-	
+
 	/**
 	 * Get install page
 	 * @return Response
@@ -237,23 +237,80 @@ class Packages extends AppModel {
 			$this->_core->addBreadcrumbs($this->_lang->get("core", "accessDenied"));
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
-		
-		$response->view = "core.packages.install";
-		$response->tags = array (
-			"action" => "install",
-		);
+
+		$meta = TMP . DS . "core.packages.install" . DS . "files" . DS . "install.ini";
+
+		if (file_exists($meta)) {
+			$response->view = "core.packages.install.info";
+
+			$ini = parse_ini_file($meta);
+			$name = "UNKNOWN";
+			if (isset($ini["package.name"])) {
+				$name = $ini["package.name"];
+			}
+
+			$lang = $this->_lang->getLang();
+
+			$tags = [
+				"name" => $name,
+				"type" => isset($ini["package.type"]) ? $ini["package.type"] : "",
+				"version" => isset($ini["package.version"]) ? $ini["package.version"] : "0",
+
+				"required-min" => isset($ini["package.required.min"]) ? $ini["package.required.min"] : "",
+				"required-max" => isset($ini["package.required.max"]) ? $ini["package.required.max"] : "",
+				"dependence" => isset($ini["package.dependence"]) ? $ini["package.dependence"] : "",
+
+				"description" => (isset($ini["package.description." . $lang]) ? $ini["package.description." . $lang] :
+					(isset($ini["package.description"]) ? $ini["package.description"] : "")
+				),
+
+				"db-tables" => isset($ini["db.tables"]) ? $ini["db.tables"] : "",
+
+				"license" => isset($ini["license"]) ? $ini["license"] : "",
+				"author" => isset($ini["author"]) ? $ini["author"] : ""
+			];
+
+			// Dependences compare
+			$deps = explode(",", $tags["dependence"]);
+			$tags["dependence-uncompare"] = false;
+			if (count($deps) > 0) {
+				$check = $this->checkDependences($deps);
+				$tags["dependence-uncompare"] =  (count($check) > 0);
+				if ($tags["dependence-uncompare"]) {
+					$tags["dependences-uncompare-list"] = implode(",", $check);
+				}
+			}
+
+			// Version compare
+			$tags["version-compare"] = (
+				version_compare(VERSION, $tags["required-min"], '>=') &&
+				(empty($tags["required-max"]) || version_compare(VERSION, $tags["required-max"], '<='))
+			);
+
+			$tags["not-version-compare"] = !$tags["version-compare"];
+			$tags["system-version"] = VERSION;
+			$tags["installed"] = $this->exists($name);
+			$tags["action"] = "install";
+
+			$response->tags = $tags;
+		} else {
+			$response->view = "core.packages.install";
+			$response->tags = array(
+				"action" => "install",
+			);
+		}
 
 		return $response;
 	}
-	
+
 	private $_files = [];
-	
+
 	private function _move($from, $to) {
 		if (file_exists($from)) {
 			$this->_files = array_merge($this->_files,
 				Files::copy($from, $to, true)
 			);
-		
+
 			Files::delete($from);
 		}
 	}
@@ -263,29 +320,33 @@ class Packages extends AppModel {
 	 * @param array $file \$_FILE item array
 	 * @return Response
 	 */
-	public function uploadAndInstall($file) {
+	public function upload($file) {
 		// Access denied
 		if (!$this->_user->hasPermission("core.packages.install")) {
 			$this->_core->addBreadcrumbs($this->_lang->get("core", "accessDenied"));
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
-		
+
+		// Clear tempurary
+		$this->clearTemp();
+
 		// Upload file
 		$files = new UploadFiles(TMP);
 		$upload = $files->upload($file, "core.packages.install", "package.zip");
-		
-		if ($upload->code != 0)
+
+		if ($upload->code != 0) {
 			return $upload;
-		else
-			return $this->install();
+		}
+
+		return $this->extract();
 	}
-	
+
 	/**
-	 * Install module
+	 * Extract file
 	 * @param string $file = null File path
 	 * @return Response
 	 */
-	public function install($file = null) {		
+	public function extract($file = null) {
 		// Set default file path
 		if ($file === null) $file = TMP . DS . "core.packages.install" . DS . "package.zip";
 
@@ -294,32 +355,53 @@ class Packages extends AppModel {
 		Files::delete($dir); // Delete old files
 		Files::mkdir($dir);
 
-		try {
-			$zip = new ZipArchive;
-			$zip->open($file);
-			$zip->extractTo($dir);
-		} catch (Exception $e) {
-			return new Response(9, "danger", $e->getMessage());
+		$zip = new ZipArchive;
+
+		$code = $zip->open($file);
+		if ($code !== true) {
+			return new Response(9, "danger", ($code == ZipArchive::ER_NOZIP ? "Not a zip archive" : "ZipArchive error code: " . $code));
 		}
-		
+
+		$zip->extractTo($dir);
+		$zip->close();
+
+		return new Response();
+	}
+
+	/**
+	 * Install package
+	 * @param string $file = null File path
+	 * @return Response
+	 */
+	public function install($file = null) {
+		$dir = TMP . DS . "core.packages.install" . DS . "files";
+
+		// Extract file
+		if ($file != null) {
+			$response = $this->extract($file);
+			if ($response->code != 0) {
+				return $response;
+			}
+		}
+
 		// Parse INI file
 		if (is_file($dir . DS . "install.ini") && $ini_file = file_get_contents($dir . DS . "install.ini")) {
 			$ini = parse_ini_string($ini_file); // Parse INI
-			
+
 			// Package info
 			$name = $ini["package.name"];
 			$compare_min = version_compare(VERSION, $ini["package.required.min"], '>=');
-			$compare_max = version_compare(VERSION, $ini["package.required.max"], '<=');
+			$compare_max = ((!isset($ini["package.required.max"]) || empty($ini["package.required.max"])) || version_compare(VERSION, $ini["package.required.max"], '<='));
 			$dependence = empty($ini["package.dependence"]) ? [] : explode(",", $ini["package.dependence"]);
-			
+
 			// Module is already installed
 			if ($this->exists($name))
 				return new Response(11, "warning", $this->_lang->get("core", "packages.install.alreadyInstalled"));
-			
+
 			// Version compare
 			if (!$compare_min || !$compare_max)
 				return new Response(12, "danger", $this->_lang->get("core", "packages.install.notCompare"));
-			
+
 			// Check dependences 
 			if (count($dependence) > 0) {
 				$dep = $this->checkDependences($dependence);
@@ -328,24 +410,24 @@ class Packages extends AppModel {
 					return new Response(13, "danger", $this->_lang->get("core", "packages.install.depends") . ": <ul><li>" . implode("</li><li>", $dep) . "</li></ul>");
 				}
 			}
-		
+
 			// Frontend controller
 			$this->_move(
 				$dir . DS . "controller" . DS . "frontend.php",
 				CON . DS . "frontend" . DS . $name . ".php"
 			);
-		
+
 			// Backend controller
 			$this->_move(
 				$dir . DS . "controller" . DS . "backend.php",
 				CON . DS . "backend" . DS . $name . ".php"
 			);
-		
+
 			// Models
 			if (is_dir($dir . DS . "model")) {
 				$this->_move($dir . DS . "model", MOD . DS . $name);
 			}
-		
+
 			// Langs
 			if (is_dir($dir . DS . "lang")) foreach(scandir($dir . DS . "lang") as $file) {
 				if (!in_array($file, [".", ".."])) $this->_move(
@@ -353,14 +435,14 @@ class Packages extends AppModel {
 					LANG . DS . str_replace(".ini", "", $file) . DS . $name . ".ini"
 				);
 			}
-		
+
 			$bview = "default";
 			// Backend view	
 			$this->_move(
 				$dir . DS . "view" . DS . "backend",
 				VIEW . DS . "backend" . DS . $bview . DS . "tpl"
 			);
-		
+
 			// Backend view langs
 			if (is_dir($dir . DS . "view-lang" . DS . "backend")) foreach(scandir($dir . DS . "view-lang" . DS . "backend") as $file) {
 				if (!in_array($file, [".", ".."])) $this->_move(
@@ -368,14 +450,14 @@ class Packages extends AppModel {
 					VIEW . DS . "backend" . DS . $bview . DS . "lang" . DS . str_replace(".ini", "", $file) . DS . $name . ".ini"
 				);
 			}
-		
+
 			// Frontend view
 			$view = "default";
 			$this->_move(
 				$dir . DS . "view" . DS . "frontend",
 				VIEW . DS . "frontend" . DS . $view . DS . "tpl"
 			);
-		
+
 			// Frontend view langs
 			if (is_dir($dir . DS . "view-lang" . DS . "frontend")) foreach(scandir($dir . DS . "view-lang" . DS . "frontend") as $file) {
 				if (!in_array($file, [".", ".."])) $this->_move(
@@ -383,19 +465,19 @@ class Packages extends AppModel {
 					VIEW . DS . "frontend" . DS . $bview . DS . "lang" . DS . str_replace(".ini", "", $file) . DS . $name . ".ini"
 				);
 			}
-			
+
 			// Libraries
 			$this->_move($dir . DS . "libraries", LIB);
-		
+
 			// Other files
 			$this->_move($dir . DS . "files", ROOT);
-			
+
 			// Copy module image
 			$this->_move(
 				$dir . DS . "image.png",
 				PUB . DS . "images" . DS . "modules" . DS . $name . ".png"
 			);
-			
+
 			// Database query
 			if (is_file($dir . DS . "install.sql") && $sql = file_get_contents($dir . DS . "install.sql")) {
 				foreach (explode(";", $sql) as $query) {
@@ -405,7 +487,7 @@ class Packages extends AppModel {
 					}
 				}
 			}
-			
+
 			// Menu add links
 			if (is_file($dir . DS . "menu.json") && $menu = file_get_contents($dir . DS . "menu.json")) {
 				$model = new Menu();
@@ -413,7 +495,7 @@ class Packages extends AppModel {
 					$model->add($row[0], null, $row[1], SITE_PATH . $row[2], $row[3]);
 				}
 			}
-			
+
 			// Making INI file
 			foreach($this->_files as &$f) $f = str_replace(ROOT . DS, "", $f);
 			$ini_file .= "\nfiles = \"" . implode(";", $this->_files) . "\"\n";
@@ -421,16 +503,23 @@ class Packages extends AppModel {
 
 			// Cache cleaning
 			$this->_packages = $this->_cache->remove("core.packages");
-			
-			// Remove all temp files
-			Files::delete(TMP . DS . "core.packages.install");
-			
+
+			// Remove tempurary files
+			$this->clearTemp();
+
 			return new Response(0, "success", $this->_lang->get("core", "packages.install.success"));
 		} else {
 			return new Response(10, "danger", $this->_lang->get("core", "packages.install.incorrectFormat"));
 		}
 	}
-	
+
+	/**
+	 * Clear tempurary files
+	 */
+	public function clearTemp() {
+		Files::delete(TMP . DS . "core.packages.install");
+	}
+
 	/**
 	 * Page for remove module
 	 * @param string $name Module Name
@@ -441,7 +530,7 @@ class Packages extends AppModel {
 		if (!$this->_user->hasPermission("core.packages.remove")) {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
-		
+
 		$response = new Response();
 
 		$this->_core
@@ -454,7 +543,7 @@ class Packages extends AppModel {
 			if (count($dep) > 0) {
 				return new Response(4, "danger", $this->_lang->get("core", "packages.remove.dependent") . ": <ul><li>" . implode("</li><li>", $dep) . "</li></ul>");
 			}
-			
+
 			$response->view = "core.packages.remove";
 			$response->tags["name"] = $name;
 		} else {
@@ -465,7 +554,7 @@ class Packages extends AppModel {
 
 		return $response;
 	}
-	
+
 	/**
 	 * Remove module
 	 * @param string $name Modules Name
@@ -478,19 +567,19 @@ class Packages extends AppModel {
 		if (!$this->_user->hasPermission("core.packages.remove") || $core) {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
-		
+
 		$response = new Response();
 
 		if ($this->exists($name)) {
 			$meta = $this->get($name); // Get meta data
 			$this->_packages = $this->_cache->remove("core.packages"); // Cache cleaning
-			
+
 			// Check dependences
 			$dep = $this->checkDependent($name);
 			if (count($dep) > 0) {
 				return new Response(4, "danger", $this->_lang->get("core", "packages.remove.dependent") . ": <ul><li>" . implode("</li><li>", $dep) . "</li></ul>");
 			}
-			
+
 			// REMOVE MENU LINKS
 			if ($remove_links) {
 				$model = new Menu();
@@ -503,7 +592,7 @@ class Packages extends AppModel {
 						}
 					}
 				}
-				
+
 				//Frontend
 				if (!empty($meta["frontend-link"])) {
 					foreach ($model->get("frontend", true) as $row) {
@@ -513,17 +602,17 @@ class Packages extends AppModel {
 					}
 				}
 			}
-			
+
 			// Remove database tables
 			if (!empty($meta["db-tables"])) {
 				$tables = explode(",", $meta["db-tables"]);
 				foreach ($tables as &$tname) $tname = "`" . DBPREFIX . $tname . "`";
-				
+
 				if (!$this->_db->query("DROP TABLE " . implode(",", $tables))->result()) {
 					return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 				}
 			}
-			
+
 			// Remove files
 			foreach($meta["files"] as $file)
 				Files::delete(ROOT . DS . $file);

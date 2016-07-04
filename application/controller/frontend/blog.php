@@ -34,9 +34,9 @@ class Blog extends AppController {
 	public $__default = "list";
 
 	public $__routes = array (
-		"([0-9]+)-[a-z0-9\\_\\-]+/page/([0-9]+)" => "post",
-		"([0-9]+)-[a-z0-9\\_\\-]+" => "post",
-		"([0-9]+)/page/([0-9]+)" => "post",
+		"([0-9]+)-([a-z0-9\\_\\-]+)/page/([0-9]+)" => "post",
+		"([0-9]+)-([a-z0-9\\_\\-]+)" => "post",
+		"([0-9]+)/(page)/([0-9]+)" => "post",
 		"([0-9]+)" => "post",
 		
 		"(cat)/([0-9]+)/page/([0-9]+)" => "list",
@@ -139,8 +139,28 @@ class Blog extends AppController {
 			$this->_view->alert($comment->type, $comment->message);
 		}
 
-		$commentsPage = !isset($args[1]) ? 1 : $args[1];
+		$commentsPage = !isset($args[2]) ? 1 : $args[2];
 		$post = $this->_posts->page($id, $commentsPage, $comments_model);
+
+		// Redirect from incorrect URL
+		if (!isset($args[1]) || $args[1] != $post->tags["url"]) {
+			HTTP::redirect($post->tags["link"] . (isset($args[2]) ? "/page/" . $args[2] : ""));
+		}
+
+		// Meta tags
+		$this->_registry
+			->get("Core")
+			->removeMeta(["name" => "description"])
+			->removeMeta(["name" => "keywords"])
+			->addMetaArray([
+				[
+					"name" => "description",
+					"content" => $post->tags["description-text"],
+				], [
+					"name" => "keywords",
+					"content" => $post->tags["tags-text"]
+				]
+			]);
 		
 		// Active Category
 		Categories::getInstance()->activeCategory = $post->tags["category-id"];

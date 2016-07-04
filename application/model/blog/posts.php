@@ -633,13 +633,16 @@ class Posts extends AppModel {
 			$response->tags = array(
 				"id" => $row["id"],
 				"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
+				"url" => $row["url"],
 				"title" => $row["title"],
 
+				"description-text" => Strings::cut(str_replace(["\n","\r"], "", strip_tags(Posts::getText($row["text_parsed"], false, true))), 200) . "...",
 				"full-text" => Posts::getText($row["text_parsed"], false),
 				"short-text" => Posts::getText($row["text_parsed"], false, true),
 
 				"image-link" => $row["image_link"],
 				"tags" => $this->makeTagsLinks($row["tags"]),
+				"tags-text" => $row["tags"],
 				"lang" => $row["lang"],
 				"language" => $this->_lang->getLangName($row["lang"]),
 
