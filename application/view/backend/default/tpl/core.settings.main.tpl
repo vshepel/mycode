@@ -28,7 +28,7 @@
 			<input class="form-control" type="checkbox" name="smart-date"[smart-date] checked[/smart-date]>
 		</div>
 	</div>
-	
+
 	<div class="form-group">
 		<label class="control-label col-sm-3">[f:core:settings.main.formatDate]</label>
 		<div class="col-sm-9">
@@ -40,6 +40,13 @@
 		<label class="control-label col-sm-3">[f:core:settings.main.formatTime]</label>
 		<div class="col-sm-9">
 			<input class="form-control" type="text" name="format-time" value="{format-time}">
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="control-label col-sm-3">[f:core:settings.main.timezone]</label>
+		<div class="col-sm-9">
+			<select class="form-control" name="timezone">{timezones}</select>
 		</div>
 	</div>
 
