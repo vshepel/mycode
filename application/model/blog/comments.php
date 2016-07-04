@@ -57,7 +57,9 @@ class Comments extends AppModel {
 	 */
 	public function add($post, $comment) {
 		$post = intval($post);
-		$comment =  StringFilters::filterHtmlTags($comment);
+		$comment = preg_replace("/[\n]{2,}/i", "\n", str_replace("\r", "", StringFilters::filterHtmlTags($comment)));
+		$comment = preg_replace("/ +/", " ", trim($comment));
+		$comment = preg_replace(["/^/", "/$/"], "", $comment);
 
 		$this->_comment = $comment;
 
@@ -213,7 +215,7 @@ class Comments extends AppModel {
 						"date" => $this->_core->getDate($row["timestamp"]),
 						"time" => $this->_core->getTime($row["timestamp"]),
 
-						"comment-message" => $row["comment"],
+						"comment-message" => Strings::lineWrap($row["comment"]),
 
 						"online" => $online,
 						"offline" => !$online,
