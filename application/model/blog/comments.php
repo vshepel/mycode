@@ -129,8 +129,12 @@ class Comments extends AppModel {
 				->where("id", "=", $reply)
 				->result_array();
 
+			$reply_user = 0;
+			$original_comment = $comment;
+
 			if (isset($reply_row[0])) {
-				$login = $this->_user->getUserLogin($reply_row[0]["user"]);
+				$reply_user = $reply_row[0]["user"];
+				$login = $this->_user->getUserLogin($reply_user);
 				$comment = "<a href=\"#comment_{$reply}\">@{$login}</a>, " . $comment;
 			}
 
@@ -150,6 +154,7 @@ class Comments extends AppModel {
 				$response->type = "danger";
 				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
 			} else {
+				// Update comments counter
 				$this->_db
 					->update(DBPREFIX . "blog_posts")
 					->set(array(
@@ -157,6 +162,15 @@ class Comments extends AppModel {
 					))
 					->where("id", "=", $post)
 					->result();
+
+				// Send reply notification
+				if ($reply_user != 0) {
+					$this->_registry
+						->get("Notifications")
+						->add($reply_user, "info", "[blog:notification.comments.reply.title] " . $this->_user->get("login"),
+							$original_comment, SITE_PATH . "blog/" . $post
+						);
+				}
 
 				$response->type = "success";
 				$response->message = $this->_lang->get("blog", "comments.add.success");
