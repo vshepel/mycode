@@ -1,13 +1,13 @@
 <div id="blog-comments">
 	[can-add]<h3>[f:blog:comments.form]</h3>
 
-	<form method="post" class="form-horizontal" onsubmit="app.blog.addComment(this); return false;">
+	<form method="post" id="addcomment-form" class="form-horizontal" onsubmit="app.blog.addComment(this); return false;">
 		<input type="hidden" name="post" value="{post-id}">
 
 		<div class="form-group">
 			<label class="control-label col-sm-3">[f:blog:comments.form.comment]</label>
 			<div class="col-sm-9">
-				<textarea class="form-control" name="comment" rows="5">{comment}</textarea>
+				<textarea id="comment-textarea" class="form-control" name="comment" rows="5">{comment}</textarea>
 			</div>
 		</div>
 
@@ -17,7 +17,16 @@
 				<button class="btn btn-primary">[f:blog:comments.form.submit]</button>
 			</div>
 		</div>
-	</form>[/can-add][cant-add]<div class="alert alert-danger">
+	</form>
+	<script>
+		$(document).ready(function(){
+			$('#comment-textarea').keydown(function(e) {
+				if (e.ctrlKey && e.keyCode == 13) {
+					app.blog.addComment($('#addcomment-form'));
+				}
+			});
+		});
+	</script>[/can-add][cant-add]<div class="alert alert-danger">
 		[b:blog:comments.cantAdd]
 	</div>[/cant-add]
 
