@@ -38,6 +38,8 @@ class Blog extends AppController {
 		"([0-9]+)-([a-z0-9\\_\\-]+)" => "post",
 		"([0-9]+)/(page)/([0-9]+)" => "post",
 		"([0-9]+)" => "post",
+		"addcomment" => null,
+		"removecomment" => null,
 		
 		"(cat)/([0-9]+)/page/([0-9]+)" => "list",
 		"(cat)/([0-9]+)" => "list",
@@ -165,6 +167,40 @@ class Blog extends AppController {
 		// Active Category
 		Categories::getInstance()->activeCategory = $post->tags["category-id"];
 		$this->_view->responseRender($post);
+	}
+
+	public function action_addcomment() {
+		if ($this->_ajax) {
+			$comments_model = new Comments();
+
+			if (isset($_POST["post"], $_POST["comment"])) {
+				$add = $comments_model->add($_POST["post"], $_POST["comment"]);
+				$rows = $comments_model->get($_POST["post"], 1, true);
+
+				$this->_view
+					->jsonRender(array(
+						"add" => $add,
+						"comments" => $this->_view->parse($rows->view, $rows->tags)
+					));
+			}
+		}
+	}
+
+	public function action_removecomment() {
+		if ($this->_ajax) {
+			$comments_model = new Comments();
+
+			if (isset($_POST["removecomment"]["id"], $_POST["removecomment"]["post"], $_POST["removecomment"]["page"])) {
+				$remove = $comments_model->remove($_POST["removecomment"]["id"]);
+				$rows = $comments_model->get($_POST["removecomment"]["post"], $_POST["removecomment"]["page"], true);
+
+				$this->_view
+					->jsonRender(array(
+						"remove" => $remove,
+						"comments" => $this->_view->parse($rows->view, $rows->tags)
+					));
+			}
+		}
 	}
 
 	public function action_archive($args) {

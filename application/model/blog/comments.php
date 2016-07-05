@@ -226,22 +226,16 @@ class Comments extends AppModel {
 
 				$canAdd = $allow ? $this->_user->hasPermission("blog.comments.add") : false;
 
-				if ($canAdd)
-					$addform = $this->_view
-						->parse("blog.comments.add", array (
-							"post-id" => $post,
-							"comment" => $this->_comment
-						));
-				else
-					$addform = $this->_view->getAlert("danger", $this->_lang->get("blog", "comments.cantAdd"));
-
 				$response->code = 0;
-				$response->view = "blog.comments.page";
+				$response->view = "blog.comments";
 				$response->tags = array (
+					"post-id" => $post,
+					"comment" => $this->_comment,
+					"page" => $page,
+					
 					"num" => $num,
 					"rows" => $rows,
 					"pagination" => (string) $pagination,
-					"addform" => $addform,
 					"can-add" => $canAdd,
 					"cant-add" => !$canAdd
 				);

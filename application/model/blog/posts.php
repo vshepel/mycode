@@ -256,7 +256,7 @@ class Posts extends AppModel {
 			} elseif ($tag !== null) {
 				$paginationPrefix .= "/tag/" . $tag;
 			} elseif ($author !== null) {
-				$paginationPrefix .= "/author" . $author;
+				$paginationPrefix .= "/author/" . $author;
 			}
 
 			$paginationPrefix .= "/page/";
@@ -1176,6 +1176,20 @@ class Posts extends AppModel {
 						}
 					}
 
+					// Read
+					$read = false;
+
+					if ($this->_config->get("blog", "posts.read_mark", true)) {
+						$query = $this->_db
+							->select("count(*)")
+							->from(DBPREFIX . "blog_views")
+							->where("post", "=", $row["id"])
+							->and_where("user", "=", $this->_user->get("id"))
+							->result_array();
+
+						$read = (isset($query[0][0]) && $query[0][0] > 0);
+					}
+
 					$rows[] = [
 						"id" => $row["id"],
 						"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
@@ -1209,6 +1223,7 @@ class Posts extends AppModel {
 
 						"comments-num" => $row["comments_num"],
 						"views-num" => $row["views_num"],
+						"read" => $read,
 
 						"rating" => $row["rating"],
 						"rating-minus-active" => $ratingMinusActive,
@@ -1618,9 +1633,7 @@ class Posts extends AppModel {
 				$num = $num[0][0];
 				$pagination = new Pagination($num, $page, $paginationPrefix, $this->_config->get("blog", "search.customPagination", array()));
 
-				/**
-				 * Posts query
-				 */
+				// Posts query
 				$this->_db
 					->select(array(
 						"id", "title", "url", "text", "text_parsed", "category", "comments_num", "views_num", "rating",
@@ -1672,6 +1685,20 @@ class Posts extends AppModel {
 							}
 						}
 
+						// Read
+						$read = false;
+
+						if ($this->_config->get("blog", "posts.read_mark", true)) {
+							$result = $this->_db
+								->select("count(*)")
+								->from(DBPREFIX . "blog_views")
+								->where("post", "=", $row["id"])
+								->and_where("user", "=", $this->_user->get("id"))
+								->result_array();
+
+							$read = (isset($result[0][0]) && $result[0][0] > 0);
+						}
+
 						$rows[] = [
 							"id" => $row["id"],
 							"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
@@ -1705,6 +1732,7 @@ class Posts extends AppModel {
 
 							"comments-num" => $row["comments_num"],
 							"views-num" => $row["views_num"],
+							"read" => $read,
 
 							"rating" => $row["rating"],
 							"rating-minus-active" => $ratingMinusActive,
@@ -1718,9 +1746,7 @@ class Posts extends AppModel {
 						];
 					}
 
-					/**
-					 * Formation response
-					 */
+					// Formation response
 					$response->code = 0;
 					$response->view = "blog.search";
 					$response->tags = array(
