@@ -76,4 +76,16 @@
                 }
             });
     };
+
+    app.blog.replyComment = function(id, user) {
+        $('#blog-reply-id').val(id);
+        $('#blog-reply-user').text(user);
+        $('#blog-reply-remove').show();
+    };
+
+    app.blog.replyRemove = function() {
+        $('#blog-reply-id').val(0);
+        $('#blog-reply-user').text('');
+        $('#blog-reply-remove').hide();
+    };
 }(jQuery, app);

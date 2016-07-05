@@ -173,8 +173,8 @@ class Blog extends AppController {
 		if ($this->_ajax) {
 			$comments_model = new Comments();
 
-			if (isset($_POST["post"], $_POST["comment"])) {
-				$add = $comments_model->add($_POST["post"], $_POST["comment"]);
+			if (isset($_POST["post"], $_POST["comment"], $_POST["reply"])) {
+				$add = $comments_model->add($_POST["post"], $_POST["comment"], $_POST["reply"]);
 				$rows = $comments_model->get($_POST["post"], 1, true);
 
 				$this->_view

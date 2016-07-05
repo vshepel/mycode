@@ -53,10 +53,13 @@ class Comments extends AppModel {
 	 * Add comment
 	 * @param int $post Post ID
 	 * @param string $comment Comment
+	 * @param int $reply Reply Comment ID
 	 * @return Response
 	 */
-	public function add($post, $comment) {
+	public function add($post, $comment, $reply) {
 		$post = intval($post);
+		$reply = intval($reply);
+
 		$comment = preg_replace("/[\n]{2,}/i", "\n", str_replace("\r", "", StringFilters::filterHtmlTags($comment)));
 		$comment = preg_replace("/ +/", " ", trim($comment));
 		$comment = preg_replace(["/^/", "/$/"], "", $comment);
@@ -120,13 +123,16 @@ class Comments extends AppModel {
 			$response->type = "danger";
 			$response->message = $this->_lang->get("blog", "comments.add.longComment");
 		} else {
-			$this->_db
-				->update(DBPREFIX . "blog_posts")
-				->set(array(
-					"comments_num" => array ("comments_num", "+", 1, false)
-				))
-				->where("id", "=", $post)
-				->result();
+			$reply_row = $this->_db
+				->select("user")
+				->from(DBPREFIX . "blog_comments")
+				->where("id", "=", $reply)
+				->result_array();
+
+			if (isset($reply_row[0])) {
+				$login = $this->_user->getUserLogin($reply_row[0]["user"]);
+				$comment = "<a href=\"#comment_{$reply}\">@{$login}</a>, " . $comment;
+			}
 
 			$query = $this->_db
 				->insert_into(DBPREFIX . "blog_comments")
@@ -134,7 +140,8 @@ class Comments extends AppModel {
 					"where" => $post,
 					"user" => $this->_user->get("id"),
 					"user_ip" => HTTP::getIp(),
-					"comment" => $comment
+					"comment" => $comment,
+					"reply" => $reply
 				))
 				->result();
 
@@ -143,6 +150,14 @@ class Comments extends AppModel {
 				$response->type = "danger";
 				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
 			} else {
+				$this->_db
+					->update(DBPREFIX . "blog_posts")
+					->set(array(
+						"comments_num" => array ("comments_num", "+", 1, false)
+					))
+					->where("id", "=", $post)
+					->result();
+
 				$response->type = "success";
 				$response->message = $this->_lang->get("blog", "comments.add.success");
 				$this->_comment = "";
