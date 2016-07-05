@@ -191,8 +191,16 @@ class PostsModeration extends AppModel {
 				throw new Exception("Error add post: " . $this->_db->getError());
 			}
 
-			$post = $postId = $this->_db->insert_id();
+			$post = $this->_db->insert_id();
 
+			// Send notification
+			$this->_registry
+				->get("Notifications")
+				->add($row["author"], "success", $row["title"], "[blog:notification.moderation.good.body]",
+					SITE_PATH . "blog/" . $post
+				);
+
+			// Remove from moderation list
 			$this->remove($id);
 
 			return $post;
@@ -207,7 +215,20 @@ class PostsModeration extends AppModel {
 	 * @throws Exception
 	 */
 	public function bad($id) {
-		$this->remove($id);
+		// Get post data
+		$post = $this->_db
+			->select(["title", "author"])
+			->from(DBPREFIX . "blog_posts_moderation")
+			->where("id", "=", intval($id))
+			->result_array();
+
+		if (isset($post[0])) {
+			$this->_registry
+				->get("Notifications")
+				->add($post[0]["author"], "danger", $post[0]["title"], "[blog:notification.moderation.bad.body]");
+
+			$this->remove($id);
+		}
 	}
 
 	/**
