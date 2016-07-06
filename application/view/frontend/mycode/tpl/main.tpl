@@ -143,7 +143,7 @@
 		[if MODACT="messages/page"]
 		[logged]
 		<section id="panel">
-			<a href="/messages/list">
+			<a href="/messages">
 				<i class="mdi mdi-arrow-left"></i> [f:messages:link.back]
 			</a>
 		</section>
@@ -152,7 +152,7 @@
 		[if SELF="/messages/send"]
 		[logged]
 		<section id="panel">
-			<a href="/messages/list">
+			<a href="/messages">
 				<i class="mdi mdi-arrow-left"></i> [f:messages:link.back]
 			</a>
 		</section>
