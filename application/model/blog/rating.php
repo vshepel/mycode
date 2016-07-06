@@ -64,6 +64,7 @@ class Rating extends AppModel {
 		$response = new Response();
 
 		$postId = intval($postId);
+		$r_type = intval($r_type);
 		$type = ($r_type == 1) ? "+" : "-";
 
 		if (!$this->_user->isLogged()) {
@@ -75,17 +76,28 @@ class Rating extends AppModel {
 			$response->type = "danger";
 			$response->message = $this->_lang->get("core", "accessDenied");
 		} else {
-			$posts = new Posts("frontend");
+			$posts = new Posts(FRONTEND);
 
 			if ($posts->exists($postId)) {
 				$result = $this->_db
 					->select(array(
-						"id"
+						"id", "type"
 					))
 					->from(DBPREFIX . "blog_rating")
 					->where("post", "=", $postId)
 					->and_where("user", "=", $this->_user->get("id"))
 					->result_array();
+
+				if ($result !== false && count($result) > 0 && $r_type != $result[0]["type"]) {
+					$this->_db
+						->delete_from(DBPREFIX . "blog_rating")
+						->where("id", "=", $result[0]["id"]);
+
+					if ($this->_db->result() !== false) {
+						$this->_change($postId, $type);
+						$result = [];
+					}
+				}
 
 				if ($result === false) {
 					$response->code = 4;
