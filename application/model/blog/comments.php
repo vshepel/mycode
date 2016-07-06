@@ -93,7 +93,7 @@ class Comments extends AppModel {
 		$length = Strings::length($comment, "UTF-8");
 
 		$row = $this->_db
-			->select("allow_comments")
+			->select(["url", "allow_comments"])
 			->from(DBPREFIX . "blog_posts")
 			->where("id", "=", $post)
 			->result_array();
@@ -154,6 +154,8 @@ class Comments extends AppModel {
 				$response->type = "danger";
 				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
 			} else {
+				$comment_id = $this->_db->insert_id();
+
 				// Update comments counter
 				$this->_db
 					->update(DBPREFIX . "blog_posts")
@@ -168,7 +170,7 @@ class Comments extends AppModel {
 					$this->_registry
 						->get("Notifications")
 						->add($reply_user, "info", "[blog:notification.comments.reply.title] " . $this->_user->get("login"),
-							$original_comment, SITE_PATH . "blog/" . $post
+							$original_comment, SITE_PATH . "blog/" . $post . "-" . $row[0]["url"] . "#comment_" . $comment_id
 						);
 				}
 
