@@ -160,6 +160,30 @@ class Posts extends AppModel {
 	}
 
 	/**
+	 * Get user rating
+	 * @param int $uid User ID
+	 * @return int
+	 */
+	public function getUserRating($uid) {
+		$array = $this->_db
+			->select("rating")
+			->from(DBPREFIX . "blog_posts")
+			->where("show", "=", 1)
+			->and_where("author", "=", intval($uid))
+			->result_array();
+
+		$rating = 0;
+
+		if ($array !== false) {
+			foreach ($array as $row) {
+				$rating += $row["rating"];
+			}
+		}
+
+		return $rating;
+	}
+
+	/**
 	 * Get User posts count by User ID
 	 * @param int $uid User ID
 	 * @return int

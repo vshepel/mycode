@@ -90,6 +90,7 @@ class Blog extends AppController {
 			case "calendar": return $this->_posts->getCalendar();
 			case "popular": return $this->_posts->getPopular();
 			case "tags-cloud": return $this->_posts->getTagsCloud();
+			case "user-rating": return $this->_posts->getUserRating($arg);
 			case "user-posts-count": return $this->_posts->getUserPostsCount($arg);
 			case "user-comments-count":
 				$comments_model = new Comments();
@@ -136,8 +137,8 @@ class Blog extends AppController {
 			$this->_view->alert($comment->type, $comment->message);
 		}
 
-		if (isset($_POST["comment"])) {
-			$comment = $comments_model->add($id, $_POST["comment"]);
+		if (isset($_POST["post"], $_POST["comment"], $_POST["reply"])) {
+			$comment = $comments_model->add($_POST["post"], $_POST["comment"], $_POST["reply"]);
 			$this->_view->alert($comment->type, $comment->message);
 		}
 
