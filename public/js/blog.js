@@ -46,4 +46,46 @@
             }
         });
     };
+
+    app.blog.addComment = function(eForm) {
+        var params = $(eForm).serialize();
+
+        app.core.ajaxPost(
+            app.core.path + 'blog/addcomment',
+            params,
+            function(data) {
+                app.core.alert.show(data.add.type, data.add.message);
+
+                if (data.add.code == 0) {
+                    $('#blog-comments').html(data.comments);
+                }
+            });
+    };
+
+    app.blog.removeComment = function(eForm, page) {
+        var params = $(eForm).serialize();
+
+        app.core.ajaxPost(
+            app.core.path + 'blog/removecomment/page/' + page,
+            params,
+            function(data) {
+                app.core.alert.show(data.remove.type, data.remove.message);
+
+                if (data.remove.code == 0) {
+                    $('#blog-comments').html(data.comments);
+                }
+            });
+    };
+
+    app.blog.replyComment = function(id, user) {
+        $('#blog-reply-id').val(id);
+        $('#blog-reply-user').text(user);
+        $('#blog-reply-remove').show();
+    };
+
+    app.blog.replyRemove = function() {
+        $('#blog-reply-id').val(0);
+        $('#blog-reply-user').text('');
+        $('#blog-reply-remove').hide();
+    };
 }(jQuery, app);

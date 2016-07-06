@@ -56,6 +56,7 @@ class Posts extends AppModel {
 			"url" => "",
 			"text" => "",
 
+			"image-link" => "",
 			"tags" => "",
 			"lang" => "",
 
@@ -255,7 +256,7 @@ class Posts extends AppModel {
 			} elseif ($tag !== null) {
 				$paginationPrefix .= "/tag/" . $tag;
 			} elseif ($author !== null) {
-				$paginationPrefix .= "/author" . $author;
+				$paginationPrefix .= "/author/" . $author;
 			}
 
 			$paginationPrefix .= "/page/";
@@ -265,7 +266,7 @@ class Posts extends AppModel {
 			// Posts query
 			$this->_db
 				->select(array(
-					"id", "title", "url", "text", "text_parsed", "category", "comments_num", "views_num", "rating",
+					"id", "title", "url", "text_parsed", "image_link", "category", "comments_num", "views_num", "rating",
 					"tags", "lang",
 					array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 					"show", "show_main", "show_category", "author"
@@ -361,6 +362,7 @@ class Posts extends AppModel {
 						"full-text" => Posts::getText($row["text_parsed"], false),
 						"short-text" => Posts::getText($row["text_parsed"], false, true),
 
+						"image-link" => $row["image_link"],
 						"tags" => $this->makeTagsLinks($row["tags"]),
 						"lang" => $row["lang"],
 						"language" => $this->_lang->getLangName($row["lang"]),
@@ -439,7 +441,7 @@ class Posts extends AppModel {
 		// Get post
 		$array = $this->_db
 			->select(array(
-				"id", "title", "url", "text", "text_parsed", "category", "tags", "lang",
+				"id", "title", "url", "text_parsed", "category", "image_link", "tags", "lang",
 				"comments_num", "views_num", "rating", array ("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 				"allow_comments", "author"
 			))
@@ -631,12 +633,16 @@ class Posts extends AppModel {
 			$response->tags = array(
 				"id" => $row["id"],
 				"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
+				"url" => $row["url"],
 				"title" => $row["title"],
 
+				"description-text" => Strings::cut(str_replace(["\n","\r"], "", strip_tags(Posts::getText($row["text_parsed"], false, true))), 200) . "...",
 				"full-text" => Posts::getText($row["text_parsed"], false),
 				"short-text" => Posts::getText($row["text_parsed"], false, true),
 
+				"image-link" => $row["image_link"],
 				"tags" => $this->makeTagsLinks($row["tags"]),
+				"tags-text" => $row["tags"],
 				"lang" => $row["lang"],
 				"language" => $this->_lang->getLangName($row["lang"]),
 
@@ -690,6 +696,7 @@ class Posts extends AppModel {
 	 * @param string $url Post url
 	 * @param int $category Post category
 	 * @param string $text Post text
+	 * @param string $image Image link
 	 * @param string $tags Tags
 	 * @param string $lang Post language
 	 * @param bool $allowComments Allow comments?
@@ -698,13 +705,13 @@ class Posts extends AppModel {
 	 * @param bool $showCaregory Show posts on category?
 	 * @return Response
 	 */
-	public function edit($postId, $title, $url, $category, $text, $tags, $lang, $allowComments, $show, $showMain, $showCaregory) {
+	public function edit($postId, $title, $url, $category, $text, $image, $tags, $lang, $allowComments, $show, $showMain, $showCaregory) {
 		if (!$this->_user->hasPermission("blog.posts.edit"))
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 
 		$this->_editQuery = true;
 
-		return $this->add($title, $url, $category, $text, $tags, $lang, $allowComments, $show, $showMain, $showCaregory, $postId);
+		return $this->add($title, $url, $category, $text, $image, $tags, $lang, $allowComments, $show, $showMain, $showCaregory, $postId);
 	}
 
 	/**
@@ -730,7 +737,7 @@ class Posts extends AppModel {
 			$row = $this->_db
 				->select(array(
 					"id", "url", "title", "text", "text_parsed", "category",
-					"tags", "lang", "author",
+					"image_link", "tags", "lang", "author",
 					"allow_comments", "show", "show_main", "show_category"
 				))
 				->from(DBPREFIX . "blog_posts")
@@ -752,6 +759,7 @@ class Posts extends AppModel {
 						"url" => $row["url"],
 						"text" => $row["text"],
 
+						"image-link" => $row["image_link"],
 						"tags" => $row["tags"],
 						"lang" => $row["lang"],
 
@@ -810,6 +818,7 @@ class Posts extends AppModel {
 	 * @param string $url Post url
 	 * @param int $category Post category
 	 * @param string $text Post text
+	 * @param string $image Image link
 	 * @param string $tags Tags
 	 * @param string $lang Post language
 	 * @param bool $allowComments Allow comments?
@@ -819,7 +828,7 @@ class Posts extends AppModel {
 	 * @param int $postId = null Edit post ID
 	 * @return Response
 	 */
-	public function add($title, $url, $category, $text, $tags, $lang, $allowComments, $show, $showMain, $showCategory, $postId = null) {
+	public function add($title, $url, $category, $text, $image, $tags, $lang, $allowComments, $show, $showMain, $showCategory, $postId = null) {
 		$edit = ($postId !== null);
 		if (!$this->_user->hasPermission("blog.posts.add") && $edit) {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
@@ -845,6 +854,7 @@ class Posts extends AppModel {
 				"url" => $url,
 				"text" => $text,
 
+				"image-link" => $image,
 				"tags" => $tags,
 				"lang" => $lang,
 
@@ -885,6 +895,7 @@ class Posts extends AppModel {
 				"text" => $text,
 				"text_parsed" => Posts::getText($text),
 
+				"image_link" => $image,
 				"tags" => $tags,
 				"lang" => $lang,
 
@@ -990,6 +1001,21 @@ class Posts extends AppModel {
 				$response->type = "danger";
 				$response->message = $this->_lang->get("main", "internalError", [$this->_db->getError()]);
 			} else {
+				$this->_db
+					->delete_from(DBPREFIX . "blog_comments")
+					->where("where", "=", $id)
+					->result();
+
+				$this->_db
+					->delete_from(DBPREFIX . "blog_views")
+					->where("post", "=", $id)
+					->result();
+
+				$this->_db
+					->delete_from(DBPREFIX . "blog_rating")
+					->where("post", "=", $id)
+					->result();
+
 				$response->type = "success";
 				$response->message = $this->_lang->get("blog", "remove.success");
 				$this->_cache->remove("blog"); // Clear cache
@@ -1096,13 +1122,11 @@ class Posts extends AppModel {
 			$this->_core->addBreadcrumbs($title);
 
 
-			/**
-			 * Posts query
-			 */
+			// Posts query
 			$this->_db
 				->select(array(
-					"id", "title", "url", "text", "text_parsed", "category", "comments_num", "views_num", "rating",
-					"tags", "lang",
+					"id", "title", "url", "text_parsed", "category", "comments_num", "views_num", "rating",
+					"image_link", "tags", "lang",
 					array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 					"show", "show_main", "show_category", "author"
 				))
@@ -1152,6 +1176,20 @@ class Posts extends AppModel {
 						}
 					}
 
+					// Read
+					$read = false;
+
+					if ($this->_config->get("blog", "posts.read_mark", true)) {
+						$query = $this->_db
+							->select("count(*)")
+							->from(DBPREFIX . "blog_views")
+							->where("post", "=", $row["id"])
+							->and_where("user", "=", $this->_user->get("id"))
+							->result_array();
+
+						$read = (isset($query[0][0]) && $query[0][0] > 0);
+					}
+
 					$rows[] = [
 						"id" => $row["id"],
 						"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
@@ -1166,6 +1204,7 @@ class Posts extends AppModel {
 						"full-text" => Posts::getText($row["text_parsed"], false),
 						"short-text" => Posts::getText($row["text_parsed"], false, true),
 
+						"image-link" => $row["image_link"],
 						"tags" => $this->makeTagsLinks($row["tags"]),
 						"lang" => $row["lang"],
 						"language" => $this->_lang->getLangName($row["lang"]),
@@ -1184,6 +1223,7 @@ class Posts extends AppModel {
 
 						"comments-num" => $row["comments_num"],
 						"views-num" => $row["views_num"],
+						"read" => $read,
 
 						"rating" => $row["rating"],
 						"rating-minus-active" => $ratingMinusActive,
@@ -1224,7 +1264,7 @@ class Posts extends AppModel {
 	public function getPopular() {
 		$list = "";
 		$array = $this->_db
-			->select(["id", "title", "rating"])
+			->select(["id", "title", "url", "rating"])
 			->from(DBPREFIX . "blog_posts")
 			->where("show", "=", 1)
 			->order_by("rating")->desc()
@@ -1233,7 +1273,7 @@ class Posts extends AppModel {
 
 		if (is_array($array)) {
 			foreach($array as $row) {
-				$link = SITE_PATH . "blog/" . $row["id"];
+				$link = SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"];
 				$list .= $this->_view->parse("blog.tag.popular", [
 					"link" => $link,
 					"id" => $row["id"],
@@ -1577,7 +1617,6 @@ class Posts extends AppModel {
 
 			$num = $this->_db
 				->query("AND (`title` LIKE '%{$this->_db->safe($query)}%'")
-				->or_where("title", "LIKE", "")
 				->or_where("text", "LIKE", "%{$query}%")
 				->or_where("tags", "LIKE", "%{$query}%")
 				->query(")")
@@ -1594,13 +1633,11 @@ class Posts extends AppModel {
 				$num = $num[0][0];
 				$pagination = new Pagination($num, $page, $paginationPrefix, $this->_config->get("blog", "search.customPagination", array()));
 
-				/**
-				 * Posts query
-				 */
+				// Posts query
 				$this->_db
 					->select(array(
 						"id", "title", "url", "text", "text_parsed", "category", "comments_num", "views_num", "rating",
-						"tags", "lang", array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
+						"image_link", "tags", "lang", array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 						"show", "author"
 					))
 					->from(DBPREFIX . "blog_posts")
@@ -1613,7 +1650,6 @@ class Posts extends AppModel {
 
 				$array = $this->_db
 					->query("AND (`title` LIKE '%{$this->_db->safe($query)}%'")
-					->or_where("title", "LIKE", "")
 					->or_where("text", "LIKE", "%{$query}%")
 					->or_where("tags", "LIKE", "%{$query}%")
 					->query(")")
@@ -1649,6 +1685,20 @@ class Posts extends AppModel {
 							}
 						}
 
+						// Read
+						$read = false;
+
+						if ($this->_config->get("blog", "posts.read_mark", true)) {
+							$result = $this->_db
+								->select("count(*)")
+								->from(DBPREFIX . "blog_views")
+								->where("post", "=", $row["id"])
+								->and_where("user", "=", $this->_user->get("id"))
+								->result_array();
+
+							$read = (isset($result[0][0]) && $result[0][0] > 0);
+						}
+
 						$rows[] = [
 							"id" => $row["id"],
 							"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
@@ -1663,6 +1713,7 @@ class Posts extends AppModel {
 							"full-text" => Posts::getText($row["text_parsed"], false),
 							"short-text" => Posts::getText($row["text_parsed"], false, true),
 
+							"image-link" => $row["image_link"],
 							"tags" => $this->makeTagsLinks($row["tags"]),
 							"lang" => $row["lang"],
 							"language" => $this->_lang->getLangName($row["lang"]),
@@ -1681,6 +1732,7 @@ class Posts extends AppModel {
 
 							"comments-num" => $row["comments_num"],
 							"views-num" => $row["views_num"],
+							"read" => $read,
 
 							"rating" => $row["rating"],
 							"rating-minus-active" => $ratingMinusActive,
@@ -1694,9 +1746,7 @@ class Posts extends AppModel {
 						];
 					}
 
-					/**
-					 * Formation response
-					 */
+					// Formation response
 					$response->code = 0;
 					$response->view = "blog.search";
 					$response->tags = array(

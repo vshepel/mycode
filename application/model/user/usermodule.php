@@ -180,10 +180,11 @@ class UserModule extends AppModel {
 	/**
 	 * Users list page
 	 * @param int $page Page num
+	 * @param string $query = null Search query
 	 * @return Response
 	 * @throws \Exception
 	 */
-	public function listPage($page) {
+	public function listPage($page, $query = null) {
 		$response = new Response();
 
 		$page = intval($page);
@@ -192,56 +193,62 @@ class UserModule extends AppModel {
 			$this->_core
 				->addBreadcrumbs($this->_lang->get("user", "moduleName"), "user");
 
-		$this->_core
-			->addBreadcrumbs($this->_lang->get("user", "list.moduleName"), "user/list");
+		$this->_core->addBreadcrumbs($this->_lang->get("user", "list.moduleName"), "user/list");
 
-		/**
-		 * Check permissions for user list
-		 */
+		if ($query !== null) {
+			$this->_core->addBreadcrumbs($this->_lang->get("user", "search.moduleName"), "user/search");
+		}
+
+		// Check permissions for user list
 		if ($this->_user->hasPermission("user.list")) {
-			/**
-			 * Users num query
-			 */
-			$num = $this->_db
+			// Users num query
+			$this->_db
 				->select("count(*)")
-				->from(DBPREFIX . "user_profiles")
-				->result_array();
+				->from(DBPREFIX . "user_profiles");
 
-			/**
-			 * Database error
-			 */
+			if ($query !== null) {
+				$this->_db
+					->where("login", "LIKE", "%{$query}%")
+					->or_where("name", "LIKE", "%{$query}%");
+			}
+
+			$num = $this->_db->result_array();
+
+			// Database error
 			if ($num === false) {
 				$response->code = 1;
 				$response->type = "danger";
 				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
 			} else {
 				$num = $num[0][0];
-				$pagination = new Pagination($num, $page, SITE_PATH . "user/list/page/", $this->_config->get("user", "list.customPagination", array()));
+				$pagination = new Pagination($num, $page, ((SIDETYPE == BACKEND) ? ADMIN_PATH : SITE_PATH) . "user/list/page/", $this->_config->get("user", "list.customPagination", array()));
 
-				/**
-				 * Users list query
-				 */
-				$array = $this->_db
+				// Users list query
+				$this->_db
 					->select(array(
 						"id", "login", "active", "name", "group", "avatar"
 					))
-					->from(DBPREFIX . "user_profiles")
+					->from(DBPREFIX . "user_profiles");
+
+				if ($query !== null) {
+					$this->_db
+						->where("login", "LIKE", "%{$query}%")
+						->or_where("name", "LIKE", "%{$query}%");
+				}
+
+				$array = $this->_db
 					->order_by("id", $this->_config->get("user", "list.sort", "DESC"))
 					->limit($pagination->getSqlLimits())
 					->result_array();
 
-				/**
-				 * Database error
-				 */
+				// Database error
 				if ($array === false) {
 					$response->code = 1;
 					$response->type = "danger";
 					$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
 				}
 
-				/**
-				 * Make users list
-				 */
+				// Make users list
 				else {
 					$rows = [];
 
@@ -249,9 +256,7 @@ class UserModule extends AppModel {
 						$online = $this->_user->checkOnline($row["active"]);
 						$owner = ($row["login"] == $this->_user->get("login"));
 
-						/**
-						 * Tags
-						 */
+						// Tags
 						$rows[] = [
 							"id" => $row["id"],
 							"username" => $row["login"],
@@ -281,15 +286,14 @@ class UserModule extends AppModel {
 					$response->tags = array(
 						"num" => $num,
 						"rows" => $rows,
-						"pagination" => $pagination
+						"pagination" => $pagination,
+						"query" => ($query === null ? "" : $query)
 					);
 				}
 			}
 		}
 
-		/**
-		 * Access denied
-		 */
+		// Access denied
 		else {
 			$response->code = 2;
 			$response->type = "danger";

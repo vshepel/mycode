@@ -20,7 +20,8 @@
 						<h4 class="modal-title" id="myModalLabel">{title}</h4>
 					</div>
 					<div class="modal-body">
-						{text}
+						[if image-link!=""]<p align="center"><img src="{image-link}" alt="{title}" style="max-width:100%"></p>[/if]
+						<p>{text}</p>
 					</div>
 					<div class="modal-footer">
 						<a class="btn btn-success" href="{good-link}">

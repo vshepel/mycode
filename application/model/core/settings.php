@@ -68,7 +68,7 @@ class Settings extends AppModel {
 						]);
 					}
 				}
-				
+
 				$response->view = "core.settings.view";
 				$response->tags = [
 					"frontend" => $this->_config->get("view", "frontend", "default"),
@@ -160,7 +160,22 @@ class Settings extends AppModel {
 						"active" => ($name == $active)
 					]);
 				}
-				
+
+				// Timezones
+				$zones = [
+					-12, -11, -10, -9, -8, -7, -6, -5, -4.5, -4, -3.5, -3, -2 -1,
+					0, 1, 2, 3, 3.5, 4, 4.5, 5, 5.5, 5.75, 6, 6.5, 7, 8, 9, 9.5, 10, 11, 12
+				];
+				$timezones = "";
+				$active = $this->_config->get("core", "timezone", 0);
+				foreach($zones as $id) {
+					$timezones .= $this->_view->parse("core.settings.selector", [
+						"name" => $this->_lang->get("core", "timezone." . $id),
+						"value" => $id,
+						"active" => ($id == $active)
+					]);
+				}
+
 				$action = "main";
 				$response->view = "core.settings.main";
 				$response->tags = [
@@ -168,6 +183,8 @@ class Settings extends AppModel {
 					"module-backend" => $backend,
 					"format-date" => $this->_config->get("core", "format.date"),
 					"format-time" => $this->_config->get("core", "format.time"),
+					"timezone" => $this->_config->get("core", "timezone", 0),
+					"timezones" => $timezones,
 					
 					"cache" => $this->_config->get("core", "cache"),
 					"smart-date" => $this->_config->get("core", "smartDate"),
@@ -251,6 +268,7 @@ class Settings extends AppModel {
 							"moduleBackend" => $values["module-backend"],
 							"format.date" => $values["format-date"],
 							"format.time" => $values["format-time"],
+							"timezone" => $values["timezone"],
 								
 							"cache" => isset($values["cache"]),
 							"smartDate" => isset($values["smart-date"]),

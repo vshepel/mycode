@@ -40,6 +40,9 @@ class User extends AppController {
 		"register" => null,
 		"list/page/([0-9]+)" => "list",
 		"list" => null,
+		"search/(.*)/page/([0-9]+)" => "search",
+		"search/(.*)" => "search",
+		"search" => "search",
 		"edit/([A-Za-z0-9]+)" => "edit",
 		"edit" => null,
 		"sessions/page/([0-9]+)" => "sessions",
@@ -137,6 +140,16 @@ class User extends AppController {
 
 	public function action_list($args) {
 		$this->_view->responseRender($this->_model->listPage((isset($args[0]) ? $args[0] : 1)));
+	}
+
+	public function action_search($args) {
+		if (isset($_POST["query"]))
+			HTTP::redirect(SITE_PATH . "user/search/" . urlencode($_POST["query"]));
+		else {
+			$page = isset($args[1]) ? $args[1] : 1;
+			$query = isset($args[0]) ? urldecode($args[0]) : null;
+			$this->_view->responseRender($this->_model->listPage($page, $query));
+		}
 	}
 
 	public function action_edit($args) {

@@ -34,10 +34,12 @@ class Blog extends AppController {
 	public $__default = "list";
 
 	public $__routes = array (
-		"([0-9]+)-[a-z0-9\\_\\-]+/page/([0-9]+)" => "post",
-		"([0-9]+)-[a-z0-9\\_\\-]+" => "post",
-		"([0-9]+)/page/([0-9]+)" => "post",
+		"([0-9]+)-([a-z0-9\\_\\-]+)/page/([0-9]+)" => "post",
+		"([0-9]+)-([a-z0-9\\_\\-]+)" => "post",
+		"([0-9]+)/(page)/([0-9]+)" => "post",
 		"([0-9]+)" => "post",
+		"addcomment" => null,
+		"removecomment" => null,
 		
 		"(cat)/([0-9]+)/page/([0-9]+)" => "list",
 		"(cat)/([0-9]+)" => "list",
@@ -60,7 +62,7 @@ class Blog extends AppController {
 		"calendar/([0-9]+)/([0-9]+)" => "calendar",
 		"rating/([A-Za-z0-9]+)/([0-9]+)" => "rating",
 		"add/([0-9]+)" => "add",
-		"add" => null,
+		"add" => null
 	);
 
 	private $_posts;
@@ -129,17 +131,76 @@ class Blog extends AppController {
 		$comments_model = new Comments();
 		$id = $args[0];
 
+		if (isset($_POST["removecomment"]["id"])) {
+			$comment = $comments_model->remove($_POST["removecomment"]["id"]);
+			$this->_view->alert($comment->type, $comment->message);
+		}
+
 		if (isset($_POST["comment"])) {
 			$comment = $comments_model->add($id, $_POST["comment"]);
 			$this->_view->alert($comment->type, $comment->message);
 		}
 
-		$commentsPage = !isset($args[1]) ? 1 : $args[1];
+		$commentsPage = !isset($args[2]) ? 1 : $args[2];
 		$post = $this->_posts->page($id, $commentsPage, $comments_model);
+
+		// Redirect from incorrect URL
+		if (!isset($args[1]) || $args[1] != $post->tags["url"]) {
+			HTTP::redirect($post->tags["link"] . (isset($args[2]) ? "/page/" . $args[2] : ""));
+		}
+
+		// Meta tags
+		$this->_registry
+			->get("Core")
+			->removeMeta(["name" => "description"])
+			->removeMeta(["name" => "keywords"])
+			->addMetaArray([
+				[
+					"name" => "description",
+					"content" => $post->tags["description-text"],
+				], [
+					"name" => "keywords",
+					"content" => $post->tags["tags-text"]
+				]
+			]);
 		
 		// Active Category
 		Categories::getInstance()->activeCategory = $post->tags["category-id"];
 		$this->_view->responseRender($post);
+	}
+
+	public function action_addcomment() {
+		if ($this->_ajax) {
+			$comments_model = new Comments();
+
+			if (isset($_POST["post"], $_POST["comment"], $_POST["reply"])) {
+				$add = $comments_model->add($_POST["post"], $_POST["comment"], $_POST["reply"]);
+				$rows = $comments_model->get($_POST["post"], 1, true);
+
+				$this->_view
+					->jsonRender(array(
+						"add" => $add,
+						"comments" => $this->_view->parse($rows->view, $rows->tags)
+					));
+			}
+		}
+	}
+
+	public function action_removecomment() {
+		if ($this->_ajax) {
+			$comments_model = new Comments();
+
+			if (isset($_POST["removecomment"]["id"], $_POST["removecomment"]["post"], $_POST["removecomment"]["page"])) {
+				$remove = $comments_model->remove($_POST["removecomment"]["id"]);
+				$rows = $comments_model->get($_POST["removecomment"]["post"], $_POST["removecomment"]["page"], true);
+
+				$this->_view
+					->jsonRender(array(
+						"remove" => $remove,
+						"comments" => $this->_view->parse($rows->view, $rows->tags)
+					));
+			}
+		}
 	}
 
 	public function action_archive($args) {
@@ -187,9 +248,9 @@ class Blog extends AppController {
 	public function action_add($args) {
 		$moder = new PostsModeration();
 
-		if (isset($_POST["title"], $_POST["url"], $_POST["category"], $_POST["text"], $_POST["tags"], $_POST["lang"])) {
+		if (isset($_POST["title"], $_POST["url"], $_POST["category"], $_POST["text"], $_POST["image_link"], $_POST["tags"], $_POST["lang"])) {
 			$result = $moder->add(
-				$_POST["title"], $_POST["url"], $_POST["category"], $_POST["text"], $_POST["tags"], $_POST["lang"]
+				$_POST["title"], $_POST["url"], $_POST["category"], $_POST["text"], $_POST["image_link"], $_POST["tags"], $_POST["lang"]
 			);
 
 			$this->_view->alert($result->type, $result->message);

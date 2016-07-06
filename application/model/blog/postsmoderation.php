@@ -32,6 +32,7 @@ class PostsModeration extends AppModel {
 		"url" => "",
 		"category" => 0,
 		"text" => "",
+		"image-link" => "",
 		"tags" => "",
 		"lang" => ""
 	];
@@ -45,7 +46,7 @@ class PostsModeration extends AppModel {
 	}
 
 	/**
-	 * Get posts for future
+	 * Get posts for moderation
 	 * @param $category
 	 * @param $page
 	 * @return Response
@@ -75,13 +76,13 @@ class PostsModeration extends AppModel {
 		if ($num === false) {
             return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 		} else {
-			$paginationPrefix = PATH . "story/future/" . (($category === null) ? "page/" : "cat/" . $category . "/page/");
+			$paginationPrefix = ADMIN_PATH . "blog/moderation/" . (($category === null) ? "page/" : "cat/" . $category . "/page/");
 			$num = $num[0][0];
 			$pagination = new Pagination($num, $page, $paginationPrefix, $this->_config->get("blog", "moderation.list.customPagination", []));
 
 			$this->_db
 				->select(array(
-					"id", "title", "text", "category", "author",
+					"id", "title", "text", "image_link", "category", "author",
 					array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 				))
 				->from(DBPREFIX . "blog_posts_moderation")
@@ -114,10 +115,11 @@ class PostsModeration extends AppModel {
                     "author-avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
 
                     "text" => Posts::getText($row["text"]),
+					"image-link" => $row["image_link"],
 
                     "category-id" => $row["category"],
                     "category-name" => Categories::getInstance()->getName($row["category"]),
-                    "category-link" => ADMIN_PATH . "blog/cat/" . $row["category"],
+                    "category-link" => ADMIN_PATH . "blog/moderation/cat/" . $row["category"],
 
                     "good-link" => ADMIN_PATH . "blog/moderation/good/" . $row["id"],
                     "bad-link" => ADMIN_PATH . "blog/moderation/bad/" . $row["id"],
@@ -154,7 +156,7 @@ class PostsModeration extends AppModel {
 		// Get post data
 		$post = $this->_db
 			->select([
-				"id", "url", "title", "category", "text", "tags", "lang", "author",
+				"id", "url", "title", "category", "text", "image_link", "tags", "lang", "author",
 				array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
 			])
 			->from(DBPREFIX . "blog_posts_moderation")
@@ -173,6 +175,7 @@ class PostsModeration extends AppModel {
 					"text" => $row["text"],
 					"text_parsed" => Posts::getText($row["text"]),
 
+					"image_link" => $row["image_link"],
 					"tags" => $row["tags"],
 					"lang" => $row["lang"],
 
@@ -188,8 +191,16 @@ class PostsModeration extends AppModel {
 				throw new Exception("Error add post: " . $this->_db->getError());
 			}
 
-			$post = $postId = $this->_db->insert_id();
+			$post = $this->_db->insert_id();
 
+			// Send notification
+			$this->_registry
+				->get("Notifications")
+				->add($row["author"], "success", $row["title"], "[blog:notification.moderation.good.body]",
+					SITE_PATH . "blog/" . $post
+				);
+
+			// Remove from moderation list
 			$this->remove($id);
 
 			return $post;
@@ -204,7 +215,20 @@ class PostsModeration extends AppModel {
 	 * @throws Exception
 	 */
 	public function bad($id) {
-		$this->remove($id);
+		// Get post data
+		$post = $this->_db
+			->select(["title", "author"])
+			->from(DBPREFIX . "blog_posts_moderation")
+			->where("id", "=", intval($id))
+			->result_array();
+
+		if (isset($post[0])) {
+			$this->_registry
+				->get("Notifications")
+				->add($post[0]["author"], "danger", $post[0]["title"], "[blog:notification.moderation.bad.body]");
+
+			$this->remove($id);
+		}
 	}
 
 	/**
@@ -223,21 +247,23 @@ class PostsModeration extends AppModel {
 	}
 
 	/**
-	 * Add post for future
+	 * Add post for moderation
 	 * @param string $title Post title
 	 * @param string $url Post url
 	 * @param int $category Category ID
 	 * @param string $text Post content
+	 * @param string $image Image Link
 	 * @param string $tags Post tags
 	 * @param string $lang Post lang
 	 * @return Response
 	 */
-	public function add($title, $url, $category, $text, $tags, $lang) {
+	public function add($title, $url, $category, $text, $image, $tags, $lang) {
 		$response = new Response();
 
 		$title = StringFilters::filterStringForPublic($title);
 		$url = StringFilters::filterStringForPublic($url);
 		$category = intval($category);
+		$image = StringFilters::filterStringForPublic($image);
 		$tags = StringFilters::filterTagsString($tags);
 		$lang = StringFilters::filterStringForPublic($lang);
 
@@ -246,6 +272,7 @@ class PostsModeration extends AppModel {
 			"url" => $url,
 			"category" => $category,
 			"text" => $text,
+			"image-link" => $image,
 			"tags" => $tags,
 			"lang" => $lang
 		);
@@ -281,6 +308,7 @@ class PostsModeration extends AppModel {
 					"url" => $url,
 					"category" => $category,
 					"text" => $text,
+					"image_link" => $image,
 					"tags" => $tags,
 					"lang" => $lang,
 					"author" => $this->_user->get("id"),

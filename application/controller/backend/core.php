@@ -83,7 +83,14 @@ class Core extends AppController {
 		$model = new Packages();
 		
 		if (isset($_FILES["file"])) {
-			$install = $model->uploadAndInstall($_FILES["file"]);
+			$upload = $model->upload($_FILES["file"]);
+			if ($upload->code != 0) {
+				$this->_view->alert($upload->type, $upload->message);
+			}
+		} elseif (isset($_POST["cancel"])) {
+			$model->clearTemp();
+		} elseif (isset($_POST["contine"])) {
+			$install = $model->install();
 			$this->_view->alert($install->type, $install->message);
 		}
 		

@@ -40,6 +40,16 @@
 	</div>
 
 	<div class="form-group">
+		<label class="control-label col-sm-3">[f:blog:add.form.imageLink]</label>
+		<div class="col-sm-9">
+			<div class="input-group">
+				<span class="input-group-addon" id="basic-addon1"><span class="fa fa-image"></span></span>
+				<input class="form-control" type="text" name="image_link" value="{image-link}">
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group">
 		<label class="control-label col-sm-3">[f:blog:add.form.tags]</label>
 		<div class="col-sm-9">
 			<div class="input-group">
