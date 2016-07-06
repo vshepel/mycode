@@ -1,14 +1,20 @@
 [if num!="0"]
 [foreach rows]
 <article class="post">
+	[if image-link!=""]
+	<div class="post-image">
+		<img src="{image-link}" alt="{title}" />
+	</div>
+	[/if]
 	<div class="post_top">
 		<a href="{author-link}"><img src="{author-avatar-link}" alt="{author-login}">{author-login}</a> <span>[f:blog:list.posted] {date}</span>[read]<span class="has-read">[f:blog:list.read]</span>[/read]
 	</div>
 	<div class="post_text">
-		<a href="{link}">
-			<span>{title}</span>
-			{short-text}
-		</a>
+		<span>{title}</span>
+		{short-text}
+	</div>
+	<div class="post_more">
+		<a class="btn btn-primary" href="{link}">[f:blog:list.more]</a>
 	</div>
 	<div class="post_tags">
 		<i class="mdi mdi-label"></i> {tags}

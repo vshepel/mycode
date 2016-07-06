@@ -56,11 +56,6 @@
 			<li class="user_panel">
 				<ul>
 					[logged]
-					[if has-permission:admin]
-					<li class="write">
-						<a class="btn-primary" href="{SITE_PATH}admin">Control Panel</a>
-					</li>
-					[/if]
 					[if has-permission:blog.add]
 					<li class="write">
 						<a class="btn-primary" href="{SITE_PATH}blog/add">[f:main:panel.write]</a>
@@ -92,6 +87,13 @@
 		{content}
 	</main>
 	<aside id="sidebar">
+		[if has-permission:admin]
+		<section id="panel">
+			<a href="{SITE_PATH}admin" target="_blank">
+				<i class="mdi mdi-wrench"></i> [f:main:list.admin]
+			</a>
+		</section>
+		[/if]
 		[if SELF="/user/profile/{username}"]
 		[logged]
 		<section id="panel">

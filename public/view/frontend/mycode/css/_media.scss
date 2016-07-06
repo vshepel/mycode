@@ -15,10 +15,10 @@
 @media (min-width: 900px) and (max-width: 1200px) {
     .card {
         width: calc(50% - 15px);
-        &:nth-child(2n+1) {
+        &:nth-child(2n) {
             margin: 0 0 30px 0 !important;
         }
-        &:nth-child(3n+1) {
+        &:nth-child(3n) {
             margin: 0 30px 30px 0;
         }
     }
@@ -41,6 +41,11 @@
 }
 
 @media all and (max-width: 768px) {
+    #content {
+        .page_search {
+            width: calc(50% - 15px);
+        }
+    }
     .top_panel {
         .container > ul {
             .write {
@@ -129,10 +134,10 @@
     }
     .card {
         width: calc(50% - 15px);
-        &:nth-child(2n+1) {
+        &:nth-child(2n) {
             margin: 0 0 30px 0 !important;
         }
-        &:nth-child(3n+1) {
+        &:nth-child(3n) {
             margin: 0 30px 30px 0;
         }
     }
@@ -175,6 +180,17 @@
 }
 
 @media all and (max-width: 480px) {
+    #content {
+        .page_total {
+            float: none;
+            margin: 0 0 20px;
+        }
+        .page_search {
+            width: 100%;
+            float: none;
+            margin: 0 0 40px;
+        }
+    }
     .top_panel {
         .container > ul {
             .logotype {
@@ -193,15 +209,26 @@
             right: 0;
         }
     }
-    .content .post .post_bottom {
-        text-align: center;
-        .category {
-            margin: 0 15px 0 0;
-        }
-        .rating {
-            display: block;
-            float: none;
-            margin: 30px 0 0;
+    #content {
+        .post {
+            .post-image {
+                height: 250px;
+                img {
+                    width: auto;
+                    height: 100%;
+                }
+            }
+            .post_bottom {
+                text-align: center;
+                .category {
+                    margin: 0 15px 0 0;
+                }
+                .rating {
+                    display: block;
+                    float: none;
+                    margin: 30px 0 0;
+                }
+            }
         }
     }
     .field {
@@ -210,7 +237,7 @@
     }
     .card {
         width: 100%;
-        &:nth-child(3n+1) {
+        &:nth-child(3n) {
             margin: 0 0 30px 0;
         }
     }
