@@ -112,7 +112,7 @@ class Posts extends AppModel {
 			switch ($editor) {
 				case "Markdown":
 					$parsedown = new Parsedown();
-					return Strings::lineWrap($parsedown->parse($text));
+					return $parsedown->parse($text);
 
 				case "BBCode":
 					return BBCodeParser::parse($text);
