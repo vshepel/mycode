@@ -197,7 +197,7 @@ class PostsModeration extends AppModel {
 			$this->_registry
 				->get("Notifications")
 				->add($row["author"], "success", $row["title"], "[blog:notification.moderation.good.body]",
-					SITE_PATH . "blog/" . $post
+					Posts::getPostLink($post, $row["url"])
 				);
 
 			// Remove from moderation list

@@ -174,32 +174,48 @@ class Router {
 			$this->_type = $type;
 			define("SIDETYPE", $this->_type);
 
+			// Custom routes
+			$custom_action = null;
+			foreach ($this->_config->get("core", "customRoutes", []) as $pattern => $route) {
+				if (preg_match("~{$pattern}~", $this->_request, $matches)) {
+					$routes = explode("/", $route);
+					$this->_module = $routes[0];
+					$custom_action = $routes[1];
+					$this->_routes = array_slice($matches, 1);
+					break;
+				}
+			}
+
+			if ($custom_action !== null) {
+				$this->_action = $custom_action;
+			}
+
 			$this->existsController($this->_module, $this->_type);
 
 			$controller_class = "\\controller\\{$this->_type}\\" . $this->_module;
 			$controller = new $controller_class;
 			$this->_object = $controller;
 
-			// Custom routes
-			if (is_array($controller->__routes)) {
-				$custom_action = null;
+			// Method routes
+			if (is_array($controller->__routes) && $custom_action === null) {
+				$method_action = null;
 
 				foreach ($controller->__routes as $pattern => $action) {
 					if (preg_match("~" . $this->_module . "/" . $pattern . "~", $this->_request, $matches)) {
-						$custom_action = ($action !== null) ? $action : $pattern;
+						$method_action = ($action !== null) ? $action : $pattern;
 						$this->_routes = array_slice($matches, 1);
 						break;
 					}
 				}
 
-				if ($custom_action === null) {
+				if ($method_action === null) {
 					if ($this->_action === null) {
 						$this->_action = $controller->__default;
 					} else {
 						throw new NotFoundException();
 					}
 				} else {
-					$this->_action = $custom_action;
+					$this->_action = $method_action;
 				}
 			}
 	

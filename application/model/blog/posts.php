@@ -83,6 +83,11 @@ class Posts extends AppModel {
 		$this->_addTags["tags"]["lang"] = $this->_lang->getLang();
 	}
 
+	public static function getPostLink($id, $url, $path = null) {
+		$link = Registry::getInstance()->get("Config")->get("blog", "post_link", "blog/{id}-{url}");
+		return ($path === null ? SITE_PATH : $path) . str_replace(["{id}", "{url}"], [$id, $url], $link);
+	}
+
 	/**
 	 * Get post text
 	 * @param string $text Original post text
@@ -374,7 +379,7 @@ class Posts extends AppModel {
 					// Rows array
 					$rows[] = [
 						"id" => $row["id"],
-						"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
+						"link" => Posts::getPostLink($row["id"], $row["url"]),
 						"title" => $row["title"],
 
 						"author-id" => $row["author"],
@@ -541,7 +546,7 @@ class Posts extends AppModel {
 			// Add breadcrumbs
 			$this->_core
 				->addBreadcrumbs(Categories::getInstance()->getName($row["category"]), "blog/cat/" . $row["category"])
-				->addBreadcrumbs($row["title"], SITE_PATH . "blog/" . $row["id"]);
+				->addBreadcrumbs($row["title"], Posts::getPostLink($row["id"], $row["url"]));
 
 			// Posts switching links
 			$previous = "";
@@ -563,7 +568,7 @@ class Posts extends AppModel {
 					->result_array();
 
 				if ($query !== false && count($query) == 1) {
-					$previous = PATH . "blog/" . $query[0]["id"] . "-" . $query[0]["url"];
+					$previous = Posts::getPostLink($query[0]["id"], $query[0]["url"]);
 					$previousTitle = $query[0]["title"];
 				}
 
@@ -580,7 +585,7 @@ class Posts extends AppModel {
 					->result_array();
 
 				if ($query !== false && count($query) == 1) {
-					$next = PATH . "blog/" . $query[0]["id"] . "-" . $query[0]["url"];
+					$next = Posts::getPostLink($query[0]["id"], $query[0]["url"]);
 					$nextTitle = $query[0]["title"];
 				}
 			}
@@ -632,7 +637,7 @@ class Posts extends AppModel {
 					}
 
 					foreach ($result as $rrow) {
-						$rrow["url"] = SITE_PATH . "blog/" . $rrow["id"] . "-" . $rrow["url"];
+						$rrow["url"] = Posts::getPostLink($rrow["id"], $rrow["url"]);
 						$related[] = $rrow;
 					}
 
@@ -656,7 +661,7 @@ class Posts extends AppModel {
 			// Add tags
 			$response->tags = array(
 				"id" => $row["id"],
-				"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
+				"link" => Posts::getPostLink($row["id"], $row["url"]),
 				"url" => $row["url"],
 				"title" => $row["title"],
 
@@ -1216,7 +1221,7 @@ class Posts extends AppModel {
 
 					$rows[] = [
 						"id" => $row["id"],
-						"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
+						"link" => Posts::getPostLink($row["id"], $row["url"]),
 						"title" => $row["title"],
 
 						"author-id" => $row["author"],
@@ -1297,7 +1302,7 @@ class Posts extends AppModel {
 
 		if (is_array($array)) {
 			foreach($array as $row) {
-				$link = SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"];
+				$link = Posts::getPostLink($row["id"], $row["url"]);
 				$list .= $this->_view->parse("blog.tag.popular", [
 					"link" => $link,
 					"id" => $row["id"],
@@ -1725,7 +1730,7 @@ class Posts extends AppModel {
 
 						$rows[] = [
 							"id" => $row["id"],
-							"link" => SITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
+							"link" => Posts::getPostLink($row["id"], $row["url"]),
 							"title" => $row["title"],
 
 							"author-id" => $row["author"],
@@ -1815,7 +1820,7 @@ class Posts extends AppModel {
 		}
 		foreach ($array as $row) {
 			$urls[] = [
-				"loc" => FSITE_PATH . "blog/" . $row["id"] . "-" . $row["url"],
+				"loc" => Posts::getPostLink($row["id"], $row["url"], FSITE_PATH),
 				"priority" => 0.6
 			];
 		}

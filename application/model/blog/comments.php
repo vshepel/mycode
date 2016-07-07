@@ -170,7 +170,7 @@ class Comments extends AppModel {
 					$this->_registry
 						->get("Notifications")
 						->add($reply_user, "info", "[blog:notification.comments.reply.title] " . $this->_user->get("login"),
-							$original_comment, SITE_PATH . "blog/" . $post . "-" . $row[0]["url"] . "#comment_" . $comment_id
+							$original_comment, Posts::getPostLink($post, $row[0]["url"]) . "#comment_" . $comment_id
 						);
 				}
 
@@ -212,8 +212,7 @@ class Comments extends AppModel {
 			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 		} else {
 			$num = $num[0][0];
-			if (!empty($url)) $url = "-" . $url;
-			$pagination = new Pagination($num, $page, SITE_PATH . "blog/{$post}{$url}/page/", $this->_config->get("blog", "comments.customPagination", array()));
+			$pagination = new Pagination($num, $page, Posts::getPostLink($post, $url) . "/page/", $this->_config->get("blog", "comments.customPagination", array()));
 
 			$array = $this->_db
 				->select(array(
