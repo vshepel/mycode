@@ -71,14 +71,14 @@ class Bootstrap {
 			define ("PUB", ROOT . DS . "public");
 			
 			// Application Directories
+			define ("LANG", APP . DS . "lang");
 			define ("VIEW", APP . DS . "view");
 			define ("CON", APP . DS . "controller");
 			define ("MOD", APP . DS . "model");
-	
+
 			// Data Directories
 			define ("CACHE", DAT . DS . "cache");
 			define ("CONF", DAT . DS . "config");
-			define ("LANG", DAT . DS . "lang");
 			define ("TMP", DAT . DS . "temp");
 
 			if (isset($_SERVER["HTTP_X_REQUESTED_WITH"]) && strtolower($_SERVER["HTTP_X_REQUESTED_WITH"]) == "xmlhttprequest") define("AJAX", true); // AJAX
