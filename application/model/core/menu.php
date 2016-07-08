@@ -167,7 +167,7 @@ class Menu extends AppModel{
 			if ($query === false) {
 				$response->code = 1;
 				$response->type = "danger";
-				$response->message = $this->_lang->get("main", "internalError", [$this->_db->getError()]);
+				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
 			} else {
 				$this->_cache->remove("core.menu");
 				$response->type = "success";
@@ -211,7 +211,7 @@ class Menu extends AppModel{
 			if ($query === false) {
 				$response->code = 1;
 				$response->type = "danger";
-				$response->message = $this->_lang->get("main", "internalError", [$this->_db->getError()]);
+				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
 			} else {
 				$this->_cache->remove("core.menu");
 				$response->type = "success";

@@ -22,6 +22,7 @@ namespace controller\backend;
 
 use AppController;
 
+use model\core\Backup;
 use model\core\Main;
 use model\core\Statistics;
 use model\core\Settings;
@@ -39,6 +40,7 @@ class Core extends AppController {
 		"packages/install" => "packages_install",
 		"packages/remove/([a-z]+)" => "packages_remove",
 		"packages" => null,
+		"backup" => null,
 		"menu/list/(backend)" => "menu_list",
 		"menu/list/(frontend)" => "menu_list",
 		"menu" => "menu_list",
@@ -110,6 +112,24 @@ class Core extends AppController {
 		}
 
 		$this->_view->responseRender($model->removePage($args[0]));
+	}
+
+	public function action_backup() {
+		$model = new Backup();
+
+		// Make database backup
+		if (isset($_POST["make_database"])) {
+			$result = $model->makeDatabase();
+			$this->_view->alert($result->type, $result->message);
+		}
+
+		// Restore database backup
+		if (isset($_POST["restore_database"])) {
+			$result = $model->restoreDatabase($_POST["restore_database"]);
+			$this->_view->alert($result->type, $result->message);
+		}
+
+		$this->_view->responseRender($model->getPage());
 	}
 	
 	public function action_menu_list($args) {

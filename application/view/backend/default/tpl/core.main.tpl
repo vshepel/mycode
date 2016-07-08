@@ -13,7 +13,7 @@
 <hr>
 
 <div class="row placeholders">
-	[if has-permission:core.statistics]<div class="col-xs-12 col-sm-4 placeholder"><div class="media">
+	[if has-permission:core.statistics]<div class="col-xs-12 col-sm-4 placeholder"><div class="media module-row">
 		<a class="media-left" href="{statistics-link}">
 			<img class="module-row-icon" src="{PATH}images/icons/dashboard.svg" alt="[b:core:statistics.moduleName]">
 		</a>
@@ -23,7 +23,7 @@
 		</div>
 	</div></div>[/if]
 
-	[if has-permission:core.settings]<div class="col-xs-12 col-sm-4 placeholder"><div class="media">
+	[if has-permission:core.settings]<div class="col-xs-12 col-sm-4 placeholder"><div class="media module-row">
 		<a class="media-left" href="{settings-link}">
 			<img class="module-row-icon" src="{PATH}images/icons/cog.svg" alt="[b:core:settings.moduleName]">
 		</a>
@@ -33,7 +33,7 @@
 		</div>
 	</div></div>[/if]
 
-	[if has-permission:core.packages]<div class="col-xs-12 col-sm-4 placeholder"><div class="media">
+	[if has-permission:core.packages]<div class="col-xs-12 col-sm-4 placeholder"><div class="media module-row">
 		<a class="media-left" href="{packages-link}">
 			<img class="module-row-icon" src="{PATH}images/icons/brick.svg" alt="[b:core:packages.moduleName]">
 		</a>
@@ -42,8 +42,18 @@
 			[b:core:packages.moduleDescription]
 		</div>
 	</div></div>[/if]
+
+	[if has-permission:core.backup]<div class="col-xs-12 col-sm-4 placeholder"><div class="media module-row">
+		<a class="media-left" href="{backup-link}">
+			<img class="module-row-icon" src="{PATH}images/icons/database.svg" alt="[b:core:backup.moduleName]">
+		</a>
+		<div class="media-body">
+			<h4 class="media-heading"><a href="{backup-link}">[b:core:backup.moduleName]</a></h4>
+			[b:core:backup.moduleDescription]
+		</div>
+	</div></div>[/if]
 	
-	[if has-permission:core.menu]<div class="col-xs-12 col-sm-4 placeholder"><div class="media">
+	[if has-permission:core.menu]<div class="col-xs-12 col-sm-4 placeholder"><div class="media module-row">
 		<a class="media-left" href="{menu-link}">
 			<img class="module-row-icon" src="{PATH}images/icons/layers.svg" alt="[b:core:menu.moduleName]">
 		</a>
@@ -53,7 +63,7 @@
 		</div>
 	</div></div>[/if]
 	
-	[if has-permission:core.media]<div class="col-xs-12 col-sm-4 placeholder"><div class="media">
+	[if has-permission:core.media]<div class="col-xs-12 col-sm-4 placeholder"><div class="media module-row">
 		<a class="media-left" href="{media-link}">
 			<img class="module-row-icon" src="{PATH}images/icons/file-picture.svg" alt="[b:core:media.moduleName]">
 		</a>
@@ -66,16 +76,20 @@
 <hr>
 
 [foreach packages][if has-permission:{name}]
-<div class="media">
+<div class="media module-row">
 	<a class="media-left" href="{link}"><img class="module-row-icon" src="{icon-link}" alt="{title}"></a>
 	<div class="media-body">
 		<h4 class="media-heading"><a href="{link}">{title}</a></h4>
 		{description}
 	</div>
-</div><br>
+</div>
 [/if][/foreach]
 
 <style>
+	.module-row {
+		margin: 10px 0;
+	}
+
 	.module-row-icon {
 		width: 48px;
 	}

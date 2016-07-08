@@ -65,6 +65,7 @@ class Main extends AppModel {
 			"statistics-link" => ADMIN_PATH . "core/statistics",
 			"settings-link" => ADMIN_PATH . "core/settings",
 			"packages-link" => ADMIN_PATH . "core/packages",
+			"backup-link" => ADMIN_PATH . "core/backup",
 			"menu-link" => ADMIN_PATH . "core/menu",
 			"media-link" => ADMIN_PATH . "core/media",
 			
