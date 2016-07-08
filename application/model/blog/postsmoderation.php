@@ -196,7 +196,7 @@ class PostsModeration extends AppModel {
 			// Send notification
 			$this->_registry
 				->get("Notifications")
-				->add($row["author"], "success", $row["title"], "[blog:notification.moderation.good.body]",
+				->add($row["author"], "success", "[blog:notification.moderation.good.title]", $row["title"],
 					Posts::getPostLink($post, $row["url"])
 				);
 
@@ -225,7 +225,7 @@ class PostsModeration extends AppModel {
 		if (isset($post[0])) {
 			$this->_registry
 				->get("Notifications")
-				->add($post[0]["author"], "danger", $post[0]["title"], "[blog:notification.moderation.bad.body]");
+				->add($post[0]["author"], "danger", "[blog:notification.moderation.bad.title]", $post[0]["title"]);
 
 			$this->remove($id);
 		}
