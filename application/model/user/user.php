@@ -348,7 +348,7 @@ class User {
 	 * @return string
 	 */
 	public function replaceProfileLink($string) {
-		return preg_replace("#\\@([A-Za-z0-9._-]+)#i", "<a href=\"" . SITE_PATH . "user/profile/$1\">@$1</a>", $string);
+		return preg_replace("/\\B\\@([A-Za-z0-9._-]+)\\b/", "<a href=\"" . SITE_PATH . "user/profile/$1\">@$1</a>", $string);
 	}
 
 	// User fields
