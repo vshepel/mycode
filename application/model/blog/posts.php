@@ -105,6 +105,8 @@ class Posts extends AppModel {
 				$text = str_replace("[separator]", "", $text);
 			}
 
+			$text = Registry::getInstance()->get("User")->replaceProfileLink($text);
+
 			return $text;
 		} else {
 			$editor = Registry::getInstance()->get("Config")->get("blog", "posts.editor", "BBCode");

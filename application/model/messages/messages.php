@@ -210,12 +210,15 @@ class Messages extends AppModel {
 				$response->code = 0;
 				$response->view = "messages.read";
 
+				$message = Strings::lineWrap($row["message"]);
+				$message = $this->_user->replaceProfileLink($message);
+
 				// Tags
 				$response->tags = [
 					"id" => $row["id"],
 					"url" => SITE_PATH . "messages/" . $row["id"],
 					"topic" => $row["topic"],
-					"message" => Strings::lineWrap($row["message"]),
+					"message" => $message,
 							
 					"from-id" => $this->_user->getUserLogin($row["from"]),
 					"from-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["from"]),
@@ -350,7 +353,7 @@ class Messages extends AppModel {
 			$response->type = "danger";
 			$response->message = $this->_lang->get("messages", "send.tooShort");
 		} elseif ($length > $this->_config->get("messages", "send.maxLength", 300)) {
-			$response->code = 5;
+			$response->code = 6;
 			$response->type = "danger";
 			$response->message = $this->_lang->get("messages", "send.tooLong");
 		} else {

@@ -342,6 +342,15 @@ class User {
 			return PATH . "upload/avatar/" . ($original ? "original_" : "") . $avatar;
 	}
 
+	/**
+	 * Replace profile link in string
+	 * @param string $string
+	 * @return string
+	 */
+	public function replaceProfileLink($string) {
+		return preg_replace("#\\@([A-Za-z0-9._-]+)#i", "<a href=\"" . SITE_PATH . "user/profile/$1\">@$1</a>", $string);
+	}
+
 	// User fields
 
 	/**

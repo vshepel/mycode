@@ -135,7 +135,7 @@ class Comments extends AppModel {
 			if (isset($reply_row[0])) {
 				$reply_user = $reply_row[0]["user"];
 				$login = $this->_user->getUserLogin($reply_user);
-				$comment = "<a href=\"#comment_{$reply}\">@{$login}</a>, " . $comment;
+				$comment = "@{$login}, " . $comment;
 			}
 
 			$query = $this->_db
@@ -216,7 +216,7 @@ class Comments extends AppModel {
 
 			$array = $this->_db
 				->select(array(
-					"id", "user", "comment", "comment",
+					"id", "user", "comment", "comment", "reply",
 					array ( "UNIX_TIMESTAMP(`timestamp`)", "timestamp", false )
 				))
 				->from(DBPREFIX . "blog_comments")
@@ -234,6 +234,10 @@ class Comments extends AppModel {
 
 				foreach ($array as $row) {
 					$online = $this->_user->checkOnline($this->_user->getUser($row["user"], "active"));
+
+					$message = Strings::lineWrap($row["comment"]);
+					$message = $this->_user->replaceProfileLink($message);
+
 					$rows[] = [
 						"id" => $row["id"],
 
@@ -245,7 +249,8 @@ class Comments extends AppModel {
 						"date" => $this->_core->getDate($row["timestamp"]),
 						"time" => $this->_core->getTime($row["timestamp"]),
 
-						"comment-message" => Strings::lineWrap($row["comment"]),
+						"comment-message" => $message,
+						"reply" => $row["reply"],
 
 						"online" => $online,
 						"offline" => !$online,
