@@ -64,7 +64,7 @@ class Settings extends AppModel {
 				"posts-editors" => $editors,
 				"posts-rating-active" => $this->_config->get("blog", "posts.rating_active", true),
 				"posts-advanced-views" => $this->_config->get("blog", "posts.advanced_views", true),
-				"posts-switching" => $this->_config->get("blog", "posts.posts_switching", true),
+				"posts-switching" => $this->_config->get("blog", "posts.switching", true),
 				"posts-read-mark" => $this->_config->get("blog", "posts.read_mark", true),
 				"posts-related" => $this->_config->get("blog", "posts.related", true),
 				"posts-only-local-language" => $this->_config->get("blog", "posts.only_local_language", false),

@@ -556,7 +556,7 @@ class Posts extends AppModel {
 			$next = "";
 			$nextTitle = "";
 
-			if ($this->_config->get("blog", "posts.posts_switching", true)) {
+			if ($this->_config->get("blog", "posts.switching", true)) {
 				// Previous post link
 				$query = $this->_db
 					->select(array(
