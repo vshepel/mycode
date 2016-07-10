@@ -72,6 +72,7 @@ class Categories extends AppModel {
 					->result_array();
 
 				$this->_categories[0] = [
+					"id" => 0,
 					"name"=> $this->_lang->get("blog", "defaultCategory"),
 					"num" => isset($posts[0][0]) ? $posts[0][0] : 0
 				];
@@ -85,6 +86,7 @@ class Categories extends AppModel {
 					->result_array();
 
 				$this->_categories[$row["id"]] = [
+					"id" => $row["id"],
 			   		"name" => $row["name"],
 					"num" => isset($posts[0][0]) ? $posts[0][0] : 0
 				];

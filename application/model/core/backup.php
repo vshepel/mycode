@@ -25,7 +25,7 @@ use Response;
 
 class Backup extends AppModel {
 	/**
-	 * Get statistics page
+	 * Get page
 	 * @return Response
 	 */
 	public function getPage() {
@@ -58,6 +58,10 @@ class Backup extends AppModel {
 		return $response;
 	}
 
+	/**
+	 * Make database backup
+	 * @return Response
+	 */
 	public function makeDatabase() {
 		// Access denied
 		if (!$this->_user->hasPermission("core.backup")) {
@@ -71,7 +75,7 @@ class Backup extends AppModel {
 		if ($result === false) {
 			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 		}
-		
+
 		$tables = [];
 		foreach($result as $row) {
 			$tables[] = $row[0];
@@ -118,9 +122,9 @@ class Backup extends AppModel {
 			}
 
 			if (count($result) > 0) {
-				$text = "\nINSERT INTO `" . $item . "` VALUES\n";
+				fwrite($fp, "\nINSERT INTO `" . $item . "` VALUES\n");
 
-				$values = [];
+				$first = true;
 
 				foreach ($result as $row) {
 					$val = [];
@@ -131,13 +135,16 @@ class Backup extends AppModel {
 						}
 					}
 
-					$values[] = "(" . implode(", ", $val) . ")";
+					if ($first) {
+						fwrite($fp, "\n(" . implode(", ", $val) . ")");
+						$first = false;
+					} else {
+						fwrite($fp, ",\n(" . implode(", ", $val) . ")");
+					}
 				}
 
-				$text .= implode(",\n", $values) . ";\n";
+				fwrite($fp, ";\n");
 			}
-
-			fwrite($fp,$text);
 		}
 
 		fclose($fp);
@@ -145,6 +152,11 @@ class Backup extends AppModel {
 		return new Response(0, "success", $this->_lang->get("core", "backup.database.make.success"));
 	}
 
+	/**
+	 * Restore database backup
+	 * @param string $name Dump name
+	 * @return Response
+	 */
 	public function restoreDatabase($name) {
 		// Access denied
 		if (!$this->_user->hasPermission("core.backup")) {
@@ -164,6 +176,8 @@ class Backup extends AppModel {
 					return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 				}
 			}
+
+			$this->_cache->clear();
 
 			return new Response(0, "success", $this->_lang->get("core", "backup.database.restore.success"));
 		} else {

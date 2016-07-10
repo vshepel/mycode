@@ -114,7 +114,7 @@ HTML;
 	 */
 	private function _autoload() {
 		spl_autoload_register(function ($className) {
-			$classArray = explode("\\", strtolower($className));
+			$classArray = explode("\\", $className);
 			$classFile = false;
 
 			// Search file
@@ -133,18 +133,14 @@ HTML;
 
 			// Require file
 			if ($classFile !== false) {
-				require_once($classFile);
+				require $classFile;
 
 				if (class_exists($className) || interface_exists($className)) {
 					return true;
-				} else {
-					echo "<b>Class {$className} not exist in file {$classFile}</b><pre>";
-					debug_print_backtrace();
-					echo "</pre>";
-					exit;
 				}
-			} else
-				throw new Exception("Class not found: " . $className);
+			}
+
+			return false;
 		});
 	}
 
