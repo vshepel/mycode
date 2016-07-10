@@ -43,8 +43,16 @@ class Backup extends AppModel {
 		$database_backups = [];
 
 		foreach (array_reverse(glob(ROOT . DS . "backup" . DS . "database" . DS . "*.sql")) as $file) {
+			$name = str_replace(ROOT . DS . "backup" . DS . "database" . DS, "", $file);
+
+			$name_array = explode("_", $name);
+			$date = strtotime(str_replace(".sql", "", end($name_array)));
+			$date = $this->_core->getDate($date) . " " . $this->_core->getTime($date);
+
+			$name .= " ({$date})";
+
 			$database_backups[] = [
-				"name" => str_replace(ROOT . DS . "backup" . DS . "database" . DS, "", $file)
+				"name" => $name
 			];
 		}
 		
