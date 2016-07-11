@@ -121,6 +121,8 @@ class Cache {
 	 * Clear cache
 	 */
 	public function clear() {
-		Files::delete($this->_dir, false);
+		if ($this->_enable) {
+			Files::delete($this->_dir, false);
+		}
 	}
 }

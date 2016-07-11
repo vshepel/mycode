@@ -76,6 +76,8 @@ class Backup extends AppModel {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
 
+		$start_time = microtime(true);
+
 		// Get tables
 		$result = $this->_db->query("SHOW TABLES")->result_array();
 
@@ -129,8 +131,7 @@ class Backup extends AppModel {
 			}
 
 			if (count($result) > 0) {
-				fwrite($fp, "\nINSERT INTO `" . $item . "` VALUES\n");
-
+				$count = 0;
 				$first = true;
 
 				foreach ($result as $row) {
@@ -142,21 +143,31 @@ class Backup extends AppModel {
 						}
 					}
 
+					$count++;
+
 					if ($first) {
-						fwrite($fp, "\n(" . implode(", ", $val) . ")");
+						fwrite($fp, "\nINSERT INTO `" . $item . "` VALUES\n(" . implode(", ", $val) . ")");
 						$first = false;
 					} else {
 						fwrite($fp, ",\n(" . implode(", ", $val) . ")");
+
+						if ($count >= 100) {
+							fwrite($fp, ";\n");
+							$count = 0;
+							$first = true;
+						}
 					}
 				}
 
-				fwrite($fp, ";\n");
+				if (!$first) {
+					fwrite($fp, ";\n");
+				}
 			}
 		}
 
 		fclose($fp);
 
-		return new Response(0, "success", $this->_lang->get("core", "backup.database.make.success"));
+		return new Response(0, "success", $this->_lang->get("core", "backup.database.make.success", [microtime(true) - $start_time]));
 	}
 
 	/**
@@ -170,6 +181,8 @@ class Backup extends AppModel {
 			$this->_core->addBreadcrumbs($this->_lang->get("core", "accessDenied"));
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
+
+		$start_time = microtime(true);
 
 		$name = str_replace(["/", "\\"], "", $name);
 		$fname = ROOT . DS . "backup" . DS . "database" . DS . $name;
@@ -186,7 +199,7 @@ class Backup extends AppModel {
 
 			$this->_cache->clear();
 
-			return new Response(0, "success", $this->_lang->get("core", "backup.database.restore.success"));
+			return new Response(0, "success", $this->_lang->get("core", "backup.database.restore.success", [microtime(true) - $start_time]));
 		} else {
 			return new Response(2, "danger", $this->_lang->get("core", "backup.database.restore.badFile"));
 		}

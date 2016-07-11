@@ -47,13 +47,22 @@ class Lang {
 	private $_langs = [];
 
 	/**
+	 * Filter lang name
+	 * @param string $name
+	 * @return string
+	 */
+	public function filterName($name) {
+		return str_replace(["../", "..\\"], "", $name);
+	}
+
+	/**
 	 * Constructor
 	 * @param string $dir Lang directory
 	 * @param string $lang Lang name
 	 */
 	public function __construct($dir, $lang = "") {
-		$this->_dir = str_replace(array ("../", "..\\"), "", $dir);
-		$this->_name = $lang;
+		$this->_dir = $this->filterName($dir);
+		$this->_name = $this->filterName($lang);
 	}
 
 	/**
@@ -63,7 +72,7 @@ class Lang {
 	 */
 	public function setLang($name) {
 		if ($this->available($name)) {
-			$this->_name = $name;
+			$this->_name = $this->filterName($name);
 			$this->_lang = array();
 			return true;
 		} else
@@ -84,7 +93,7 @@ class Lang {
 	 * @return bool
 	 */
 	public function available($name) {
-		return is_dir(LANG . DS . $name);
+		return is_dir(LANG . DS . $this->filterName($name));
 	}
 	
 	/**
