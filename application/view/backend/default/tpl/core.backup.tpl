@@ -28,7 +28,7 @@
 
 		<form method="post">
 			<select size="7" style="width:100%" name="restore_database">[foreach database-backups]
-				<option value="{name}">{name}</option>
+				<option value="{name}">{name} ({date})</option>
 			[/foreach]</select><br><br>
 
 			<button type="submit" class="btn btn-danger">

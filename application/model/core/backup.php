@@ -49,10 +49,9 @@ class Backup extends AppModel {
 			$date = strtotime(str_replace(".sql", "", end($name_array)));
 			$date = $this->_core->getDate($date) . " " . $this->_core->getTime($date);
 
-			$name .= " ({$date})";
-
 			$database_backups[] = [
-				"name" => $name
+				"name" => $name,
+				"date" => $date
 			];
 		}
 		
