@@ -2,8 +2,10 @@
 <html lang="[b:core:lang.fname]">
 <head>
 	{meta}
-	<title>[if MODACT="blog/list"]MYCODE - Make it happen[/if][if MODACT!="blog/list"]{title}[/if]</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	<title>[if MODACT="blog/list"]mycode - make it happen[/if][if MODACT!="blog/list"]{title}[/if]</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+
+	<meta name='yandex-verification' content='5ee21bdee54d526a' />
 
 	{link}
 	<link rel="icon" type="image/x-icon" href="{VIEW}img/favicon.png" />
@@ -181,6 +183,36 @@
 </div>
 
 <script src="{VIEW}js/script.min.js"></script>
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function (d, w, c) {
+        (w[c] = w[c] || []).push(function() {
+            try {
+                w.yaCounter34494495 = new Ya.Metrika({
+                    id:34494495,
+                    clickmap:true,
+                    trackLinks:true,
+                    accurateTrackBounce:true,
+                    webvisor:true
+                });
+            } catch(e) { }
+        });
+
+        var n = d.getElementsByTagName("script")[0],
+            s = d.createElement("script"),
+            f = function () { n.parentNode.insertBefore(s, n); };
+        s.type = "text/javascript";
+        s.async = true;
+        s.src = "https://mc.yandex.ru/metrika/watch.js";
+
+        if (w.opera == "[object Opera]") {
+            d.addEventListener("DOMContentLoaded", f, false);
+        } else { f(); }
+    })(document, window, "yandex_metrika_callbacks");
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/34494495" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
 
 </body>
 </html>
