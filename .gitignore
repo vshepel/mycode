@@ -1,3 +1,7 @@
 # IDE
 .idea
 nbproject
+
+# Data
+/data/*
+!/data/meta/*

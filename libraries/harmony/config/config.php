@@ -22,6 +22,7 @@ namespace harmony\config;
 
 use Exception;
 use harmony\arrays\ArrayConverters;
+use harmony\files\Files;
 
 class Config {
 	/**
@@ -118,6 +119,11 @@ class Config {
 		
 		$file = $this->_dir . DS . $name . ".php";
 		$config = ArrayConverters::arrayToFile($this->_config[$name], true);
+
+		// Make dir if not exists
+		if (!file_exists($this->_dir)) {
+			Files::mkdir($this->_dir);
+		}
 
 		// File put contents
 		if (!@file_put_contents($file, $config)) {

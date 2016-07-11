@@ -79,7 +79,6 @@ class Bootstrap {
 			// Data Directories
 			define ("CACHE", DAT . DS . "cache");
 			define ("CONF", DAT . DS . "config");
-			define ("TMP", DAT . DS . "temp");
 
 			if (isset($_SERVER["HTTP_X_REQUESTED_WITH"]) && strtolower($_SERVER["HTTP_X_REQUESTED_WITH"]) == "xmlhttprequest") define("AJAX", true); // AJAX
 			if (isset($this->_args["path"])) $this->_path = array_merge($this->_path, explode(":", $this->_args["path"])); // PATH

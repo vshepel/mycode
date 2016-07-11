@@ -238,7 +238,7 @@ class Packages extends AppModel {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
 
-		$meta = TMP . DS . "core.packages.install" . DS . "files" . DS . "install.ini";
+		$meta = DAT . DS . "core.packages.install" . DS . "files" . DS . "install.ini";
 
 		if (file_exists($meta)) {
 			$response->view = "core.packages.install.info";
@@ -331,7 +331,7 @@ class Packages extends AppModel {
 		$this->clearTemp();
 
 		// Upload file
-		$files = new UploadFiles(TMP);
+		$files = new UploadFiles(DAT);
 		$upload = $files->upload($file, "core.packages.install", "package.zip");
 
 		if ($upload->code != 0) {
@@ -348,10 +348,10 @@ class Packages extends AppModel {
 	 */
 	public function extract($file = null) {
 		// Set default file path
-		if ($file === null) $file = TMP . DS . "core.packages.install" . DS . "package.zip";
+		if ($file === null) $file = DAT . DS . "core.packages.install" . DS . "package.zip";
 
 		// Exctract file
-		$dir = TMP . DS . "core.packages.install" . DS . "files";
+		$dir = DAT . DS . "core.packages.install" . DS . "files";
 		Files::delete($dir); // Delete old files
 		Files::mkdir($dir);
 
@@ -374,7 +374,7 @@ class Packages extends AppModel {
 	 * @return Response
 	 */
 	public function install($file = null) {
-		$dir = TMP . DS . "core.packages.install" . DS . "files";
+		$dir = DAT . DS . "core.packages.install" . DS . "files";
 
 		// Extract file
 		if ($file != null) {
@@ -517,7 +517,7 @@ class Packages extends AppModel {
 	 * Clear tempurary files
 	 */
 	public function clearTemp() {
-		Files::delete(TMP . DS . "core.packages.install");
+		Files::delete(DAT . DS . "core.packages.install");
 	}
 
 	/**
