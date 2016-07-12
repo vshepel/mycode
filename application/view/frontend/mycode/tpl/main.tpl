@@ -45,9 +45,11 @@
 	<div class="container">
 		<ul>
 			<li class="logotype">
-				<a href="/">
+				<!--noindex-->
+				<a href="/" rel="nofollow">
 					M<span class="short">ycode.</span><span class="project_name">P<span class="short">apers</span></span>
 				</a>
+				<!--/noindex-->
 			</li>
 			<li class="search">
 				<i class="mdi mdi-close"></i>
@@ -60,21 +62,25 @@
 					[logged]
 					[if has-permission:blog.add]
 					<li class="write">
-						<a class="btn-primary" href="{SITE_PATH}blog/add">[f:main:panel.write]</a>
+						<!--noindex--><a class="btn-primary" href="{SITE_PATH}blog/add" rel="nofollow">[f:main:panel.write]</a><!--/noindex-->
 					</li>
 					[/if]
 					<li class="search_icon links"><a href="#"><i class="mdi mdi-magnify"></i></a></li>
 					<li class="write_icon links"[if has-permission:blog.add]><a href="{SITE_PATH}blog/add"><i class="mdi mdi-pencil"></i></a></li>[/if]
 					<li id="notification-open" class="links">
-						<a href="#">
+						<!--noindex-->
+						<a href="#" rel="nofollow">
 							<i class="mdi mdi-bell">[new-notifications]<span class="new"></span>[/new-notifications]</i>
 						</a>
+						<!--/noindex-->
 					</li>
-					<li class="links"><a href="{profile-link}"><i class="mdi mdi-account"></i></a></li>
+					<li class="links"><!--noindex--><a href="{profile-link}" rel="nofollow"><i class="mdi mdi-account"></i></a><!--/noindex--></li>
 					[/logged]
 					[not-logged]
 					<li>
-						<a class="btn-primary" href="{auth-link}">[f:main:panel.login]</a>
+						<!--noindex-->
+						<a class="btn-primary" href="{auth-link}" rel="nofollow">[f:main:panel.login]</a>
+						<!--/noindex-->
 					</li>
 					[/not-logged]
 				</ul>
@@ -175,9 +181,9 @@
     		<div class="adv_mockup"></div>
     	</section>
     	<footer>
-    		<a href="/user/list">[f:main:footer.users]</a>
-    		<a href="#">[f:main:footer.terms]</a>
-    		<a href="#">[f:main:footer.about]</a>
+    		<!--noindex--><a href="/user/list" rel="nofollow">[f:main:footer.users]</a><!--/noindex-->
+    		<!--noindex--><a href="#" rel="nofollow">[f:main:footer.terms]</a><!--/noindex-->
+    		<!--noindex--><a href="#" rel="nofollow">[f:main:footer.about]</a><!--/noindex-->
     	</footer>
 	</aside>
 </div>
