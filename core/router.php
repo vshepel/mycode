@@ -151,6 +151,12 @@ class Router {
 	 */
 	public function start() {
 		try {
+			// Site disable
+			if ($this->_config->get("site", "disabled", false) && !$this->_user->hasPermission("admin")) {
+				$this->page("disabled", "HTTP/1.1 503 Service Temporarily Unavailable");
+				return;
+			}
+			
 			$this->_routes = array_slice(explode("/", $this->_request), 1);
 			$type = ($this->get(0) == "admin") ? BACKEND : FRONTEND;
 
@@ -227,17 +233,19 @@ class Router {
 				throw new NotFoundException();
 			}
 		} catch (NotFoundException $e) {
-			$this->page_404();
+			$this->page("404", "HTTP/1.1 404 Not Found");
 		}
 	}
 
 	/**
-	 * Render 404 page
+	 * Render page
+	 * @param string $name Page name
+	 * @throws Exception
 	 */
-	public function page_404() {
-		$this->_type = "frontend";
-		header("HTTP/1.1 404 Not Found");
-		Registry::getInstance()->get("View")->render(null, "404");
+	public function page($name, $header) {
+		$this->_type = FRONTEND;
+		header($header);
+		Registry::getInstance()->get("View")->render(null, "main.page." . $name);
 		exit;
 	}
 }

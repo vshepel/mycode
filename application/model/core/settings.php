@@ -100,7 +100,8 @@ class Settings extends AppModel {
 					"description" => $this->_config->get("site", "description"),
 					"keywords" => $this->_config->get("site", "keywords"),
 					"charset" => $this->_config->get("site", "charset"),
-					"language" => $languages
+					"language" => $languages,
+					"disabled" => $this->_config->get("site", "disabled", false),
 				];
 			break;
 
@@ -226,7 +227,8 @@ class Settings extends AppModel {
 							"description" => $values["description"],
 							"keywords" => $values["keywords"],
 							"charset" => $values["charset"],
-							"language" => $values["language"]
+							"language" => $values["language"],
+							"disabled" => isset($values["disabled"])
 						]);
 							
 						$response = new Response(0, "success", $this->_lang->get("core", "settings.success"));

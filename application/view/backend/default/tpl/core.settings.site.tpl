@@ -51,6 +51,13 @@
 	</div>
 
 	<div class="form-group">
+		<label class="control-label col-sm-3">[f:core:settings.site.disabled]</label>
+		<div class="col-sm-9">
+			<input class="form-control" type="checkbox" name="disabled"[disabled] checked[/disabled]>
+		</div>
+	</div>
+
+	<div class="form-group">
 		<label class="control-label col-sm-3"></label>
 		<div class="col-sm-9">
 			<button class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> [f:core:settings.submit]</button>
