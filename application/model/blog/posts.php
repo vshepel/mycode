@@ -1293,7 +1293,6 @@ class Posts extends AppModel {
 	 * @return string
 	 */
 	public function getPopular() {
-		$list = "";
 		$array = $this->_db
 			->select(["id", "title", "url", "rating"])
 			->from(DBPREFIX . "blog_posts")
@@ -1302,21 +1301,25 @@ class Posts extends AppModel {
 			->limit([0, $this->_config->get("blog", "popular.count", 10)])
 			->result_array();
 
-		if (is_array($array)) {
-			foreach($array as $row) {
-				$link = Posts::getPostLink($row["id"], $row["url"]);
-				$list .= $this->_view->parse("blog.tag.popular", [
-					"link" => $link,
-					"id" => $row["id"],
-					"rating" => $row["rating"],
-					"title" => $row["title"]
-				]);
-			}
-		} else {
-			$list = $this->_db->getError();
+		if (!is_array($array)) {
+			return $this->_db->getError();
 		}
 
-		return $list;
+		$rows = [];
+
+		foreach($array as $row) {
+			$link = Posts::getPostLink($row["id"], $row["url"]);
+			$rows[] = [
+				"link" => $link,
+				"id" => $row["id"],
+				"rating" => $row["rating"],
+				"title" => $row["title"]
+			];
+		}
+
+		return $this->_view->parse("blog.tag.popular", [
+			"rows" => $rows
+		]);
 	}
 
 	/**
@@ -1324,50 +1327,90 @@ class Posts extends AppModel {
 	 * @return string
 	 */
 	public function getArchive() {
-		$list = "";
 		$cache_name = "archive." . $this->_lang->getLang();
 		$cache = $this->_cache->get("blog", $cache_name);
 
-		if ($cache === false) {
-			$this->_db
-				->select([
-					["DATE_FORMAT(timestamp,'%m-%Y')", "date", false],
-					["count(`id`)", "num", false]
-				])
-				->from(DBPREFIX . "blog_posts")
-				->where("show", "=", 1);
+		if ($cache !== false) {
+			return $cache;
+		}
 
-			// Only local language
-			if ($this->_config->get("blog", "posts.only_local_language", false)) {
-				$this->_db->and_where("lang", "=", $this->_lang->getLang());
-			}
+		$this->_db
+			->select([
+				["DATE_FORMAT(timestamp,'%m-%Y')", "date", false],
+				["count(`id`)", "num", false]
+			])
+			->from(DBPREFIX . "blog_posts")
+			->where("show", "=", 1);
 
-			$array = $this->_db
-				->group_by("date")
-				->order_by("date")->desc()
-				->result_array();
+		// Only local language
+		if ($this->_config->get("blog", "posts.only_local_language", false)) {
+			$this->_db->and_where("lang", "=", $this->_lang->getLang());
+		}
 
-			if (is_array($array)) {
-				foreach($array as $row) {
-					$date = explode("-", $row["date"]);
-					$link = SITE_PATH . "blog/archive/{$date[1]}/{$date[0]}";
-					$date[0] = $this->_lang->get("core", "month." . intval($date[0]));
+		$array = $this->_db
+			->group_by("date")
+			->order_by("date")->desc()
+			->result_array();
 
-					$list .= $this->_view->parse("blog.tag.archive", [
-						"link" => $link,
-						"num" => $row["num"],
-						"name" => $date[0] . " " . $date[1],
-					]);
-				}
+		if (!is_array($array)) {
+			return $this->_db->getError();
+		}
 
-				$this->_cache->push("blog", $cache_name, $list);
-			} else {
-				$list = $this->_db->getError();
-			}
-		} else
-			$list = $cache;
+		$rows = [];
+
+		foreach($array as $row) {
+			$date = explode("-", $row["date"]);
+			$link = SITE_PATH . "blog/archive/{$date[1]}/{$date[0]}";
+			$date[0] = $this->_lang->get("core", "month." . intval($date[0]));
+
+			$rows[] = [
+				"link" => $link,
+				"num" => $row["num"],
+				"name" => $date[0] . " " . $date[1],
+			];
+		}
+
+		$list = $this->_view->parse("blog.tag.archive", [
+			"rows" => $rows
+		]);
+
+		$this->_cache->push("blog", $cache_name, $list);
 
 		return $list;
+	}
+
+	/**
+	 * Get last posts list
+	 * @return string
+	 */
+	public function getLast() {
+		$array = $this->_db
+			->select(["id", "title", "url", "rating"])
+			->from(DBPREFIX . "blog_posts")
+			->where("show", "=", 1)
+			->order_by("id")->desc()
+			->limit([0, $this->_config->get("blog", "last.count", 10)])
+			->result_array();
+
+		if (!is_array($array)) {
+			return $this->_db->getError();
+		}
+
+		$rows = [];
+
+		foreach($array as $row) {
+			$link = Posts::getPostLink($row["id"], $row["url"]);
+			$rows[] = [
+				"link" => $link,
+				"id" => $row["id"],
+				"rating" => $row["rating"],
+				"title" => $row["title"]
+			];
+		}
+
+		return $this->_view->parse("blog.tag.last", [
+			"rows" => $rows
+		]);
 	}
 
 	/**
@@ -1565,7 +1608,9 @@ class Posts extends AppModel {
 	 */
 	public function getTagsCloud() {
 		$cache = $this->_cache->get("blog", "tagscloud");
-		if ($cache !== false) return $cache;
+		if ($cache !== false) {
+			return $cache;
+		}
 
 		$tags = $this->getTagsArray();
 
@@ -1600,14 +1645,18 @@ class Posts extends AppModel {
 
 		$range = $max-$min;
 		$sizes = ["xsmall", "small", "medium", "large", "xlarge"];
+		$rows = [];
 
 		foreach ($tags as $tag) {
 			$tag["size"] = $sizes[intval(($tag["count"] - $min) / ($range) * 4)];
 			$tag["link"] = SITE_PATH . "blog/tag/" . urlencode($tag["name"]);
-			$this->_view->add("blog.tag.tagscloud", $tag);
+			$rows[] = $tag;
 		}
 
-		$result = $this->_view->get("blog.tag.tagscloud");
+		$result = $this->_view->parse("blog.tag.tagscloud", [
+			"rows" => $rows
+		]);
+
 		$this->_cache->push("blog", "tagscloud", $result);
 
 		return $result;

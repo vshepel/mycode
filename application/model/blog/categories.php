@@ -199,20 +199,23 @@ class Categories extends AppModel {
 	 */
 	public function getList() {
 		$notEmptyCategories = $this->_config->get("blog", "main.not_empty_categories", false);
+		$rows = [];
 
 		foreach ($this->get() as $id => $row) {
 			if (!($notEmptyCategories && $row["num"] <= 0)) {
-				$this->_view->add("blog.tag.category", [
+				$rows[] = [
 					"id" => $id,
 					"name" => $row["name"],
 					"link" => SITE_PATH . "blog/cat/" . $id,
 					"num" => $row["num"],
 					"active" => ($this->activeCategory == $id)
-				]);
+				];
 			}
 		}
 
-		return $this->_view->get("blog.tag.category");
+		return $this->_view->parse("blog.tag.category", [
+			"rows" => $rows
+		]);
 	}
 
 	/**

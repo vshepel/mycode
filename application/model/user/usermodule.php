@@ -38,14 +38,9 @@ class UserModule extends AppModel {
 	 * @throws NotFoundException
 	 */
 	public function profilePage($user) {
-		$response = new Response();
+		$this->_core->addBreadcrumbs($this->_lang->get("user", "list.moduleName"), "user/list");
 
-		$this->_core
-			->addBreadcrumbs($this->_lang->get("user", "list.moduleName"), "user/list");
-
-		/**
-		 * Database query
-		 */
+		// Database query
 		$array = $this->_db
 			->select(array(
 				"id" ,"login", "active", "name", "group", "avatar",
@@ -55,94 +50,76 @@ class UserModule extends AppModel {
 			->where("login", "=", $user)
 			->result_array();
 
-		/**
-		 * Database error
-		 */
+		// Database error
 		if ($array === false) {
-			$title = $this->_lang->get("core", "internalError");
-
-			$response->code = 1;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
+			$this->_core->addBreadcrumbs($this->_lang->get("core", "internalError"));
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 		}
 
-		/**
-		 * User not found
-		 */
-		elseif (!isset($array[0])) {
+		// User not found
+		if (!isset($array[0])) {
 			throw new NotFoundException();
 		}
 
-		/**
-		 * Have permissions for view profile
-		 */
-		elseif (($array[0]["id"] == $this->_user->get("id") && $this->_user->hasPermission("user.profile.my")) || $this->_user->hasPermission("user.profile.other")) {
-			$row = $array[0];
-			$title = $row["login"];
+		// Haven't permissions for view profile
+		if (!($array[0]["id"] == $this->_user->get("id") && $this->_user->hasPermission("user.profile.my")) && !$this->_user->hasPermission("user.profile.other")) {
+			$this->_core->addBreadcrumbs($this->_lang->get("core", "accessDenied"));
+			return new Response(3, "danger", $this->_lang->get("core", "accessDenied"));
+		}
 
-			$response->view = "user.profile";
+		$response = new Response();
+		$row = $array[0];
 
-			$online = $this->_user->checkOnline($row["active"]);
-			$owner = ($row["login"] == $this->_user->get("login"));
+		$this->_core->addBreadcrumbs($row["login"]);
 
-			$birth_date = "";
-			if ($row["birth_date"] !== NULL && $row["birth_date"] != "0000-00-00") {
-				$date = explode("-", $row["birth_date"]);
-				$birth_date = $this->_lang->get("core", "month." . intval($date[1])) . " " . $date[2] . ", " . $date[0];
-			}
+		$online = $this->_user->checkOnline($row["active"]);
+		$owner = ($row["login"] == $this->_user->get("login"));
 
-			// Tags
-			$response->tags = array (
-				"id" => $row["id"],
-				"username" => $row["login"],
-				"name" => $row["name"],
-				"group" => $this->_user->getGroupName($row["group"]),
-				"group-id" => $row["group"],
+		$birth_date = "";
+		if ($row["birth_date"] !== NULL && $row["birth_date"] != "0000-00-00") {
+			$date = explode("-", $row["birth_date"]);
+			$birth_date = $this->_lang->get("core", "month." . intval($date[1])) . " " . $date[2] . ", " . $date[0];
+		}
 
-				"gender" => $this->_user->getGender($row["gender"]),
-				"birth-date" => $birth_date,
-				"location" => $row["location"],
-				"url" => $row["url"],
-				"public-email" => $row["public_email"],
+		$response->view = "user.profile";
 
-				"avatar-link" => $this->_user->getAvatarLink($row["avatar"]),
-				"original-avatar-link" => $this->_user->getAvatarLink($row["avatar"], true),
+		// Tags
+		$response->tags = array (
+			"id" => $row["id"],
+			"username" => $row["login"],
+			"name" => $row["name"],
+			"group" => $this->_user->getGroupName($row["group"]),
+			"group-id" => $row["group"],
 
-				"edit-link" => SITE_PATH . "user/edit",
-				"sessions-link" => SITE_PATH . "user/sessions",
-				"message-send-link" => SITE_PATH . "messages/send/" . $row["login"],
+			"gender" => $this->_user->getGender($row["gender"]),
+			"birth-date" => $birth_date,
+			"location" => $row["location"],
+			"url" => $row["url"],
+			"public-email" => $row["public_email"],
+
+			"avatar-link" => $this->_user->getAvatarLink($row["avatar"]),
+			"original-avatar-link" => $this->_user->getAvatarLink($row["avatar"], true),
+
+			"edit-link" => SITE_PATH . "user/edit",
+			"sessions-link" => SITE_PATH . "user/sessions",
+			"message-send-link" => SITE_PATH . "messages/send/" . $row["login"],
 				
-				"online" => $online,
-				"offline" => !$online,
+			"online" => $online,
+			"offline" => !$online,
 
-				"owner" => $owner,
-				"not-owner" => !$owner,
+			"owner" => $owner,
+			"not-owner" => !$owner,
 
-				"birth" => (!empty($birth_date)),
+			"birth" => (!empty($birth_date)),
 
-				"registration-date" => $this->_core->getDate($row["reg_date"]),
-				"registration-time" => $this->_core->getTime($row["reg_date"])
-			);
+			"registration-date" => $this->_core->getDate($row["reg_date"]),
+			"registration-time" => $this->_core->getTime($row["reg_date"])
+		);
 
-			if (!$online) {
-				$response->tags["last-online-date"] = $this->_core->getDate($row["active"]);
-				$response->tags["last-online-time"] = $this->_core->getTime($row["active"]);
-			}
+		if (!$online) {
+			$response->tags["last-online-date"] = $this->_core->getDate($row["active"]);
+			$response->tags["last-online-time"] = $this->_core->getTime($row["active"]);
 		}
-
-		/**
-		 * Haven't permissions for view profile
-		 */
-		else {
-			$title = $this->_lang->get("core", "accessDenied");
-
-			$response->code = 3;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "accessDenied");
-		}
-
-		$this->_core
-			->addBreadcrumbs($title);
 
 		return $response;
 	}
@@ -156,24 +133,21 @@ class UserModule extends AppModel {
 			->addBreadcrumbs($this->_lang->get("user", "moduleName"), "user")
 			->addBreadcrumbs($this->_lang->get("user", "add.moduleName"), "user/add");
 
+		// Access denied
+		if (!$this->_user->hasPermission("user.add")) {
+			$this->_core->addBreadcrumbs($this->_lang->get("core", "accessDenied"));
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
+		}
+
 		$response = new Response();
 
-		if ($this->_user->hasPermission("user.add")) {
-			$response->view = "user.add";
+		$response->view = "user.add";
 
-			$response->tags = array(
-				"email" => isset($_POST["add"]["email"]) ? $_POST["add"]["email"] : "",
-				"login" => isset($_POST["add"]["login"]) ? $_POST["add"]["login"] : "",
-				"name" => isset($_POST["add"]["name"]) ? $_POST["add"]["name"] : "",
-			);
-		} else {
-			$this->_core
-				->addBreadcrumbs($this->_lang->get("core", "accessDenied"));
-
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "accessDenied");
-		}
+		$response->tags = array(
+			"email" => isset($_POST["add"]["email"]) ? $_POST["add"]["email"] : "",
+			"login" => isset($_POST["add"]["login"]) ? $_POST["add"]["login"] : "",
+			"name" => isset($_POST["add"]["name"]) ? $_POST["add"]["name"] : "",
+		);
 
 		return $response;
 	}
@@ -186,13 +160,11 @@ class UserModule extends AppModel {
 	 * @throws \Exception
 	 */
 	public function listPage($page, $query = null) {
-		$response = new Response();
-
 		$page = intval($page);
 
-		if ($this->_registry->get("Router")->getType() == BACKEND)
-			$this->_core
-				->addBreadcrumbs($this->_lang->get("user", "moduleName"), "user");
+		if ($this->_registry->get("Router")->getType() == BACKEND) {
+			$this->_core->addBreadcrumbs($this->_lang->get("user", "moduleName"), "user");
+		}
 
 		$this->_core->addBreadcrumbs($this->_lang->get("user", "list.moduleName"), "user/list");
 
@@ -200,109 +172,102 @@ class UserModule extends AppModel {
 			$this->_core->addBreadcrumbs($this->_lang->get("user", "search.moduleName"), "user/search");
 		}
 
-		// Check permissions for user list
-		if ($this->_user->hasPermission("user.list")) {
-			// Users num query
-			$this->_db
-				->select("count(*)")
-				->from(DBPREFIX . "user_profiles");
-
-			if ($query !== null) {
-				$this->_db
-					->where("login", "LIKE", "%{$query}%")
-					->or_where("name", "LIKE", "%{$query}%");
-			}
-
-			$num = $this->_db->result_array();
-
-			// Database error
-			if ($num === false) {
-				$response->code = 1;
-				$response->type = "danger";
-				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
-			} else {
-				$num = $num[0][0];
-				$pagination = new Pagination($num, $page, ((SIDETYPE == BACKEND) ? ADMIN_PATH : SITE_PATH) . "user/list/page/", $this->_config->get("user", "list.customPagination", array()));
-
-				// Users list query
-				$this->_db
-					->select(array(
-						"id", "login", "active", "name", "group", "avatar", "reg_date"
-					))
-					->from(DBPREFIX . "user_profiles");
-
-				if ($query !== null) {
-					$this->_db
-						->where("login", "LIKE", "%{$query}%")
-						->or_where("name", "LIKE", "%{$query}%");
-				}
-
-				$array = $this->_db
-					->order_by("id", $this->_config->get("user", "list.sort", "DESC"))
-					->limit($pagination->getSqlLimits())
-					->result_array();
-
-				// Database error
-				if ($array === false) {
-					$response->code = 1;
-					$response->type = "danger";
-					$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
-				}
-
-				// Make users list
-				else {
-					$rows = [];
-
-					foreach ($array as $row) {
-						$online = $this->_user->checkOnline($row["active"]);
-						$owner = ($row["login"] == $this->_user->get("login"));
-
-						// Tags
-						$rows[] = [
-							"id" => $row["id"],
-							"username" => $row["login"],
-							"name" => $row["name"],
-							"group" => $this->_user->getGroupName($row["group"]),
-							"group-id" => $row["group"],
-							"avatar-link" => $this->_user->getAvatarLink($row["avatar"]),
-							"profile-link" => SITE_PATH . "user/profile/" . $row["login"],
-
-							"edit-link" => ADMIN_PATH . "user/edit/" . $row["id"],
-							"remove-link" => ADMIN_PATH . "user/remove/" . $row["id"],
-							"message-send-link" => SITE_PATH . "messages/send/" . $row["login"],
-
-							"online" => $online,
-							"offline" => !$online,
-							"owner" => $owner,
-							"not-owner" => !$owner,
-
-							"registration-date" => $this->_core->getDate($row["reg_date"]),
-							"registration-time" => $this->_core->getTime($row["reg_date"]),
-							
-							"last-online-date" => $this->_core->getDate($row["active"]),
-							"last-online-time" => $this->_core->getTime($row["active"])
-						];
-					}
-
-					$response->code = 0;
-					$response->view = "user.list";
-
-					$response->tags = array(
-						"num" => $num,
-						"rows" => $rows,
-						"pagination" => $pagination,
-						"query" => ($query === null ? "" : $query)
-					);
-				}
-			}
-		}
-
 		// Access denied
-		else {
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "accessDenied");
+		if (!$this->_user->hasPermission("user.list")) {
+			$this->_core->addBreadcrumbs($this->_lang->get("core", "accessDenied"));
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
+
+		// Users num query
+		$this->_db
+			->select("count(*)")
+			->from(DBPREFIX . "user_profiles");
+
+		if ($query !== null) {
+			$this->_db
+				->where("login", "LIKE", "%{$query}%")
+				->or_where("name", "LIKE", "%{$query}%");
+		}
+
+		$num = $this->_db->result_array();
+
+		// Database error
+		if ($num === false) {
+			$this->_core->addBreadcrumbs($this->_lang->get("core", "internalError"));
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		}
+
+		$num = $num[0][0];
+		$pagination = new Pagination($num, $page, ((SIDETYPE == BACKEND) ? ADMIN_PATH : SITE_PATH) . "user/list/page/", $this->_config->get("user", "list.customPagination", array()));
+
+		// Users list query
+		$this->_db
+			->select(array(
+				"id", "login", "active", "name", "group", "avatar", "reg_date"
+			))
+			->from(DBPREFIX . "user_profiles");
+
+		if ($query !== null) {
+			$this->_db
+				->where("login", "LIKE", "%{$query}%")
+				->or_where("name", "LIKE", "%{$query}%");
+		}
+
+		$array = $this->_db
+			->order_by("id", $this->_config->get("user", "list.sort", "DESC"))
+			->limit($pagination->getSqlLimits())
+			->result_array();
+
+		// Database error
+		if ($array === false) {
+			$this->_core->addBreadcrumbs($this->_lang->get("core", "internalError"));
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		}
+
+		// Make users list
+		$rows = [];
+
+		foreach ($array as $row) {
+			$online = $this->_user->checkOnline($row["active"]);
+			$owner = ($row["login"] == $this->_user->get("login"));
+
+			// Tags
+			$rows[] = [
+				"id" => $row["id"],
+				"username" => $row["login"],
+				"name" => $row["name"],
+				"group" => $this->_user->getGroupName($row["group"]),
+				"group-id" => $row["group"],
+				"avatar-link" => $this->_user->getAvatarLink($row["avatar"]),
+				"profile-link" => SITE_PATH . "user/profile/" . $row["login"],
+
+				"edit-link" => ADMIN_PATH . "user/edit/" . $row["id"],
+				"remove-link" => ADMIN_PATH . "user/remove/" . $row["id"],
+				"message-send-link" => SITE_PATH . "messages/send/" . $row["login"],
+
+				"online" => $online,
+				"offline" => !$online,
+				"owner" => $owner,
+				"not-owner" => !$owner,
+
+				"registration-date" => $this->_core->getDate($row["reg_date"]),
+				"registration-time" => $this->_core->getTime($row["reg_date"]),
+							
+				"last-online-date" => $this->_core->getDate($row["active"]),
+				"last-online-time" => $this->_core->getTime($row["active"])
+			];
+		}
+
+		$response = new Response();
+
+		$response->view = "user.list";
+
+		$response->tags = array(
+			"num" => $num,
+			"rows" => $rows,
+			"pagination" => $pagination,
+			"query" => ($query === null ? "" : $query)
+		);
 
 		return $response;
 	}
@@ -317,16 +282,12 @@ class UserModule extends AppModel {
 	 * @return Response
 	 */
 	public function add($email, $login, $pass, $pass2, $name) {
-		if ($this->_user->hasPermission("user.add"))
-			return $this->_user->add($email, $login, $pass, $pass2, $name);
+		// Access denied
+		if (!$this->_user->hasPermission("user.add")) {
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
+		}
 
-		$response = new Response();
-
-		$response->code = 2;
-		$response->type = "danger";
-		$response->message = $this->_lang->get("core", "accessDenied");
-
-		return $response;
+		return $this->_user->add($email, $login, $pass, $pass2, $name);
 	}
 	
 	/**
@@ -335,30 +296,24 @@ class UserModule extends AppModel {
 	 * @return Response
 	 */
 	public function removePage($id) {
-		$response = new Response();
-
 		$this->_core
 			->addBreadcrumbs($this->_lang->get("user", "moduleName"), "user")
 			->addBreadcrumbs($this->_lang->get("user", "remove.moduleName"), "user/remove/" . $id);
 
-		if ($this->_user->hasPermission("user.remove")) {
-			if ($this->_user->exists($id)) {
-				$response->view = "user.remove";
-				$response->tags["id"] = $id;
-			} else {
-				$response->code = 2;
-				$response->type = "danger";
-				$response->message = $this->_lang->get("user", "remove.notExists");
-			}
-		} else {
-			$this->_core
-				->addBreadcrumbs($this->_lang->get("core", "accessDenied"));
-
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "accessDenied");
+		// Access denied
+		if (!$this->_user->hasPermission("user.remove")) {
+			$this->_core->addBreadcrumbs($this->_lang->get("core", "accessDenied"));
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
 
+		// If user not exists
+		if (!$this->_user->exists($id)) {
+			return new Response(2, "danger", $this->_lang->get("user", "remove.notExists"));
+		}
+
+		$response = new Response();
+		$response->view = "user.remove";
+		$response->tags["id"] = $id;
 		return $response;
 	}
 
@@ -368,16 +323,12 @@ class UserModule extends AppModel {
 	 * @return Response
 	 */
 	public function remove($id) {
-		if ($this->_user->hasPermission("user.remove"))
-			return $this->_user->remove($id);
+		// Access denied
+		if (!$this->_user->hasPermission("user.remove")) {
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
+		}
 
-		$response = new Response();
-
-		$response->code = 2;
-		$response->type = "danger";
-		$response->message = $this->_lang->get("core", "accessDenied");
-
-		return $response;
+		return $this->_user->remove($id);
 	}
 	
 	/**
@@ -385,23 +336,20 @@ class UserModule extends AppModel {
 	 * @return Response
 	 */
 	public function authPage() {
+		$this->_core->addBreadcrumbs($this->_lang->get("user", "auth.moduleName"));
+
+		// If user is logged
+		if ($this->_user->isLogged()) {
+			return new Response(1, "danger", $this->_lang->get("user", "auth.logged"));
+		}
+
 		$response = new Response();
 
-		$this->_core
-			->addBreadcrumbs($this->_lang->get("user", "auth.moduleName"));
-
-		if ($this->_user->isLogged()) {
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("user", "auth.logged");
-		} else {
-			$response->view = "user.auth";
-
-			$response->tags = array (
-				"restore-link" => SITE_PATH . "user/restore",
-				"register-link" => SITE_PATH . "user/register"
-			);
-		}
+		$response->view = "user.auth";
+		$response->tags = array (
+			"restore-link" => SITE_PATH . "user/restore",
+			"register-link" => SITE_PATH . "user/register"
+		);
 
 		return $response;
 	}
@@ -418,59 +366,64 @@ class UserModule extends AppModel {
 
 		$tpc = (bool)($tpc);
 
+		// If user is logged
 		if ($this->_user->isLogged()) {
-			$response->code = 1;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("user", "auth.logged");
-		} else {
-			$query = $this->_db
-				->select(array(
-					"id", "login"
-				))
-				->from(DBPREFIX . "user_profiles")
-				->where("login", "=", $login)
-				->and_where("password", "=", $this->_user->passwordHash($password))
-				->result_array();
-
-			if ($query === false) {
-				$response->code = 1;
-				$response->type = "danger";
-				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
-			} elseif (!isset($query[0])) {
-				$response->code = 3;
-				$response->type = "danger";
-				$response->message = $this->_lang->get("user", "incorrectLoginOrPassword");
-			} else {
-				$token = $this->_user->genToken($query[0]["id"], $query[0]["login"]);
-
-				$query = $this->_db
-					->insert_into(DBPREFIX . "user_sessions")
-					->values(array(
-						"user" => $query[0]["id"],
-						"token" => $token,
-						"auth_type" => 1,
-						"auth_agent" => HTTP::getUserAgent(),
-						"auth_ip" => HTTP::getIp()
-					))
-					->result();
-
-				if ($query === false) {
-					$response->code = 1;
-					$response->type = "danger";
-					$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
-				} else {
-					if ($tpc)
-						Sessions::set("auth_token", $token);
-					else
-						Cookies::set("auth_token", $token, 3600 * 24 * 31 * 12);
-
-					$response->type = "success";
-					$response->message = $this->_lang->get("core", "authSuccess");
-				}
-			}
+			return new Response(2, "danger", $this->_lang->get("user", "auth.logged"));
 		}
 
-		return $response;
+		// Check login and password for exists
+		$query = $this->_db
+			->select(array(
+				"id", "login"
+			))
+			->from(DBPREFIX . "user_profiles")
+			->where("login", "=", $login)
+			->and_where("password", "=", $this->_user->passwordHash($password))
+			->result_array();
+
+		// Database error
+		if ($query === false) {
+			$this->_core->addBreadcrumbs($this->_lang->get("core", "internalError"));
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		}
+
+		// If incorrect login or password
+		if (!isset($query[0])) {
+			$response->code = 3;
+			$response->type = "danger";
+			$response->message = $this->_lang->get("user", "incorrectLoginOrPassword");
+		}
+
+		// Generate token
+		$token = $this->_user->genToken($query[0]["id"], $query[0]["login"]);
+
+		// Add token to database
+		$query = $this->_db
+			->insert_into(DBPREFIX . "user_sessions")
+			->values(array(
+				"user" => $query[0]["id"],
+				"token" => $token,
+				"auth_type" => 1,
+				"auth_agent" => HTTP::getUserAgent(),
+				"auth_ip" => HTTP::getIp()
+			))
+			->result();
+
+
+		// Database error
+		if ($query === false) {
+			$this->_core->addBreadcrumbs($this->_lang->get("core", "internalError"));
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		}
+
+		// If third person computer
+		if ($tpc) {
+			Sessions::set("auth_token", $token);
+		} else {
+			Cookies::set("auth_token", $token, 3600 * 24 * 31 * 12);
+		}
+
+		return new Response(0, "success", $this->_lang->get("core", "authSuccess"));
 	}
 	
 	private $_email = "";
@@ -486,25 +439,22 @@ class UserModule extends AppModel {
 	 * @return Response
 	 */
 	public function registerPage() {
-		$response = new Response();
-
-		$this->_core
-			->addBreadcrumbs($this->_lang->get("user", "register.moduleName"));
+		$this->_core->addBreadcrumbs($this->_lang->get("user", "register.moduleName"));
 
 		if ($this->_user->isLogged()) {
-			$response->code = 1;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("user", "register.needLogout");
-		} else {
-			$response->view = "user.register";
-
-			$response->tags = array (
-				"email" => $this->_email,
-				"login" => $this->_login,
-				"name" => $this->_name,
-				"captcha" => $this->_registry->get("Captcha")->getCaptcha()
-			);
+			return new Response(1, "danger", $this->_lang->get("user", "register.needLogout"));
 		}
+
+		$response = new Response();
+
+		$response->view = "user.register";
+
+		$response->tags = array (
+			"email" => $this->_email,
+			"login" => $this->_login,
+			"name" => $this->_name,
+			"captcha" => $this->_registry->get("Captcha")->getCaptcha()
+		);
 
 		return $response;
 	}
@@ -520,31 +470,27 @@ class UserModule extends AppModel {
 	 * @return Response
 	 */
 	public function register($email, $login, $pass, $pass2, $name, $captcha) {
-		$response = new Response();
-
+		// If user is logged
 		if ($this->_user->isLogged()) {
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("user", "register.needLogout");
-		} else {
-			$this->_email = StringFilters::filterHtmlTags($email);
-			$this->_login = StringFilters::filterHtmlTags($login);
-			$this->_pass = StringFilters::filterHtmlTags($pass);
-			$this->_pass2 = StringFilters::filterHtmlTags($pass2);
-			$this->_name = StringFilters::filterHtmlTags($name);
-
-			if (empty($this->_email) || empty($this->_login) || empty($this->_pass) || empty($this->_pass2)) {
-				$response->code = 3;
-				$response->type = "warning";
-				$response->message = $this->_lang->get("core", "emptyFields");
-			} elseif (!$this->_registry->get("Captcha")->isCorrect($captcha)) {
-				$response->code = 4;
-				$response->type = "danger";
-				$response->message = $this->_lang->get("user", "register.incorrectCaptcha");
-			} else
-				$response = $this->_user->add($this->_email, $this->_login, $this->_pass, $this->_pass2, $this->_name);
+			new Response(2, "danger", $this->_lang->get("user", "register.needLogout"));
 		}
 
-		return $response;
+		$this->_email = StringFilters::filterHtmlTags($email);
+		$this->_login = StringFilters::filterHtmlTags($login);
+		$this->_pass = StringFilters::filterHtmlTags($pass);
+		$this->_pass2 = StringFilters::filterHtmlTags($pass2);
+		$this->_name = StringFilters::filterHtmlTags($name);
+
+		// If empty fields
+		if (empty($this->_email) || empty($this->_login) || empty($this->_pass) || empty($this->_pass2)) {
+			return new Response(3, "warning", $this->_lang->get("core", "emptyFields"));
+		}
+
+		// If captcha is incorrect
+		if (!$this->_registry->get("Captcha")->isCorrect($captcha)) {
+			return new Response(4, "danger", $this->_lang->get("user", "register.incorrectCaptcha"));
+		}
+
+		return $this->_user->add($this->_email, $this->_login, $this->_pass, $this->_pass2, $this->_name);
 	}
 }

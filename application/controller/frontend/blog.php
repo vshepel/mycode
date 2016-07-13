@@ -89,6 +89,7 @@ class Blog extends AppController {
 			case "archive": return $this->_posts->getArchive();
 			case "calendar": return $this->_posts->getCalendar();
 			case "popular": return $this->_posts->getPopular();
+			case "last": return $this->_posts->getLast();
 			case "tags-cloud": return $this->_posts->getTagsCloud();
 			case "user-rating": return $this->_posts->getUserRating($arg);
 			case "user-posts-count": return $this->_posts->getUserPostsCount($arg);
