@@ -92,6 +92,22 @@
 		[/foreach]
 	</tbody>
 </table>
+
+<table class="table table-bordered"><tbody>
+	<tr>
+		<td class="danger" width="35px"></td>
+		<td>[f:core:packages.list.color.danger]</td>
+	</tr>
+	<tr>
+		<td class="warning" width="35px"></td>
+		<td>[f:core:packages.list.color.warning]</td>
+	</tr>
+
+	<tr>
+		<td class="info" width="35px"></td>
+		<td>[f:core:packages.list.color.info]</td>
+	</tr>
+</tbody></table>
 	
 <script type="text/javascript">
 function show(name) {
