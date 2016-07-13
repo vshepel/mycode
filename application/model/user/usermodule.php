@@ -49,7 +49,7 @@ class UserModule extends AppModel {
 		$array = $this->_db
 			->select(array(
 				"id" ,"login", "active", "name", "group", "avatar",
-				"birth_date", "gender", "location", "url", "public_email"
+				"birth_date", "gender", "location", "url", "public_email", "reg_date"
 			))
 			->from(DBPREFIX . "user_profiles")
 			->where("login", "=", $user)
@@ -86,14 +86,12 @@ class UserModule extends AppModel {
 			$owner = ($row["login"] == $this->_user->get("login"));
 
 			$birth_date = "";
-			if ($row["birth_date"] !== NULL) {
+			if ($row["birth_date"] !== NULL && $row["birth_date"] != "0000-00-00") {
 				$date = explode("-", $row["birth_date"]);
 				$birth_date = $this->_lang->get("core", "month." . intval($date[1])) . " " . $date[2] . ", " . $date[0];
 			}
 
-			/**
-			 * Tags
-			 */
+			// Tags
 			$response->tags = array (
 				"id" => $row["id"],
 				"username" => $row["login"],
@@ -120,7 +118,10 @@ class UserModule extends AppModel {
 				"owner" => $owner,
 				"not-owner" => !$owner,
 
-				"birth" => !empty($birth_date)
+				"birth" => (!empty($birth_date)),
+
+				"registration-date" => $this->_core->getDate($row["reg_date"]),
+				"registration-time" => $this->_core->getTime($row["reg_date"])
 			);
 
 			if (!$online) {
@@ -226,7 +227,7 @@ class UserModule extends AppModel {
 				// Users list query
 				$this->_db
 					->select(array(
-						"id", "login", "active", "name", "group", "avatar"
+						"id", "login", "active", "name", "group", "avatar", "reg_date"
 					))
 					->from(DBPREFIX . "user_profiles");
 
@@ -274,6 +275,9 @@ class UserModule extends AppModel {
 							"offline" => !$online,
 							"owner" => $owner,
 							"not-owner" => !$owner,
+
+							"registration-date" => $this->_core->getDate($row["reg_date"]),
+							"registration-time" => $this->_core->getTime($row["reg_date"]),
 							
 							"last-online-date" => $this->_core->getDate($row["active"]),
 							"last-online-time" => $this->_core->getTime($row["active"])
