@@ -218,10 +218,10 @@ class Posts extends AppModel {
 	public function get($category, $page, $tag = null, $author = null, $show = true) {
 		$this->_core->addBreadcrumbs($this->_lang->get("blog", "moduleName"), "blog");
 
-		if (!$this->_user->hasPermission("blog.posts.list"))
+		// Access denied
+		if (!$this->_user->hasPermission("blog.posts.list")) {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
-
-		$response = new Response();
+		}
 
 		$category = ($category === null) ? null : intval($category);
 		$page = intval($page);
@@ -274,178 +274,171 @@ class Posts extends AppModel {
 		$num = $this->_db->result_array();
 
 		if ($num === false) {
-			$response->code = 1;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
-
-			return $response;
-		} else {
-			$paginationPrefix = (($this->_type == BACKEND) ? ADMIN_PATH . "blog/posts" : SITE_PATH . "blog");
-
-			if ($category !== null) {
-				$paginationPrefix .= "/cat/" . $category;
-			} elseif ($tag !== null) {
-				$paginationPrefix .= "/tag/" . $tag;
-			} elseif ($author !== null) {
-				$paginationPrefix .= "/author/" . $author;
-			}
-
-			$paginationPrefix .= "/page/";
-			$num = $num[0][0];
-			$pagination = new Pagination($num, $page, $paginationPrefix, $this->_config->get("blog", "list.customPagination", array()));
-
-			// Posts query
-			$this->_db
-				->select(array(
-					"id", "title", "url", "text_parsed", "image_link", "category", "comments_num", "views_num", "rating",
-					"tags", "lang",
-					array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
-					"show", "show_main", "show_category", "author"
-				))
-				->from(DBPREFIX . "blog_posts")
-				->where("id", ">", 0);
-
-			if ($show) $this->_db->and_where("show", ">", 0);
-
-			// Category
-			if ($category !== null) {
-				$this->_db->and_where("category", "=", $category);
-				if ($show) $this->_db->and_where("show_category", ">", 0);
-			} else {
-				if ($show) $this->_db ->and_where("show_main", ">", 0);
-			}
-
-			// Only local language
-			if ($this->_config->get("blog", "posts.only_local_language", false)) {
-				$this->_db->and_where("lang", "=", $this->_lang->getLang());
-			}
-
-			// Tag
-			if ($tag !== null) {
-				$this->_db->and_where("tags", "LIKE", "%{$tag}%");
-			}
-
-			// Author
-			if ($author_id !== null) {
-				$this->_db->and_where("author", "=", $author_id);
-			}
-
-			$array = $this->_db
-				->order_by("id", $this->_config->get("blog", "list.sort", "DESC"))
-				->limit($pagination->getSqlLimits())
-				->result_array();
-
-			if ($array === false) {
-				$response->code = 1;
-				$response->type = "danger";
-				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
-			} else {
-				// Posts make
-				$rows = [];
-
-				foreach ($array as $row) {
-					// Rating Active
-					$ratingPlusActive = false;
-					$ratingMinusActive = false;
-
-					if ($this->_config->get("blog", "posts.rating_active", true)) {
-						$result = $this->_db
-							->select(array(
-								"id", "type"
-							))
-							->from(DBPREFIX . "blog_rating")
-							->where("post", "=", $row["id"])
-							->and_where("user", "=", $this->_user->get("id"))
-							->result_array();
-
-						if (isset($result[0])) {
-							if ($result[0]["type"] == 0) $ratingMinusActive = true;
-							if ($result[0]["type"] == 1) $ratingPlusActive = true;
-						}
-					}
-
-					// Read
-					$read = false;
-
-					if ($this->_config->get("blog", "posts.read_mark", true)) {
-						$query = $this->_db
-							->select("count(*)")
-							->from(DBPREFIX . "blog_views")
-							->where("post", "=", $row["id"])
-							->and_where("user", "=", $this->_user->get("id"))
-							->result_array();
-
-						$read = (isset($query[0][0]) && $query[0][0] > 0);
-					}
-
-					// Rows array
-					$rows[] = [
-						"id" => $row["id"],
-						"link" => Posts::getPostLink($row["id"], $row["url"]),
-						"title" => $row["title"],
-
-						"author-id" => $row["author"],
-						"author-login" => $this->_user->getUserLogin($row["author"]),
-						"author-name" => $this->_user->getUserName($row["author"]),
-						"author-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["author"]),
-						"author-avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
-
-						"full-text" => Posts::getText($row["text_parsed"], false),
-						"short-text" => Posts::getText($row["text_parsed"], false, true),
-
-						"image-link" => $row["image_link"],
-						"tags" => $this->makeTagsLinks($row["tags"]),
-						"lang" => $row["lang"],
-						"language" => $this->_lang->getLangName($row["lang"]),
-
-						"category-id" => $row["category"],
-						"category-name" => Categories::getInstance()->getName($row["category"]),
-						"category-link" => (($this->_type == BACKEND) ? ADMIN_PATH . "blog/posts" : SITE_PATH . "blog") . "/cat/" . $row["category"],
-
-						"archive-link" => SITE_PATH . "blog/archive/" . date("Y/m/d", $row["timestamp"]),
-						"edit-link" => ADMIN_PATH . "blog/edit/" . $row["id"],
-						"remove-link" => ADMIN_PATH . "blog/remove/" . $row["id"],
-
-						"iso-datetime" => $this->_core->getISODateTime($row["timestamp"]),
-						"date" => $this->_core->getDate($row["timestamp"]),
-						"time" => $this->_core->getTime($row["timestamp"]),
-
-						"comments-num" => $row["comments_num"],
-						"views-num" => $row["views_num"],
-						"read" => $read,
-
-						"rating" => $row["rating"],
-						"rating-minus-active" => $ratingMinusActive,
-						"rating-plus-active" => $ratingPlusActive,
-
-						"show" => ($row["show"] > 0),
-						"not-show" => ($row["show"] < 1),
-
-						"show-main" => ($row["show_main"] > 0),
-						"not-show-main" => ($row["show_main"] < 1),
-
-						"show-category" => ($row["show_category"] > 0),
-						"not-show-category" => ($row["show_category"] < 1),
-
-						"edit" => $this->_user->hasPermission("admin.blog.posts.edit"),
-						"remove" => $this->_user->hasPermission("admin.blog.posts.remove"),
-					];
-				}
-
-				// Add category breadcrumbs if exist
-				if ($category !== null)
-					$this->_core->addBreadcrumbs(Categories::getInstance()->getName($category), "blog/cat/" . $category);
-
-				// Formation response
-				$response->code = 0;
-				$response->view = "blog.list";
-				$response->tags = array (
-					"num" => $num,
-					"rows" => $rows,
-					"pagination" => $pagination
-				);
-			}
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 		}
+
+		$paginationPrefix = (($this->_type == BACKEND) ? ADMIN_PATH . "blog/posts" : SITE_PATH . "blog");
+
+		if ($category !== null) {
+			$paginationPrefix .= "/cat/" . $category;
+		} elseif ($tag !== null) {
+			$paginationPrefix .= "/tag/" . $tag;
+		} elseif ($author !== null) {
+			$paginationPrefix .= "/author/" . $author;
+		}
+
+		$paginationPrefix .= "/page/";
+		$num = $num[0][0];
+		$pagination = new Pagination($num, $page, $paginationPrefix, $this->_config->get("blog", "list.customPagination", array()));
+
+		// Posts query
+		$this->_db
+			->select(array(
+				"id", "title", "url", "text_parsed", "image_link", "category", "comments_num", "views_num", "rating",
+				"tags", "lang",
+				array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false),
+				"show", "show_main", "show_category", "author"
+			))
+			->from(DBPREFIX . "blog_posts")
+			->where("id", ">", 0);
+
+		if ($show) $this->_db->and_where("show", ">", 0);
+
+		// Category
+		if ($category !== null) {
+			$this->_db->and_where("category", "=", $category);
+			if ($show) $this->_db->and_where("show_category", ">", 0);
+		} else {
+			if ($show) $this->_db ->and_where("show_main", ">", 0);
+		}
+
+		// Only local language
+		if ($this->_config->get("blog", "posts.only_local_language", false)) {
+			$this->_db->and_where("lang", "=", $this->_lang->getLang());
+		}
+
+		// Tag
+		if ($tag !== null) {
+			$this->_db->and_where("tags", "LIKE", "%{$tag}%");
+		}
+
+		// Author
+		if ($author_id !== null) {
+			$this->_db->and_where("author", "=", $author_id);
+		}
+
+		$array = $this->_db
+			->order_by("id", $this->_config->get("blog", "list.sort", "DESC"))
+			->limit($pagination->getSqlLimits())
+			->result_array();
+
+		if ($array === false) {
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		}
+
+		// Posts make
+		$rows = [];
+
+		foreach ($array as $row) {
+			// Rating Active
+			$ratingPlusActive = false;
+			$ratingMinusActive = false;
+			if ($this->_config->get("blog", "posts.rating_active", true)) {
+				$result = $this->_db
+					->select(array(
+						"id", "type"
+					))
+					->from(DBPREFIX . "blog_rating")
+					->where("post", "=", $row["id"])
+					->and_where("user", "=", $this->_user->get("id"))
+					->result_array();
+
+				if (isset($result[0])) {
+					if ($result[0]["type"] == 0) $ratingMinusActive = true;
+					if ($result[0]["type"] == 1) $ratingPlusActive = true;
+				}
+			}
+
+			// Read
+			$read = false;
+
+			if ($this->_config->get("blog", "posts.read_mark", true)) {
+				$query = $this->_db
+					->select("count(*)")
+					->from(DBPREFIX . "blog_views")
+					->where("post", "=", $row["id"])
+					->and_where("user", "=", $this->_user->get("id"))
+					->result_array();
+
+				$read = (isset($query[0][0]) && $query[0][0] > 0);
+			}
+
+			// Rows array
+			$rows[] = [
+				"id" => $row["id"],
+				"link" => Posts::getPostLink($row["id"], $row["url"]),
+				"title" => $row["title"],
+
+				"author-id" => $row["author"],
+				"author-login" => $this->_user->getUserLogin($row["author"]),
+				"author-name" => $this->_user->getUserName($row["author"]),
+				"author-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["author"]),
+				"author-avatar-link" => $this->_user->getAvatarLinkById($row["author"]),
+
+				"full-text" => Posts::getText($row["text_parsed"], false),
+				"short-text" => Posts::getText($row["text_parsed"], false, true),
+
+				"image-link" => $row["image_link"],
+				"tags" => $this->makeTagsLinks($row["tags"]),
+				"lang" => $row["lang"],
+				"language" => $this->_lang->getLangName($row["lang"]),
+
+				"category-id" => $row["category"],
+				"category-name" => Categories::getInstance()->getName($row["category"]),
+				"category-link" => (($this->_type == BACKEND) ? ADMIN_PATH . "blog/posts" : SITE_PATH . "blog") . "/cat/" . $row["category"],
+
+				"archive-link" => SITE_PATH . "blog/archive/" . date("Y/m/d", $row["timestamp"]),
+				"edit-link" => ADMIN_PATH . "blog/edit/" . $row["id"],
+				"remove-link" => ADMIN_PATH . "blog/remove/" . $row["id"],
+
+				"iso-datetime" => $this->_core->getISODateTime($row["timestamp"]),
+				"date" => $this->_core->getDate($row["timestamp"]),
+				"time" => $this->_core->getTime($row["timestamp"]),
+
+				"comments-num" => $row["comments_num"],
+				"views-num" => $row["views_num"],
+				"read" => $read,
+
+				"rating" => $row["rating"],
+				"rating-minus-active" => $ratingMinusActive,
+				"rating-plus-active" => $ratingPlusActive,
+
+				"show" => ($row["show"] > 0),
+				"not-show" => ($row["show"] < 1),
+
+				"show-main" => ($row["show_main"] > 0),
+				"not-show-main" => ($row["show_main"] < 1),
+
+				"show-category" => ($row["show_category"] > 0),
+				"not-show-category" => ($row["show_category"] < 1),
+
+				"edit" => $this->_user->hasPermission("admin.blog.posts.edit"),
+				"remove" => $this->_user->hasPermission("admin.blog.posts.remove"),
+			];
+		}
+
+		// Add category breadcrumbs if exist
+		if ($category !== null)
+			$this->_core->addBreadcrumbs(Categories::getInstance()->getName($category), "blog/cat/" . $category);
+
+		// Formation response
+		$response = new Response();
+		$response->view = "blog.list";
+		$response->tags = array (
+			"num" => $num,
+			"rows" => $rows,
+			"pagination" => $pagination
+		);
 
 		return $response;
 	}
@@ -461,8 +454,10 @@ class Posts extends AppModel {
 	public function page($id, $commentsPage, $comments_model) {
 		$this->_core->addBreadcrumbs($this->_lang->get("blog", "moduleName"), "blog");
 
-		if (!$this->_user->hasPermission("blog.posts.read"))
+		// Access denied
+		if (!$this->_user->hasPermission("blog.posts.read")) {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
+		}
 
 		$response = new Response();
 
@@ -755,8 +750,10 @@ class Posts extends AppModel {
 			->addBreadcrumbs($this->_lang->get("blog", "moduleName"), "blog")
 			->addBreadcrumbs($this->_lang->get("blog", "edit.moduleName"));
 
-		if (!$this->_user->hasPermission("blog.posts.edit"))
+		// Access denied
+		if (!$this->_user->hasPermission("blog.posts.edit")) {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
+		}
 
 		$postId = intval($postId);
 
@@ -861,12 +858,14 @@ class Posts extends AppModel {
 	 */
 	public function add($title, $url, $category, $text, $image, $tags, $lang, $allowComments, $show, $showMain, $showCategory, $postId = null) {
 		$edit = ($postId !== null);
-		if (!$this->_user->hasPermission("blog.posts.add") && $edit) {
+
+		// Access denied
+		if ((!$edit && !$this->_user->hasPermission("blog.posts.add")) || ($edit && !$this->_user->hasPermission("blog.posts.edit"))) {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
 
 		$title = StringFilters::filterHtmlTags($title);
-		$url = StringFilters::filterForUrl(empty($url) ? $title : $url);
+		$url = mb_strcut(StringFilters::filterForUrl(empty($url) ? $title : $url), 0, 32);
 		$category = intval($category);
 		$text = ($this->_editor == "HTML") ? $text : StringFilters::filterHtmlTags($text);
 		$tags = StringFilters::filterTagsString($tags);
@@ -896,7 +895,11 @@ class Posts extends AppModel {
 			)
 		);
 
-		$response = new Response();
+		if (empty($title) || empty($text)) {
+			return new Response(3, "warning", $this->_lang->get("core", "emptyFields"));
+		} elseif (Strings::length($title) > 100 || Strings::length($image) > 256 || Strings::length($tags) > 128 || Strings::length($lang) > 10) {
+			return new Response(4, "danger", $this->_lang->get("core", "longFields"));
+		}
 
 		$author = $this->_user->get("id");
 
@@ -914,55 +917,44 @@ class Posts extends AppModel {
 			$author = $query[0]["author"];
 		}
 
-		if (empty($title) || empty($text)) {
-			$response->code = 3;
-			$response->type = "warning";
-			$response->message = $this->_lang->get("core", "emptyFields");
-		} else {
-			$values = array(
-				"title" => $title,
-				"url" => $url,
-				"category" => $category,
-				"text" => $text,
-				"text_parsed" => Posts::getText($text),
+		$values = array(
+			"title" => $title,
+			"url" => $url,
+			"category" => $category,
+			"text" => $text,
+			"text_parsed" => Posts::getText($text),
 
-				"image_link" => $image,
-				"tags" => $tags,
-				"lang" => $lang,
+			"image_link" => $image,
+			"tags" => $tags,
+			"lang" => $lang,
 
-				"allow_comments" => $allowComments ? 1 : 0,
-				"show" => $show ? 1 : 0,
-				"show_main" => $showMain ? 1 : 0,
-				"show_category" => $showCategory ? 1 : 0,
-				"author" => $author
-			);
+			"allow_comments" => $allowComments ? 1 : 0,
+			"show" => $show ? 1 : 0,
+			"show_main" => $showMain ? 1 : 0,
+			"show_category" => $showCategory ? 1 : 0,
+			"author" => $author
+		);
 
-			$edit = ($postId !== null);
+		$edit = ($postId !== null);
 
-			if (!$edit)
-				$result = $this->_db
-					->insert_into(DBPREFIX . "blog_posts")
-					->values($values)
-					->result();
-			else
-				$result = $this->_db
-					->update(DBPREFIX . "blog_posts")
-					->set($values)
-					->where("id", "=", $postId)
-					->result();
+		if (!$edit)
+			$result = $this->_db
+				->insert_into(DBPREFIX . "blog_posts")
+				->values($values)
+				->result();
+		else
+			$result = $this->_db
+				->update(DBPREFIX . "blog_posts")
+				->set($values)
+				->where("id", "=", $postId)
+				->result();
 
-			if ($result === false) {
-				$response->code = 1;
-				$response->type = "danger";
-				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
-			} else {
-				$response->type = "success";
-				$response->message = $this->_lang->get("blog", ($edit ? "edit" : "add") . ".success");
-				$this->_cache->remove("blog"); // Clear cache
-			}
+		if ($result === false) {
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 		}
 
-		return $response;
+		$this->_cache->remove("blog"); // Clear cache
+		return new Response(0, "success", $this->_lang->get("blog", ($edit ? "edit" : "add") . ".success"));
 	}
 
 	/**
@@ -974,8 +966,10 @@ class Posts extends AppModel {
 			->addBreadcrumbs($this->_lang->get("blog", "moduleName"), "blog")
 			->addBreadcrumbs($this->_lang->get("blog", "add.moduleName"));
 
-		if (!$this->_user->hasPermission("blog.posts.edit"))
+		// Access denied
+		if (!$this->_user->hasPermission("blog.posts.edit")) {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
+		}
 
 		$response = new Response();
 		$response->view = "blog.add";
@@ -1015,8 +1009,10 @@ class Posts extends AppModel {
 	 * @return Response
 	 */
 	public function remove($id) {
-		if (!$this->_user->hasPermission("blog.posts.remove"))
+		// Access denied
+		if (!$this->_user->hasPermission("blog.posts.remove")) {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
+		}
 
 		$response = new Response();
 		$id = intval($id);
@@ -1071,8 +1067,10 @@ class Posts extends AppModel {
 			->addBreadcrumbs($this->_lang->get("blog", "moduleName"), "blog")
 			->addBreadcrumbs($this->_lang->get("blog", "remove.moduleName"));
 
-		if (!$this->_user->hasPermission("blog.posts.remove"))
+		// Access denied
+		if (!$this->_user->hasPermission("blog.posts.remove")) {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
+		}
 
 		$response = new Response();
 		$id = intval($id);
@@ -1102,7 +1100,7 @@ class Posts extends AppModel {
 			->addBreadcrumbs($this->_lang->get("blog", "archive.moduleName"), "blog/archive");
 
 		// Access denied
-		if (!$this->_user->hasPermission("blog.posts.archive"))
+		if (!$this->_user->hasPermission("blog.posts.list"))
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 
 		// Incorrect args
@@ -1674,8 +1672,10 @@ class Posts extends AppModel {
 			->addBreadcrumbs($this->_lang->get("blog", "search.moduleName"), "blog/search")
 			->addBreadcrumbs($this->_lang->get("blog", "search.posts"), "blog/search");
 
-		if (!$this->_user->hasPermission("blog.posts.search"))
+		// Access denied
+		if (!$this->_user->hasPermission("blog.posts.search")) {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
+		}
 
 		$response = new Response();
 		$query = StringFilters::filterHtmlTags($this->_db->safe($query));

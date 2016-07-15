@@ -27,7 +27,7 @@ class StringCheckers {
 	 * @return bool Is valid?
 	 */
 	public static function isValidEmail($email) {
-		return (boolean) filter_var($email, FILTER_VALIDATE_EMAIL);
+		return Strings::length($email) > 32 ? false : ((boolean) filter_var($email, FILTER_VALIDATE_EMAIL));
 	}
 
 	/**
@@ -36,7 +36,7 @@ class StringCheckers {
 	 * @return bool Is valid?
 	 */
 	public static function isValidLogin($login) {
-		return (boolean) preg_match("/^[A-Za-z0-9._-]/i", $login);
+		return Strings::length($login) > 32 ? false : ((boolean) preg_match("/^[A-Za-z0-9._-]/i", $login));
 	}
 
 	/**
@@ -45,6 +45,6 @@ class StringCheckers {
 	 * @return bool Is valid?
 	 */
 	public static function isValidName($name) {
-		return (boolean) (StringFilters::filterHtmlTags($name) == $name);
+		return Strings::length($name) > 32 ? false : ((boolean) (StringFilters::filterHtmlTags($name) == $name));
 	}
 }

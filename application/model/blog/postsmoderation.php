@@ -22,6 +22,7 @@ namespace model\blog;
 
 use Exception;
 use AppModel;
+use harmony\strings\Strings;
 use Response;
 use harmony\pagination\Pagination;
 use harmony\strings\StringFilters;
@@ -53,6 +54,11 @@ class PostsModeration extends AppModel {
 	 * @throws Exception
 	 */
 	public function get($category, $page) {
+		// Access denied
+		if (!$this->_user->hasPermission("blog.moderation.list")) {
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
+		}
+
 		$response = new Response();
 
 		$category = ($category === null) ? null : intval($category);
@@ -153,6 +159,11 @@ class PostsModeration extends AppModel {
 	 * @throws Exception
 	 */
 	public function good($id) {
+		// Access denied
+		if (!$this->_user->hasPermission("blog.moderation.good")) {
+			return false;
+		}
+
 		// Get post data
 		$post = $this->_db
 			->select([
@@ -212,9 +223,15 @@ class PostsModeration extends AppModel {
 	/**
 	 * Bad post
 	 * @param int $id Post Moderation ID
+	 * @return bool
 	 * @throws Exception
 	 */
 	public function bad($id) {
+		// Access denied
+		if (!$this->_user->hasPermission("blog.moderation.bad")) {
+			return false;
+		}
+
 		// Get post data
 		$post = $this->_db
 			->select(["title", "author"])
@@ -229,6 +246,8 @@ class PostsModeration extends AppModel {
 
 			$this->remove($id);
 		}
+
+		return true;
 	}
 
 	/**
@@ -258,7 +277,10 @@ class PostsModeration extends AppModel {
 	 * @return Response
 	 */
 	public function add($title, $url, $category, $text, $image, $tags, $lang) {
-		$response = new Response();
+		// Access denied
+		if (!$this->_user->isLogged() || !$this->_user->hasPermission("blog.posts.add")) {
+			return new Response(2, "danger", $this->_lang->get(null, "core", "accessDenied"));
+		}
 
 		$title = StringFilters::filterStringForPublic($title);
 		$url = StringFilters::filterStringForPublic($url);
@@ -277,10 +299,6 @@ class PostsModeration extends AppModel {
 			"lang" => $lang
 		);
 
-		if (!$this->_user->isLogged() || !$this->_user->hasPermission("blog.posts.add")) {
-			return new Response(2, "danger", $this->_lang->get(null, "core", "accessDenied"));
-		}
-
 		$interval = $this->_db
 			->select("count(*)")
 			->from(DBPREFIX . "blog_posts_moderation")
@@ -289,43 +307,34 @@ class PostsModeration extends AppModel {
 			->result_array();
 
 		if ($interval === false) {
-			$response->code = 1;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 		} elseif ($interval[0][0] > 0) {
-			$response->code = 1;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("blog", "add.smallInterval");
+			return new Response(3, "danger", $this->_lang->get("blog", "add.smallInterval"));
 		} elseif (empty($title) || empty($text)) {
-			$response->code = 2;
-			$response->type = "warning";
-			$response->message = $this->_lang->get("core", "emptyFields");
-		} else {
-			$result = $this->_db
-				->insert_into(DBPREFIX . "blog_posts_moderation")
-				->values(array(
-					"title" => $title,
-					"url" => $url,
-					"category" => $category,
-					"text" => $text,
-					"image_link" => $image,
-					"tags" => $tags,
-					"lang" => $lang,
-					"author" => $this->_user->get("id"),
-				))
-				->result();
-
-			if ($result === false) {
-				$response->code = 1;
-				$response->type = "danger";
-				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
-			} else {
-				$response->type = "success";
-				$response->message = $this->_lang->get("blog", "add.success");
-			}
+			return new Response(4, "warning", $this->_lang->get("core", "emptyFields"));
+		} elseif (Strings::length($title) > 100 || Strings::length($image) > 256 || Strings::length($tags) > 128 || Strings::length($lang) > 10) {
+			return new Response(5, "danger", $this->_lang->get("core", "longFields"));
 		}
 
-		return $response;
+		$result = $this->_db
+			->insert_into(DBPREFIX . "blog_posts_moderation")
+			->values(array(
+				"title" => $title,
+				"url" => $url,
+				"category" => $category,
+				"text" => $text,
+				"image_link" => $image,
+				"tags" => $tags,
+				"lang" => $lang,
+				"author" => $this->_user->get("id"),
+			))
+			->result();
+
+		if ($result === false) {
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		}
+
+		return new Response(0, "success", $this->_lang->get("blog", "add.success"));
 	}
 
 	/**
@@ -334,24 +343,18 @@ class PostsModeration extends AppModel {
 	 * @return Response
 	 */
 	public function addPage($category = null) {
-		$response = new Response();
-
-		if ($this->_addTags["category"] == 0 && $category !== null) {
-			$this->_addTags["category"] = $category;
-		}
-
 		$this->_core
 			->addBreadcrumbs($this->_lang->get("blog", "moduleName"), "blog")
 			->addBreadcrumbs($this->_lang->get("blog", "add.moduleName"));
 
+		// Access denied
 		if (!$this->_user->isLogged() || !$this->_user->hasPermission("blog.posts.add")) {
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "accessDenied");
-			return $response;
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
 
-		$response->view = "blog.add";
+		if ($this->_addTags["category"] == 0 && $category !== null) {
+			$this->_addTags["category"] = $category;
+		}
 
 		// Categories
 		$categories = [];
@@ -374,6 +377,8 @@ class PostsModeration extends AppModel {
 			];
 		}
 
+		$response = new Response();
+		$response->view = "blog.add";
 		$response->tags = array_merge($this->_addTags, array (
 			"editor" => $this->_config->get("blog", "posts.editor", "BBCode"),
 			"categories" => $categories,

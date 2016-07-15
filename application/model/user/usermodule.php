@@ -362,14 +362,12 @@ class UserModule extends AppModel {
 	 * @return Response
 	 */
 	public function auth($login, $password, $tpc) {
-		$response = new Response();
-
-		$tpc = (bool)($tpc);
-
 		// If user is logged
 		if ($this->_user->isLogged()) {
 			return new Response(2, "danger", $this->_lang->get("user", "auth.logged"));
 		}
+		
+		$tpc = (bool)($tpc);
 
 		// Check login and password for exists
 		$query = $this->_db
@@ -389,9 +387,7 @@ class UserModule extends AppModel {
 
 		// If incorrect login or password
 		if (!isset($query[0])) {
-			$response->code = 3;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("user", "incorrectLoginOrPassword");
+			return new Response(3, "danger", $this->_lang->get("user", "incorrectLoginOrPassword"));
 		}
 
 		// Generate token

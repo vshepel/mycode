@@ -348,6 +348,8 @@ class Messages extends AppModel {
 			$response->code = 4;
 			$response->type = "warning";
 			$response->message = $this->_lang->get("core", "emptyFields");
+		} elseif (Strings::length($topic) > 32) {
+			return new Response(4, "warning", $this->_lang->get("core", "longFields"));
 		} elseif ($length < $this->_config->get("messages", "send.minLength", 5)) {
 			$response->code = 5;
 			$response->type = "danger";

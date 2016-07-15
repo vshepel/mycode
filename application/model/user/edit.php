@@ -22,6 +22,7 @@ namespace model\user;
 
 use AppModel;
 use harmony\strings\StringFilters;
+use harmony\strings\Strings;
 use Response;
 use Exception;
 
@@ -230,224 +231,224 @@ class Edit extends AppModel {
 	 * @return Response
 	 */
 	public function edit($type, array $args, $userId = null) {
-		$response = new Response();
-
-		if ($this->_user->isLogged() && $this->_user->hasPermission("user.edit." . $type)) {
-			if ($userId == null) $userId = $this->_user->get("id");
-			$this->_updateVars($userId);
-			
-			// ACTIONS
-			switch($type) {
-				// ACTION: MAIN
-				case false:
-				case "main":
-					$db_values = []; // Database values
-
-					// Name
-					if (isset($args["name"]) && !empty($args["name"])) {
-						if (StringCheckers::isValidName($args["name"])) {
-							$db_values["name"] = $args["name"];
-						} else {
-							return new Response(4, "danger", $this->_lang->get("user", "edit.main.nameInvalid"));
-						}
-					}
-
-					// Gender
-					if (isset($args["gender"])) {
-						$db_values["gender"] = intval($args["gender"]);
-					}
-
-					// Update birth date
-					if (isset($args["year"], $args["mouth"], $args["day"])) {
-						if (intval($args["year"]) > 0 && intval($args["mouth"]) > 0 && intval($args["day"]) > 0) {
-							$db_values["birth_date"] = intval($args["year"]) . "-" . intval($args["mouth"]) . "-" . intval($args["day"]);
-						} else {
-							$db_values["birth_date"] = null;
-						}
-					}
-
-					// Location
-					if (isset($args["location"])) {
-						$db_values["location"] = StringFilters::filterHtmlTags($args["location"]);
-					}
-
-					// Location
-					if (isset($args["url"])) {
-						$db_values["url"] = StringFilters::filterHtmlTags($args["url"]);
-					}
-
-					// Public Email
-					if (!empty($args["public_email"])) {
-						if (StringCheckers::isValidEmail($args["public_email"])) {
-							$db_values["public_email"] = $args["public_email"];
-						} else {
-							return new Response(5, "danger", $this->_lang->get("user", "edit.main.emailInvalid"));
-						}
-					}
-
-					// Lang
-					if (isset($args["lang"])) {
-						$db_values["lang"] = StringFilters::filterHtmlTags($args["lang"]);
-					}
-
-					// Update group
-					if ($this->_user->hasPermission("user.edit.group") && isset($args["group"])) {
-						$db_values["group"] = $args["group"];
-					}
-
-					// Update query
-					$this->_user->update($userId, $db_values);
-					return new Response(0, "success", $this->_lang->get("user", "edit.success"));
-				break;
-
-				// ACTION: PASSWORD CHANGE
-				case "password":
-					if (isset($args["old_password"], $args["new_password"], $args["new_password_2"]))
-						if (empty($args["old_password"]) || empty($args["new_password"]) || empty($args["new_password_2"])) {
-							$response->code = 4;
-							$response->type = "warning";
-							$response->message = $this->_lang->get("core", "emptyFields");
-						} elseif ($args["new_password"] != $args["new_password_2"]) {
-							$response->code = 5;
-							$response->type = "warning";
-							$response->message = $this->_lang->get("user", "edit.password.notMatch");
-						} elseif ($this->_user->passwordHash($args["old_password"]) != $this->_get("password")) {
-							$response->code = 6;
-							$response->type = "warning";
-							$response->message = $this->_lang->get("user", "edit.password.incorrectPassword");
-						} else {
-							$this->_user->update($userId, [
-								"password" => $this->_user->passwordHash($args["new_password"])
-							]);
-
-							$response->type = "success";
-							$response->message = $this->_lang->get("user", "edit.success");
-						}
-				break;
-
-				// ACTION: AVATAR CHANGE
-				case "avatar":
-					$avatar = $this->_get("avatar");
-					$files = UploadFiles::getInstance();
-
-					if (isset($args["delete"])) { // If delete avatar
-						if (empty($avatar)) {
-							$response->type = "danger";
-							$response->code = 4;
-							$response->message = $this->_lang->get("user", "edit.avatar.delete.none");
-						} else {
-							if (!empty($avatar)) {
-								$this->_user->update($userId, [
-									"avatar" => ""
-								]);
-
-								$files->delete("avatar", $avatar);
-								$files->delete("avatar", "original_" . $avatar);
-
-								$response->type = "success";
-								$response->message = $this->_lang->get("user", "edit.avatar.delete.success");
-							}
-						}
-					} elseif (isset($_FILES["avatar"]["error"]) && $_FILES["avatar"]["error"] == 4) { // No uploaded file
-						$response->type = "warning";
-						$response->code = 2;
-						$response->message = $this->_lang->get("core", "emptyFields");   		
-					} elseif (isset($_FILES["avatar"])) { // If upload avatar
-						$file = $_FILES["avatar"];
-						
-						if (!in_array(Files::getFileExtension($file["name"]), ["jpg", "jpeg", "png"])) {
-							$response->code = 3;
-							$response->type = "danger";
-							$response->message = $this->_lang->get("user", "edit.avatar.invalid");
-							return $response;
-						}
-						
-						// Names
-						$name = strtolower($userId . "_" . time() . "." . Files::getFileExtension($file["name"]));
-						$originalFilePath = $files->getUploadDirectory() . DS . "avatar" . DS . "original_" . $name;
-						$filePath = $files->getUploadDirectory() . DS . "avatar" . DS . $name;
-
-						$upload = $files->upload($file, "avatar", "original_" . $name);
-
-						if ($upload->code == 0) {
-							// Resize new avatar
-							$resize = new ImageResize();
-
-							try {
-								$resize->load($originalFilePath);
-							} catch (\Exception $e) {
-								return new Response(1, "danger", $this->_lang->get("core", "internalError") . " ({$e->getMessage()})");
-							}
-
-							// If avatar too small
-							if ($resize->getHeight() < 100 || $resize->getWidth() < 100) {
-								return new Response(4, "danger", $this->_lang->get("user", "edit.avatar.small"));
-							}
-
-							// Save avatar and update user avatar link
-							else {
-								// Delete old avatar
-								if (!empty($avatar)) {
-									$files->delete("avatar", $avatar);
-									$files->delete("avatar", "original_" . $avatar);
-								}
-
-								// Values
-								$compress = $this->_config->get("user", "avatarCompress", 80);
-								$type = IMAGETYPE_JPEG;
-
-								// Save new avatar
-								$resize->resize(200, 200)->save($filePath, $type, $compress);
-
-								// Load original
-								$orig = new ImageResize();
-								$orig->load($originalFilePath);
-
-								// Change original image size
-								$new_x = $orig->getWidth(); $new_y = $orig->getHeight();
-								$max_x = 1280; $max_y = 1280;
-								if ($new_x > $max_x || $new_y > $max_y) {
-									$max = ($new_x > $new_y) ? $new_x : $new_y;
-									$new_x = $new_x * ($max_x / $max);
-									$new_y = $new_y * ($max_y / $max);
-								}
-
-								// Compress original
-								$orig->resize($new_x, $new_y)->save($originalFilePath, $type, $compress);
-
-								$this->_user->update($userId, array (
-									"avatar" => $name
-								));
-
-								$response->type = "success";
-								$response->message = $this->_lang->get("user", "edit.avatar.success");
-							}
-						} else
-							$response = $upload;
-					}
-				break;
-
-				// Action not found page
-				default:
-					$this->_core
-						->addBreadcrumbs($this->_lang->get("user", "edit.moduleName"), "user/edit")
-						->addBreadcrumbs($this->_lang->get("core", "actionNotFound"));
-
-					$response->code = 3;
-					$response->type = "danger";
-					$response->message = $this->_lang->get("core", "actionNotFound");
-				break;
-			}
-		} else {
-			$this->_core
-				->addBreadcrumbs($this->_lang->get("user", "edit.moduleName"), "user/edit")
-				->addBreadcrumbs($this->_lang->get("core", "accessDenied"));
-
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "accessDenied");
+		// Access denied
+		if (!$this->_user->isLogged() || !$this->_user->hasPermission("user.edit." . $type)) {
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
 
-		return $response;
+		if ($userId == null) {
+			$userId = $this->_user->get("id");
+		}
+
+		$this->_updateVars($userId);
+			
+		// ACTIONS
+		switch($type) {
+			// ACTION: MAIN
+			case false:
+			case "main":
+				$db_values = []; // Database values
+
+				// Name
+				if (isset($args["name"]) && !empty($args["name"])) {
+					if (StringCheckers::isValidName($args["name"])) {
+						$db_values["name"] = $args["name"];
+					} else {
+						return new Response(5, "danger", $this->_lang->get("user", "edit.main.nameInvalid"));
+					}
+				}
+
+				// Gender
+				if (isset($args["gender"])) {
+					$db_values["gender"] = intval($args["gender"]);
+
+					if (!in_array($db_values["gender"], [0, 1, 2])) {
+						$db_values["gender"] = 0;
+					}
+				}
+
+				// Update birth date
+				if (isset($args["year"], $args["mouth"], $args["day"])) {
+					$year = intval($args["year"]);
+					$mouth = intval($args["mouth"]);
+					$day = intval($args["day"]);
+
+						if ($year >= 1900 && $year <= date("Y") && $mouth > 0 && $mouth <= 12 && $day > 0 && $day <= 31) {
+						$db_values["birth_date"] = date("Y-m-d", mktime(0, 0, 0, $mouth, $day, $year));
+						echo $db_values["birth_date"];
+					} else {
+						$db_values["birth_date"] = null;
+					}
+				}
+
+				// Location
+				if (isset($args["location"])) {
+					$db_values["location"] = StringFilters::filterHtmlTags($args["location"]);
+
+					if (Strings::length($db_values["location"]) > 128) {
+						return new Response(4, "warning", $this->_lang->get("core", "longFields"));
+					}
+				}
+
+				// URL
+				if (isset($args["url"])) {
+					$db_values["url"] = StringFilters::filterHtmlTags($args["url"]);
+
+					if (Strings::length($db_values["url"]) > 256) {
+						return new Response(4, "warning", $this->_lang->get("core", "longFields"));
+					}
+				}
+
+				// Public Email
+				if (!empty($args["public_email"])) {
+					if (StringCheckers::isValidEmail($args["public_email"])) {
+						$db_values["public_email"] = $args["public_email"];
+					} else {
+						return new Response(6, "danger", $this->_lang->get("user", "edit.main.emailInvalid"));
+					}
+				}
+
+				// Lang
+				if (isset($args["lang"])) {
+					if ($this->_lang->available($args["lang"])) {
+						$db_values["lang"] = $args["lang"];
+					} else {
+						return new Response(4, "danger", $this->_lang->get("core", "incorrectFields"));
+					}
+				}
+
+				// Update group
+				if ($this->_user->hasPermission("user.edit.group") && isset($args["group"])) {
+					$db_values["group"] = intval($args["group"]);
+				}
+
+				// Update query
+				$this->_user->update($userId, $db_values);
+				return new Response(0, "success", $this->_lang->get("user", "edit.success"));
+			break;
+
+			// ACTION: PASSWORD CHANGE
+			case "password":
+				if (isset($args["old_password"], $args["new_password"], $args["new_password_2"])) {
+					if (empty($args["old_password"]) || empty($args["new_password"]) || empty($args["new_password_2"])) {
+						return new Response(4, "warning", $this->_lang->get("core", "emptyFields"));
+					} elseif ($args["new_password"] != $args["new_password_2"]) {
+						return new Response(5, "warning", $this->_lang->get("user", "edit.password.notMatch"));
+					} elseif ($this->_user->passwordHash($args["old_password"]) != $this->_get("password")) {
+						return new Response(6, "warning", $this->_lang->get("user", "edit.password.incorrectPassword"));
+					}
+
+					$this->_user->update($userId, [
+						"password" => $this->_user->passwordHash($args["new_password"])
+					]);
+
+					return new Response(0, "success", $this->_lang->get("user", "edit.success"));
+				}
+			break;
+
+			// ACTION: AVATAR CHANGE
+			case "avatar":
+				$avatar = $this->_get("avatar");
+				$files = UploadFiles::getInstance();
+
+				// Avatar delete
+				if (isset($args["delete"])) {
+					if (empty($avatar)) {
+						return new Response(4, "danger", $this->_lang->get("user", "edit.avatar.delete.none"));
+					} else {
+						if (!empty($avatar)) {
+							$this->_user->update($userId, [
+								"avatar" => ""
+							]);
+
+							$files->delete("avatar", $avatar);
+							$files->delete("avatar", "original_" . $avatar);
+
+							return new Response(0, "success", $this->_lang->get("user", "edit.avatar.delete.success"));
+						}
+					}
+				}
+
+				// Avatar upload
+				if (isset($_FILES["avatar"])) {
+					// No uploaded file
+					if (isset($_FILES["avatar"]["error"]) && $_FILES["avatar"]["error"] == 4) {
+						return new Response(5, "warning", $this->_lang->get("core", "emptyFields"));
+					}
+
+					$file = $_FILES["avatar"];
+
+					// Invalid avatar extension
+					if (!in_array(Files::getFileExtension($file["name"]), ["jpg", "jpeg", "png", "gif"])) {
+						return new Response(6, "danger", $this->_lang->get("user", "edit.avatar.invalid"));
+					}
+						
+					// Names
+					$name = strtolower($userId . "_" . time() . "." . Files::getFileExtension($file["name"]));
+					$originalFilePath = $files->getUploadDirectory() . DS . "avatar" . DS . "original_" . $name;
+					$filePath = $files->getUploadDirectory() . DS . "avatar" . DS . $name;
+
+					// Upload avatar original
+					$upload = $files->upload($file, "avatar", "original_" . $name);
+
+					if ($upload->code != 0) {
+						return $upload;
+					}
+
+					// Resize new avatar
+					$resize = new ImageResize();
+
+					try {
+						$resize->load($originalFilePath);
+					} catch (\Exception $e) {
+						return new Response(1, "danger", $this->_lang->get("core", "internalError") . " ({$e->getMessage()})");
+					}
+
+					// If avatar too small
+					if ($resize->getHeight() < 200 || $resize->getWidth() < 200) {
+						return new Response(7, "danger", $this->_lang->get("user", "edit.avatar.small"));
+					}
+
+					// Delete old avatar
+					if (!empty($avatar)) {
+						$files->delete("avatar", $avatar);
+						$files->delete("avatar", "original_" . $avatar);
+					}
+
+					// Values
+					$compress = $this->_config->get("user", "avatarCompress", 80);
+					$type = IMAGETYPE_JPEG;
+
+					// Save new avatar
+					$resize->resize(200, 200)->save($filePath, $type, $compress);
+
+					// Load original
+					$orig = new ImageResize();
+					$orig->load($originalFilePath);
+
+					// Change original image size
+					$new_x = $orig->getWidth(); $new_y = $orig->getHeight();
+					$max_x = 1280; $max_y = 1280;
+					if ($new_x > $max_x || $new_y > $max_y) {
+						$max = ($new_x > $new_y) ? $new_x : $new_y;
+						$new_x = $new_x * ($max_x / $max);
+						$new_y = $new_y * ($max_y / $max);
+					}
+
+					// Compress original
+					$orig->resize($new_x, $new_y)->save($originalFilePath, $type, $compress);
+
+					$this->_user->update($userId, array (
+						"avatar" => $name
+					));
+
+					return new Response(0, "success", $this->_lang->get("user", "edit.avatar.success"));
+				}
+
+			break;
+		}
+
+		// Action not found
+		return new Response(3, "danger", $this->_lang->get("core", "actionNotFound"));
 	}
 }

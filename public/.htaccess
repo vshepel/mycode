@@ -1,5 +1,7 @@
 AddDefaultCharset UTF8
 
+Options All -Indexes
+
 <IfModule mod_rewrite.c>
   RewriteEngine on
   RewriteCond %{REQUEST_FILENAME} !-f
