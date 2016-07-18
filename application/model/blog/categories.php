@@ -141,6 +141,39 @@ class Categories extends AppModel {
 	}
 
 	/**
+	 * Edit category
+	 * @param int $id Category ID
+	 * @param string $name Category Name
+	 * @return Response
+	 */
+	public function edit($id, $name) {
+		// Access denied
+		if (!$this->_user->hasPermission("blog.categories.edit")) {
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
+		}
+
+		if (empty($name)) {
+			return new Response(3, "warning", $this->_lang->get("core", "emptyFields"));
+		}
+
+		$query = $this->_db
+			->update(DBPREFIX . "blog_categories")
+			->set(array (
+				"name" => StringFilters::filterHtmlTags($name),
+			))
+			->where("id", "=", $id)
+			->result();
+
+		if ($query === false) {
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		}
+
+		$this->_cache->remove("blog");
+
+		return new Response(0, "success");
+	}
+
+	/**
 	 * Remove category
 	 * @param int $id Category ID
 	 * @return Response
@@ -201,9 +234,10 @@ class Categories extends AppModel {
 
 	/**
 	 * Get categories page
+	 * @param int $edit_id Edit Category ID
 	 * @return Response
 	 */
-	public function getPage() {
+	public function getPage($edit_id = -1) {
 		$this->_core
 			->addBreadcrumbs($this->_lang->get("blog", "moduleName"), "blog")
 			->addBreadcrumbs($this->_lang->get("blog", "categories.moduleName"));
@@ -223,8 +257,12 @@ class Categories extends AppModel {
 			$rows[] = [
 				"id" => $id,
 				"name" => $row["name"],
+				"original-name" => $row["name"],
 				"posts-num" => $row["num"],
 				"category-link" => ADMIN_PATH . "blog/posts/cat/" . $id,
+
+				"edit" => ($edit_id == $row["id"]),
+				"not-edit" => !($edit_id == $row["id"])
 			];
 		}
 	

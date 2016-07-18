@@ -75,28 +75,36 @@ class Blog extends AppController {
 
 	public function action_categories() {
 		$model = Categories::getInstance();
-		$categories = $model->getPage();
+		$edit_id = -1;
 
-		if (isset($_POST["category_add"]["name"])) {
-			$result = $model->add($_POST["category_add"]["name"]);
-
-			if ($result->code == 0)
+		if (isset($_POST["item_id"])) {
+			if (isset($_POST["edit"])) $edit_id = $_POST["item_id"];
+			if (isset($_POST["remove"])) {
+				$model->remove($_POST["item_id"]);
 				HTTP::update();
-			else
-				$this->_view
-					->alert($result->type, $result->message);
+			}
+
+			if (isset($_POST["edit"]["name"])) {
+				$result = $model->edit($edit_id, $_POST["edit"]["name"]);
+
+				if ($result->code == 0) {
+					HTTP::update();
+				} else {
+					$this->_view->alert($result->type, $result->message);
+				}
+			}
 		}
 
-		if (isset($_POST["category_remove"]["id"])) {
-			$result = $model->remove($_POST["category_remove"]["id"]);
-
-			if ($result->code == 0)
+		if (isset($_POST["add"]["name"])) {
+			$result = $model->add($_POST["add"]["name"]);
+			if ($result->code == 0) {
 				HTTP::update();
-			else
+			} else {
 				$this->_view->alert($result->type, $result->message);
+			}
 		}
 
-		$this->_view->responseRender($categories);
+		$this->_view->responseRender($model->getPage($edit_id));
 	}
 
 	public function action_moderation_act($args) {
