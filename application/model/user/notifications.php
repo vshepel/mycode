@@ -47,21 +47,23 @@ class Notifications extends AppModel {
 			))
 			->result();
 
-		if ($add === false)
+		if ($add === false) {
 			throw new Exception("Notification Add Error: " . $this->_db->getError());
+		}
 
 		return $this;
 	}
 
 	/**
-	 * Get notofications by User
+	 * Get notifications by User ID
 	 * @param int $user User ID
 	 * @return Response
 	 * @throws Exception
 	 */
 	public function get($user = null) {
-		if ($user === null)
+		if ($user === null) {
 			$user = $this->_user->get("id");
+		}
 
 		$query = $this->_db
 			->select(array (
@@ -74,45 +76,43 @@ class Notifications extends AppModel {
 
 		if ($query === false) {
 			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
-		} else {
-			$lastdate = "";
-			$rows = [];
-
-			foreach ($query as $row) {
-				$link = $row["link"];
-				$date = $this->_core->getDate($row["timestamp"]);
-				$time = $this->_core->getTime($row["timestamp"]);
-
-				$rows[] = [
-					"id" => $row["id"],
-					"user" => $this->_user->getUserLogin($row["user"]),
-					"profile-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["user"]),
-					"link" => SITE_PATH . "user/notifications/" . $row["id"],
-
-					"iso-datetime" => $this->_core->getISODateTime($row["timestamp"]),
-					"date" => $date,
-					"time" => $time,
-
-					"title" => $this->_lang->parseString($row["title"]),
-					"type" => $row["type"],
-					"text" => $this->_lang->parseString($row["text"]),
-					"show-date" => ($lastdate != $date)
-				];
-				
-				$lastdate = $date;
-			}
-
-			$response = new \Response();
-
-			$response->tags = [
-				"num" => count($rows),
-				"rows" => $rows
-			];
-			
-			$response->tags["page-rows"] = $this->_view->parse("user.notifications", $response->tags);
-
-			return $response;
 		}
+
+		$lastdate = "";
+		$rows = [];
+
+		foreach ($query as $row) {
+			$date = $this->_core->getDate($row["timestamp"]);
+			$time = $this->_core->getTime($row["timestamp"]);
+
+			$rows[] = [
+				"id" => $row["id"],
+				"user" => $this->_user->getUserLogin($row["user"]),
+				"profile-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["user"]),
+				"link" => SITE_PATH . "user/notifications/" . $row["id"],
+
+				"iso-datetime" => $this->_core->getISODateTime($row["timestamp"]),
+				"date" => $date,
+				"time" => $time,
+
+				"title" => $this->_lang->parseString($row["title"]),
+				"type" => $row["type"],
+				"text" => $this->_lang->parseString($row["text"]),
+				"show-date" => ($lastdate != $date)
+			];
+				
+			$lastdate = $date;
+		}
+
+		$response = new Response();
+		$response->tags = [
+			"num" => count($rows),
+			"rows" => $rows
+		];
+			
+		$response->tags["page-rows"] = $this->_view->parse("user.notifications", $response->tags);
+
+		return $response;
 	}
 
 	/**
@@ -140,11 +140,11 @@ class Notifications extends AppModel {
 			throw new Exception("Notification Get Error: " . $this->_db->getError());
 		}
 
-		if (isset($query[0]["link"])) {
-			return $query[0]["link"];
-		} else {
+		if (!isset($query[0]["link"])) {
 			return false;
 		}
+
+		return $query[0]["link"];
 	}
 
 	/**
@@ -183,7 +183,8 @@ class Notifications extends AppModel {
 			->where("user", "=", $id)
 			->result();
 
-		if ($remove === false)
+		if ($remove === false) {
 			throw new Exception("Notifications Remove Error: " . $this->_db->getError());
+		}
 	}
 }

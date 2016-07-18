@@ -180,8 +180,6 @@ class Packages extends AppModel {
 	 * @return Response
 	 */
 	public function listPage() {
-		$response = new Response();
-
 		$this->_core->addBreadcrumbs($this->_lang->get("core", "packages.moduleName"), "core/packages");
 
 		// Access denied
@@ -189,8 +187,6 @@ class Packages extends AppModel {
 			$this->_core->addBreadcrumbs($this->_lang->get("core", "accessDenied"));
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
-		
-		$response->view = "core.packages.list";
 
 		$num = 0;
 		$rows = [];
@@ -200,23 +196,26 @@ class Packages extends AppModel {
 			foreach ($row["dependence"] as &$dep) {
 				$dep = $this->get($dep)["description"] . " ({$dep})";
 			}
+			
+			$rows[] = array_merge($row, [
+				"files" => Strings::lineWrap(implode("\n", $row["files"])),
 
-			$row["files"] = Strings::lineWrap(implode("\n", $row["files"]));
-			
-			$row["dependence"] = Strings::lineWrap(implode("\n", $row["dependence"]));
-			
-			$row["remove"] = $this->_user->hasPermission("core.packages.remove");
-			$row["remove-link"] = ADMIN_PATH . "core/packages/remove/" . $row["name"];
+				"dependence" => Strings::lineWrap(implode("\n", $row["dependence"])),
+
+				"remove" => $this->_user->hasPermission("core.packages.remove"),
+				"remove-link" => ADMIN_PATH . "core/packages/remove/" . $row["name"]
+			]);
+
 			$num++;
-			
-			$rows[] = $row;
 		}
 
-		$response->tags = array (
+		$response = new Response();
+		$response->view = "core.packages.list";
+		$response->tags = [
 			"action" => "list",
 			"num" => $num,
 			"rows" => $rows
-		);
+		];
 
 		return $response;
 	}
@@ -226,8 +225,6 @@ class Packages extends AppModel {
 	 * @return Response
 	 */
 	public function installPage() {
-		$response = new Response();
-
 		$this->_core
 			->addBreadcrumbs($this->_lang->get("core", "packages.moduleName"), "core/packages")
 			->addBreadcrumbs($this->_lang->get("core", "packages.install.moduleName"), "core/packages/install");
@@ -240,9 +237,9 @@ class Packages extends AppModel {
 
 		$meta = DAT . DS . "core.packages.install" . DS . "files" . DS . "install.ini";
 
-		if (file_exists($meta)) {
-			$response->view = "core.packages.install.info";
+		$response = new Response();
 
+		if (file_exists($meta)) {
 			$ini = parse_ini_file($meta);
 			$name = "UNKNOWN";
 			if (isset($ini["package.name"])) {
@@ -292,12 +289,13 @@ class Packages extends AppModel {
 			$tags["installed"] = $this->exists($name);
 			$tags["action"] = "install";
 
+			$response->view = "core.packages.install.info";
 			$response->tags = $tags;
 		} else {
 			$response->view = "core.packages.install";
-			$response->tags = array(
+			$response->tags = [
 				"action" => "install",
-			);
+			];
 		}
 
 		return $response;
@@ -527,6 +525,7 @@ class Packages extends AppModel {
 	 * @throws \Exception
 	 */
 	public function removePage($name) {
+		// Access denied
 		if (!$this->_user->hasPermission("core.packages.remove")) {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
@@ -563,8 +562,8 @@ class Packages extends AppModel {
 	 * @throws \Exception
 	 */
 	public function remove($name, $remove_links) {
-		$core = $this->exists($name) && $this->get($name)["type"] == "core";
-		if (!$this->_user->hasPermission("core.packages.remove") || $core) {
+		// Access denied
+		if (!$this->_user->hasPermission("core.packages.remove")) {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
 

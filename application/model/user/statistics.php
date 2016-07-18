@@ -29,61 +29,42 @@ class Statistics extends AppModel {
 	 * @return Response
 	 */
 	public function getPage() {
-		$response = new Response();
-
 		$this->_core
 			->addBreadcrumbs($this->_lang->get("user", "moduleName"), "user")
 			->addBreadcrumbs($this->_lang->get("user", "statistics.moduleName"), "user/statistics");
 
-		/**
-		 * Check permissions for view statistics
-		 */
-		if ($this->_user->hasPermission("user.statistics")) {
-			$response->view = "user.statistics";
-
-			$tags = array();
-
-			/**
-			 * Users num
-			 */
-			$num = $this->_db
-				->select("count(*)")
-				->from(DBPREFIX . "user_profiles")
-				->result_array();
-			$tags["users-num"] = $num[0][0];
-
-			/**
-			 * User groups num
-			 */
-			$groups = $this->_db
-				->select("count(*)")
-				->from(DBPREFIX . "user_groups")
-				->result_array();
-			$tags["users-groups"] = $groups[0][0];
-
-			/**
-			 * User sessions num
-			 */
-			$sessions = $this->_db
-				->select("count(*)")
-				->from(DBPREFIX . "user_sessions")
-				->result_array();
-			$tags["users-sessions"] = $sessions[0][0];
-
-			$response->tags = $tags;
-		}
-
-		/**
-		 * Access denied
-		 */
-		else {
+		// Access denied
+		if (!$this->_user->hasPermission("user.statistics")) {
 			$this->_core->addBreadcrumbs($this->_lang->get("core", "accessDenied"));
-
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "accessDenied");
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
 
+		$tags = [];
+
+		// Users num
+		$num = $this->_db
+			->select("count(*)")
+			->from(DBPREFIX . "user_profiles")
+			->result_array();
+		$tags["users-num"] = $num[0][0];
+
+		// User groups num
+		$groups = $this->_db
+			->select("count(*)")
+			->from(DBPREFIX . "user_groups")
+			->result_array();
+		$tags["users-groups"] = $groups[0][0];
+
+		// User sessions num
+		$sessions = $this->_db
+			->select("count(*)")
+			->from(DBPREFIX . "user_sessions")
+			->result_array();
+		$tags["users-sessions"] = $sessions[0][0];
+
+		$response = new Response();
+		$response->view = "user.statistics";
+		$response->tags = $tags;
 		return $response;
 	}
 }

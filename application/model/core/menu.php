@@ -37,43 +37,48 @@ class Menu extends AppModel{
 		$path = $type . DOT . LOCALE;
 		$cache = $this->_cache->get("core.menu", $path);
 
-		if ($cache === false || $array) {
-			$this->_db
-				->select(array(
-					"id", "type", "icon", "title", "link"
-				))
-				->from(DBPREFIX . "core_menu");
-			
-			if ($type != null && $type != "")
-				$this->_db->where("type", "=", $type);
-			
-			$query = $this->_db
-				->order_by("pos")->asc()
-				->result_array();
-
-			if ($query === false)
-				throw new Exception("Menu get error: " . $this->_db->getError());
-			else {
-				if ($array) return $query; // Return menu array
-				
-				$menu = "";
-
-				foreach ($query as $row) {
-					$row["title"] = $this->_lang->parseString($row["title"]);
-					$menu .= $this->_view->parse("core.menu.tag", $row);
-				}
-
-				$this->_cache->push("core.menu", $path, $menu);
-
-				return $menu;
-			}
-		} else
+		if ($cache !== false && !$array) {
 			return $cache;
+		}
+
+		$this->_db
+			->select(array(
+				"id", "type", "icon", "title", "link"
+			))
+			->from(DBPREFIX . "core_menu");
+
+		if ($type != null && $type != "")
+			$this->_db->where("type", "=", $type);
+
+		$query = $this->_db
+			->order_by("pos")->asc()
+			->result_array();
+
+		if ($query === false) {
+			throw new Exception("Menu get error: " . $this->_db->getError());
+		}
+
+		if ($array) { // Return menu array
+			return $query;
+		}
+
+		$menu = "";
+
+		foreach ($query as $row) {
+			$row["title"] = $this->_lang->parseString($row["title"]);
+			$menu .= $this->_view->parse("core.menu.tag", $row);
+		}
+
+		$this->_cache->push("core.menu", $path, $menu);
+
+		return $menu;
 	}
 	
 	public function listPage($type, $edit_id = 0) {
-		$response = new Response();
-		
+		$this->_core
+			->addBreadcrumbs($this->_lang->get("core", "menu.moduleName"), "core/menu")
+			->addBreadcrumbs($this->_lang->get("core", "menu.type." . $type), "core/menu/list");
+
 		// Access denied
 		if (!$this->_user->hasPermission("core.menu.list")) {
 			$this->_core->addBreadcrumbs($this->_lang->get("core", "accessDenied"));
@@ -81,10 +86,6 @@ class Menu extends AppModel{
 		}
 		
 		if ($type != BACKEND) $type = FRONTEND;
-			
-		$this->_core
-			->addBreadcrumbs($this->_lang->get("core", "menu.moduleName"), "core/menu")
-			->addBreadcrumbs($this->_lang->get("core", "menu.type." . $type), "core/menu/list");
 	
 		$array = $this->_db
 			->select(array(
@@ -96,28 +97,28 @@ class Menu extends AppModel{
 			->result_array();
 
 		if ($array === false) {
-			$response->code = 1;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
-		} else {
-			$response->view = "core.menu.list";
-			$rows = [];
-				
-			foreach ($array as $row) {
-				$row["edit"] = ($edit_id == $row["id"]);
-				$row["not-edit"] = !$row["edit"];
-				
-				$row["original-title"] = $row["title"];
-				$row["title"] = $this->_lang->parseString($row["title"]);
-				$rows[] = $row;
-			}
-		
-			$response->tags = array (
-				"num" => count($array),
-				"rows" => $rows,
-				"type" => $type
-			);
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 		}
+
+		$rows = [];
+				
+		foreach ($array as $row) {
+			$rows[] = array_merge($row, [
+				"edit" => ($edit_id == $row["id"]),
+				"not-edit" => !($edit_id == $row["id"]),
+
+				"original-title" => $row["title"],
+				"title" => $this->_lang->parseString($row["title"])
+			]);
+		}
+
+		$response = new Response();
+		$response->view = "core.menu.list";
+		$response->tags = [
+			"num" => count($array),
+			"rows" => $rows,
+			"type" => $type
+		];
 
 		return $response;
 	}
@@ -132,50 +133,47 @@ class Menu extends AppModel{
 	 * @return Response
 	 */
 	public function add($icon, $pos, $title, $link, $type) {
-		$response = new Response();
-
-		if (empty($title) || empty($link) || empty($type)) {
-			$response->code = 2;
-			$response->type = "warning";
-			$response->message = $this->_lang->get("core", "emptyFields");
-		} else {
-			if ($pos === null || empty($pos)) {
-				$array = $this->_db
-				->select(array(
-					"pos"
-				))
-				->from(DBPREFIX . "core_menu")
-				->where("type", "=", $type)
-				->order_by("pos")->desc()
-				->limit([0,1])
-				->result_array();
-				
-				$pos = isset($array[0][0]) ? $array[0][0]+10 : 0;
-			}
-			
-			$query = $this->_db
-				->insert_into(DBPREFIX . "core_menu")
-				->values(array (
-					"icon" => StringFilters::filterHtmlTags($icon),
-					"pos" => intval($pos),
-					"title" => StringFilters::filterHtmlTags($title),
-					"link" => StringFilters::filterHtmlTags($link),
-					"type" => StringFilters::filterHtmlTags($type)
-				))
-				->result();
-
-			if ($query === false) {
-				$response->code = 1;
-				$response->type = "danger";
-				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
-			} else {
-				$this->_cache->remove("core.menu");
-				$response->type = "success";
-				$response->message = $this->_lang->get("core", "menu.add.success");
-			}
+		// Access denied
+		if (!$this->_user->hasPermission("core.menu.add")) {
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
 
-		return $response;
+		if (empty($title) || empty($link) || empty($type)) {
+			return new Response(2, "warning", $this->_lang->get("core", "emptyFields"));
+		}
+
+		if ($pos === null || empty($pos)) {
+			$array = $this->_db
+			->select(array(
+				"pos"
+			))
+			->from(DBPREFIX . "core_menu")
+			->where("type", "=", $type)
+			->order_by("pos")->desc()
+			->limit([0,1])
+			->result_array();
+				
+			$pos = isset($array[0][0]) ? $array[0][0]+10 : 0;
+		}
+			
+		$query = $this->_db
+			->insert_into(DBPREFIX . "core_menu")
+			->values(array (
+				"icon" => StringFilters::filterHtmlTags($icon),
+				"pos" => intval($pos),
+				"title" => StringFilters::filterHtmlTags($title),
+				"link" => StringFilters::filterHtmlTags($link),
+				"type" => StringFilters::filterHtmlTags($type)
+			))
+			->result();
+
+		if ($query === false) {
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		}
+
+		$this->_cache->remove("core.menu");
+
+		return new Response(0, "success", $this->_lang->get("core", "menu.add.success"));
 	}
 	
 	/**
@@ -189,53 +187,59 @@ class Menu extends AppModel{
 	 * @return Response
 	 */
 	public function edit($item_id, $icon, $pos, $title, $link, $type) {
-		$response = new Response();
-
-		if (empty($pos) || empty($title) || empty($link) || empty($type)) {
-			$response->code = 2;
-			$response->type = "warning";
-			$response->message = $this->_lang->get("core", "emptyFields");
-		} else {			
-			$query = $this->_db
-				->update(DBPREFIX . "core_menu")
-				->set(array (
-					"icon" => StringFilters::filterHtmlTags($icon),
-					"pos" => intval($pos),
-					"title" => StringFilters::filterHtmlTags($title),
-					"link" => StringFilters::filterHtmlTags($link),
-					"type" => StringFilters::filterHtmlTags($type)
-				))
-				->where("id", "=", $item_id)
-				->result();
-
-			if ($query === false) {
-				$response->code = 1;
-				$response->type = "danger";
-				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
-			} else {
-				$this->_cache->remove("core.menu");
-				$response->type = "success";
-				$response->message = $this->_lang->get("core", "menu.edit.success");
-			}
+		// Access denied
+		if (!$this->_user->hasPermission("core.menu.edit")) {
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
 
-		return $response;
+		if (empty($pos) || empty($title) || empty($link) || empty($type)) {
+			return new Response(3, "warning", $this->_lang->get("core", "emptyFields"));
+		}
+
+		$query = $this->_db
+			->update(DBPREFIX . "core_menu")
+			->set(array (
+				"icon" => StringFilters::filterHtmlTags($icon),
+				"pos" => intval($pos),
+				"title" => StringFilters::filterHtmlTags($title),
+				"link" => StringFilters::filterHtmlTags($link),
+				"type" => StringFilters::filterHtmlTags($type)
+			))
+			->where("id", "=", $item_id)
+			->result();
+
+		if ($query === false) {
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		}
+
+		$this->_cache->remove("core.menu");
+
+		return new Response(0, "success");
 	}
-	
+
 	/**
 	 * Remove menu item
 	 * @param int $id Item ID
+	 * @return bool
 	 * @throws Exception
 	 */
 	public function remove($id) {
+		// Access denied
+		if (!$this->_user->hasPermission("core.menu.remove")) {
+			return false;
+		}
+
 		$remove = $this->_db
 			->delete_from(DBPREFIX . "core_menu")
 			->where("id", "=", $id)
 			->result();
 
-		if ($remove === false)
+		if ($remove === false) {
 			throw new Exception("Menu remove error: " . $this->_db->getError());
+		}
 
 		$this->_cache->remove("core.menu");
+
+		return true;
 	}
 }

@@ -28,48 +28,42 @@ class Settings extends AppModel {
 	 * Get settings page
 	 * @return Response
 	 */
-	public function page() {		
-		$response = new Response();
-
+	public function page() {
 		$this->_core
 			->addBreadcrumbs($this->_lang->get("page", "moduleName"), "page")
 			->addBreadcrumbs($this->_lang->get("page", "settings.moduleName"), "page/settings");
 
 		if (!$this->_user->hasPermission("page.settings")) {
 			$this->_core->addBreadcrumbs($this->_lang->get("core", "accessDenied"));
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "accessDenied");
-		} else {
-			$rows = $this->_db
-				->select(array(
-					"id", "name", "url"
-				))
-				->from(DBPREFIX . "pages")
-				->result_array();
-
-			if ($rows === false) {
-				$response->code = 1;
-				$response->type = "danger";
-				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
-				return $response;
-			}
-			
-			$pages = "";
-			$active = $this->_config->get("page", "page");
-			foreach($rows as $row) {
-				$pages .= $this->_view->parse("page.settings.selector", [
-					"name" => $row["name"] . " ({$row["url"]})",
-					"value" => $row["url"],
-					"active" => ($row["url"] == $active)
-				]);
-			}
-
-			$response->view = "page.settings";
-			$response->tags = [
-				"page" => $pages
-			];
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
+
+		$rows = $this->_db
+			->select(array(
+				"id", "name", "url"
+			))
+			->from(DBPREFIX . "pages")
+			->result_array();
+
+		if ($rows === false) {
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		}
+			
+		$pages = "";
+		$active = $this->_config->get("page", "page");
+		foreach($rows as $row) {
+			$pages .= $this->_view->parse("page.settings.selector", [
+				"name" => $row["name"] . " ({$row["url"]})",
+				"value" => $row["url"],
+				"active" => ($row["url"] == $active)
+			]);
+		}
+
+		$response = new Response();
+		$response->view = "page.settings";
+		$response->tags = [
+			"page" => $pages
+		];
 
 		return $response;
 	}
@@ -80,19 +74,19 @@ class Settings extends AppModel {
 	 * @return Response
 	 */
 	public function save($values) {
-		if (!$this->_user->hasPermission("page.settings"))
+		// Access denied
+		if (!$this->_user->hasPermission("page.settings")) {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
-		else {
-			if (isset($values["page"]) && (!empty($values["page"]))) {
-				$this->_config->save("page", [
-					"page" => $values["page"]
-				]);
-							
-				return new Response(0, "success", $this->_lang->get("page", "settings.success"));
-		
-			}
 		}
-		
-		return new Response(3, "warning", $this->_lang->get("core", "emptyFields"));
+
+		if (!isset($values["page"]) || empty($values["page"])) {
+			return new Response(3, "warning", $this->_lang->get("core", "emptyFields"));
+		}
+
+		$this->_config->save("page", [
+			"page" => $values["page"]
+		]);
+							
+		return new Response(0, "success", $this->_lang->get("page", "settings.success"));
 	}
 }

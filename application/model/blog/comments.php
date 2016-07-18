@@ -57,6 +57,11 @@ class Comments extends AppModel {
 	 * @return Response
 	 */
 	public function add($post, $comment, $reply) {
+		// Access denied
+		if (!$this->_user->isLogged() || !$this->_user->hasPermission("blog.comments.add")) {
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
+		}
+
 		$post = intval($post);
 		$reply = intval($reply);
 
@@ -65,12 +70,6 @@ class Comments extends AppModel {
 		$comment = preg_replace(["/^/", "/$/"], "", $comment);
 
 		$this->_comment = $comment;
-
-		$response = new Response();
-
-		if (!$this->_user->isLogged() || !$this->_user->hasPermission("blog.comments.add")) {
-			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
-		}
 
 		// Check interval
 		$check_interval  = $this->_config->get("blog", "comments.interval", 10);
@@ -86,11 +85,11 @@ class Comments extends AppModel {
 			if ($interval === false) {
 				return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 			} elseif ($interval[0][0] > 0) {
-				return new Response(2, "danger", $this->_lang->get("blog", "comments.add.smallInterval"));
+				return new Response(3, "danger", $this->_lang->get("blog", "comments.add.smallInterval"));
 			}
 		}
 
-		$length = Strings::length($comment, "UTF-8");
+		$length = Strings::length($comment);
 
 		$row = $this->_db
 			->select(["url", "allow_comments"])
@@ -99,88 +98,72 @@ class Comments extends AppModel {
 			->result_array();
 
 		if ($row === false) {
-			$response->code = 1;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 		} elseif (count($row) == 0) {
-			$response->code = 3;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("blog", "notFound");
+			return new Response(3, "danger", $this->_lang->get("blog", "notFound"));
 		} elseif ($row[0]["allow_comments"] == "0") {
-			$response->code = 4;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "accessDenied");
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		} elseif (empty($comment)) {
-			$response->code = 5;
-			$response->type = "warning";
-			$response->message = $this->_lang->get("blog", "comments.add.emptyComment");
+			return new Response(4, "warning", $this->_lang->get("blog", "comments.add.emptyComment"));
 		} elseif ($length < $this->_config->get("blog", "comments.length.min", 3)) {
-			$response->code = 6;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("blog", "comments.add.shortComment");
+			return new Response(5, "danger", $this->_lang->get("blog", "comments.add.shortComment"));
 		} elseif ($length > $this->_config->get("blog", "comments.length.max", 300)) {
-			$response->code = 7;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("blog", "comments.add.longComment");
-		} else {
-			$reply_row = $this->_db
-				->select("user")
-				->from(DBPREFIX . "blog_comments")
-				->where("id", "=", $reply)
-				->result_array();
-
-			$reply_user = 0;
-			$original_comment = $comment;
-
-			if (isset($reply_row[0])) {
-				$reply_user = $reply_row[0]["user"];
-				$login = $this->_user->getUserLogin($reply_user);
-				$comment = "@{$login}, " . $comment;
-			}
-
-			$query = $this->_db
-				->insert_into(DBPREFIX . "blog_comments")
-				->values(array(
-					"where" => $post,
-					"user" => $this->_user->get("id"),
-					"user_ip" => HTTP::getIp(),
-					"comment" => $comment,
-					"reply" => $reply
-				))
-				->result();
-
-			if ($query === false) {
-				$response->code = 1;
-				$response->type = "danger";
-				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
-			} else {
-				$comment_id = $this->_db->insert_id();
-
-				// Update comments counter
-				$this->_db
-					->update(DBPREFIX . "blog_posts")
-					->set(array(
-						"comments_num" => array ("comments_num", "+", 1, false)
-					))
-					->where("id", "=", $post)
-					->result();
-
-				// Send reply notification
-				if ($reply_user != 0) {
-					$this->_registry
-						->get("Notifications")
-						->add($reply_user, "info", "[blog:notification.comments.reply.title] " . $this->_user->get("login"),
-							$original_comment, Posts::getPostLink($post, $row[0]["url"]) . "#comment_" . $comment_id
-						);
-				}
-
-				$response->type = "success";
-				$response->message = $this->_lang->get("blog", "comments.add.success");
-				$this->_comment = "";
-			}
+			return new Response(6, "danger", $this->_lang->get("blog", "comments.add.longComment"));
 		}
 
-		return $response;
+		$reply_row = $this->_db
+			->select("user")
+			->from(DBPREFIX . "blog_comments")
+			->where("id", "=", $reply)
+			->result_array();
+
+		$reply_user = 0;
+		$original_comment = $comment;
+
+		if (isset($reply_row[0])) {
+			$reply_user = $reply_row[0]["user"];
+			$login = $this->_user->getUserLogin($reply_user);
+			$comment = "@{$login}, " . $comment;
+		}
+
+		$query = $this->_db
+			->insert_into(DBPREFIX . "blog_comments")
+			->values(array(
+				"where" => $post,
+				"user" => $this->_user->get("id"),
+				"user_ip" => HTTP::getIp(),
+				"comment" => $comment,
+				"reply" => $reply
+			))
+			->result();
+
+		if ($query === false) {
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		}
+
+		$comment_id = $this->_db->insert_id();
+
+		// Update comments counter
+		$this->_db
+			->update(DBPREFIX . "blog_posts")
+			->set(array(
+				"comments_num" => array ("comments_num", "+", 1, false)
+			))
+			->where("id", "=", $post)
+			->result();
+
+		// Send reply notification
+		if ($reply_user != 0) {
+			$this->_registry
+				->get("Notifications")
+				->add($reply_user, "info", "[blog:notification.comments.reply.title] " . $this->_user->get("login"),
+					$original_comment, Posts::getPostLink($post, $row[0]["url"]) . "#comment_" . $comment_id
+				);
+		}
+
+		$this->_comment = "";
+
+		return new Response(0, "success", $this->_lang->get("blog", "comments.add.success"));
 	}
 
 	/**
@@ -192,15 +175,14 @@ class Comments extends AppModel {
 	 * @return Response
 	 */
 	public function get($post, $page, $allow, $url = "") {
-		$response = new Response();
+		// Access denied
+		if (!$this->_user->hasPermission("blog.comments.read")) {
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
+		}
 
 		$post = intval($post);
 		$page = intval($page);
 		$allow = (bool)($allow);
-
-		if (!$this->_user->hasPermission("blog.comments.read")) {
-			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
-		}
 
 		$num = $this->_db
 			->select("count(*)")
@@ -210,72 +192,70 @@ class Comments extends AppModel {
 
 		if ($num === false) {
 			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
-		} else {
-			$num = $num[0][0];
-			$pagination = new Pagination($num, $page, Posts::getPostLink($post, $url) . "/page/", $this->_config->get("blog", "comments.customPagination", array()));
-
-			$array = $this->_db
-				->select(array(
-					"id", "user", "comment", "comment", "reply",
-					array ( "UNIX_TIMESTAMP(`timestamp`)", "timestamp", false )
-				))
-				->from(DBPREFIX . "blog_comments")
-				->where("where", "=", $post)
-				->order_by("id", $this->_config->get("blog", "comments.sort", "DESC"))
-				->limit($pagination->getSqlLimits())
-				->result_array();
-
-			if ($array === false) {
-				$response->code = 1;
-				$response->type = "danger";
-				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
-			} else {
-				$rows = [];
-
-				foreach ($array as $row) {
-					$online = $this->_user->checkOnline($this->_user->getUser($row["user"], "active"));
-
-					$message = Strings::lineWrap($row["comment"]);
-					$message = $this->_user->replaceProfileLink($message);
-
-					$rows[] = [
-						"id" => $row["id"],
-
-						"author-login" => $this->_user->getUserLogin($row["user"]),
-						"author-name" => $this->_user->getUserName($row["user"]),
-						"author-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["user"]),
-						"author-avatar-link" => $this->_user->getAvatarLinkById($row["user"]),
-
-						"date" => $this->_core->getDate($row["timestamp"]),
-						"time" => $this->_core->getTime($row["timestamp"]),
-
-						"comment-message" => $message,
-						"reply" => $row["reply"],
-
-						"online" => $online,
-						"offline" => !$online,
-
-						"remove" => $this->_user->hasPermission("blog.comments.remove." . ($row["user"] == $this->_user->get("id") ? "my" : "others")),
-					];
-				}
-
-				$canAdd = $allow ? $this->_user->hasPermission("blog.comments.add") : false;
-
-				$response->code = 0;
-				$response->view = "blog.comments";
-				$response->tags = array (
-					"post-id" => $post,
-					"comment" => $this->_comment,
-					"page" => $page,
-					
-					"num" => $num,
-					"rows" => $rows,
-					"pagination" => (string) $pagination,
-					"can-add" => $canAdd,
-					"cant-add" => !$canAdd
-				);
-			}
 		}
+
+		$num = $num[0][0];
+		$pagination = new Pagination($num, $page, Posts::getPostLink($post, $url) . "/page/", $this->_config->get("blog", "comments.customPagination", array()));
+
+		$array = $this->_db
+			->select([
+				"id", "user", "comment", "comment", "reply",
+				array ( "UNIX_TIMESTAMP(`timestamp`)", "timestamp", false )
+			])
+			->from(DBPREFIX . "blog_comments")
+			->where("where", "=", $post)
+			->order_by("id", $this->_config->get("blog", "comments.sort", "DESC"))
+			->limit($pagination->getSqlLimits())
+			->result_array();
+
+		if ($array === false) {
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		}
+
+		$rows = [];
+
+		foreach ($array as $row) {
+			$online = $this->_user->checkOnline($this->_user->getUser($row["user"], "active"));
+
+			$message = Strings::lineWrap($row["comment"]);
+			$message = $this->_user->replaceProfileLink($message);
+
+			$rows[] = [
+				"id" => $row["id"],
+
+				"author-login" => $this->_user->getUserLogin($row["user"]),
+				"author-name" => $this->_user->getUserName($row["user"]),
+				"author-link" => SITE_PATH . "user/profile/" . $this->_user->getUserLogin($row["user"]),
+				"author-avatar-link" => $this->_user->getAvatarLinkById($row["user"]),
+
+				"date" => $this->_core->getDate($row["timestamp"]),
+				"time" => $this->_core->getTime($row["timestamp"]),
+
+				"comment-message" => $message,
+				"reply" => $row["reply"],
+
+				"online" => $online,
+				"offline" => !$online,
+
+				"remove" => $this->_user->hasPermission("blog.comments.remove." . ($row["user"] == $this->_user->get("id") ? "my" : "others")),
+			];
+		}
+
+		$canAdd = $allow ? $this->_user->hasPermission("blog.comments.add") : false;
+
+		$response = new Response();
+		$response->view = "blog.comments";
+		$response->tags = [
+			"post-id" => $post,
+			"comment" => $this->_comment,
+			"page" => $page,
+					
+			"num" => $num,
+			"rows" => $rows,
+			"pagination" => (string) $pagination,
+			"can-add" => $canAdd,
+			"cant-add" => !$canAdd
+		];
 
 		return $response;
 	}
@@ -298,7 +278,7 @@ class Comments extends AppModel {
 		if ($array === false) {
 			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 		} else if (!isset($array[0]["user"])) {
-			return new Response(2, "danger", $this->_lang->get("blog", "comments.remove.notFound"));
+			return new Response(3, "danger", $this->_lang->get("blog", "comments.remove.notFound"));
 		}
 
 		$user = $array[0]["user"];

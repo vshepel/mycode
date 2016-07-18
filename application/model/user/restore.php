@@ -47,22 +47,21 @@ class Restore extends AppModel {
 		$key = (bool)($key);
 		$var = $key ? $var : intval($var);
 
-		if ($key === true)
-			$result = $this->_db
-				->select("count(*)")
-				->from(DBPREFIX . "user_restore")
-				->where("key", "=", $var)
-				->result_array();
-		else
-			$result = $this->_db
-				->select("count(*)")
-				->from(DBPREFIX . "user_restore")
-				->where("user", "=", $var)
-				->and_where("UNIX_TIMESTAMP(`timestamp`)", ">", time() - 30, false)
-				->result_array();
+		$this->_db
+			->select("count(*)")
+			->from(DBPREFIX . "user_restore");
 
-		if (!isset($result[0][0]))
+		if ($key === true) {
+			$this->_db->where("key", "=", $var);
+		} else {
+			$this->_db->where("user", "=", $var)->and_where("UNIX_TIMESTAMP(`timestamp`)", ">", time() - 30, false);
+		}
+
+		$result = $this->_db->result_array();
+
+		if (!isset($result[0][0])) {
 			throw new \Exception("Error restore check: " . $this->_db->getError());
+		}
 
 		return ($result[0][0] > 0);
 	}
@@ -72,27 +71,22 @@ class Restore extends AppModel {
 	 * @return Response
 	 */
 	public function page() {
-		$response = new Response();
-
-		$this->_core
-			->addBreadcrumbs($this->_lang->get("user", "restore.moduleName"));
+		$this->_core->addBreadcrumbs($this->_lang->get("user", "restore.moduleName"));
 
 		if ($this->_user->isLogged()) {
-			$response->code = 1;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("user", "auth.logged");
-		} else {
-			$response->view = "user.restore.page";
-
-			$response->tags = array (
-				"auth-link" => SITE_PATH . "user/auth",
-				"register-link" => SITE_PATH . "user/register",
-				"login" => $this->_login,
-
-				"success" => $this->_success,
-				"not-success" => !$this->_success
-			);
+			return new Response(1, "danger", $this->_lang->get("user", "auth.logged"));
 		}
+
+		$response = new Response();
+		$response->view = "user.restore.page";
+		$response->tags = [
+			"auth-link" => SITE_PATH . "user/auth",
+			"register-link" => SITE_PATH . "user/register",
+			"login" => $this->_login,
+
+			"success" => $this->_success,
+			"not-success" => !$this->_success
+		];
 
 		return $response;
 	}
@@ -103,31 +97,24 @@ class Restore extends AppModel {
 	 * @return Response
 	 */
 	public function pageRestore($key) {
-		$response = new Response();
-
-		$this->_core
-			->addBreadcrumbs($this->_lang->get("user", "restore.moduleName"));
+		$this->_core->addBreadcrumbs($this->_lang->get("user", "restore.moduleName"));
 
 		if ($this->_user->isLogged()) {
-			$response->code = 1;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("user", "auth.logged");
+			return new Response(1, "danger", $this->_lang->get("user", "auth.logged"));
 		} elseif (!$this->_check(true, $key)) {
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("user", "restore.change.badKey");
-		} else {
-			$response->view = "user.restore.restore";
-
-			$response->tags = array (
-				"auth-link" => SITE_PATH . "user/auth",
-				"register-link" => SITE_PATH . "user/register",
-				"login" => $this->_login,
-
-				"success" => $this->_success,
-				"not-success" => !$this->_success
-			);
+			return new Response(2, "danger", $this->_lang->get("user", "restore.change.badKey"));
 		}
+
+		$response = new Response();
+		$response->view = "user.restore.restore";
+		$response->tags = [
+			"auth-link" => SITE_PATH . "user/auth",
+			"register-link" => SITE_PATH . "user/register",
+			"login" => $this->_login,
+
+			"success" => $this->_success,
+			"not-success" => !$this->_success
+		];
 
 		return $response;
 	}
@@ -135,11 +122,9 @@ class Restore extends AppModel {
 	/**
 	 * Restore password
 	 * @param string $login User login or email
-	 * @return object
+	 * @return Response
 	 */
 	public function send($login) {
-		$response = new Response();
-
 		$this->_login = $login;
 
 		$query = $this->_db
@@ -152,60 +137,45 @@ class Restore extends AppModel {
 			->result_array();
 
 		if ($query === false) {
-			$response->code = 1;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 		} elseif (!isset($query[0]["id"])) {
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("user", "restore.send.userNotFound");
+			return new Response(2, "danger", $this->_lang->get("user", "restore.send.userNotFound"));
 		} elseif ($this->_check(false, $query[0]["id"])) {
-			$response->code = 3;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("user", "restore.send.alreadySent");
-		} else {
-			$key = $this->_user->genToken($query[0]["id"], $query[0]["email"]);
-
-			$update = $this->_db
-				->insert_into(DBPREFIX . "user_restore")
-				->values(array(
-					"user" => $query[0]["id"],
-					"key" => $key
-				))
-				->result();
-
-			if ($update === false) {
-				$response->code = 1;
-				$response->type = "danger";
-				$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
-			} else {
-				$email = $query[0]["email"];
-				$mail = $this->_registry->get("SendMail");
-
-				$send = $mail
-					->send($email,
-						$this->_lang->get("user", "restore.moduleName"),
-						$this->_view->parse("user.restore.mail", [
-							"restore-link" => FSITE_PATH . "user/restore/" . $key,
-							"restore-key" => $key,
-							"ip-address" => HTTP::getIp(),
-							"email" => $email
-						]),
-						"Content-Type: text/html; charset=utf-8"
-					);
-
-				if (!$send) {
-					$response->code = 1;
-					$response->type = "danger";
-					$response->message = $this->_lang->get("core", "internalError", [$mail->getError()]);
-				} else {
-					$response->type = "success";
-					$response->message = $this->_lang->get("user", "restore.send.success");
-				}
-			}
+			return new Response(3, "danger", $this->_lang->get("user", "restore.send.alreadySent"));
 		}
 
-		return $response;
+		$key = $this->_user->genToken($query[0]["id"], $query[0]["email"]);
+
+		$update = $this->_db
+			->insert_into(DBPREFIX . "user_restore")
+			->values(array(
+				"user" => $query[0]["id"],
+				"key" => $key
+			))
+			->result();
+
+		if ($update === false) {
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		}
+
+		$email = $query[0]["email"];
+		$mail = $this->_registry->get("SendMail");
+
+		$send = $mail->send($email,
+			$this->_lang->get("user", "restore.moduleName"),
+			$this->_view->parse("user.restore.mail", [
+				"restore-link" => FSITE_PATH . "user/restore/" . $key,
+				"restore-key" => $key,
+				"ip-address" => HTTP::getIp(),
+				"email" => $email
+			]), "Content-Type: text/html; charset=utf-8"
+		);
+
+		if (!$send) {
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		}
+
+		return new Response(0, "success", $this->_lang->get("user", "restore.send.success"));
 	}
 
 	/**
@@ -217,8 +187,6 @@ class Restore extends AppModel {
 	 * @throws \Exception
 	 */
 	public function change($key, $password, $password2) {
-		$response = new Response();
-
 		$query = $this->_db
 			->select(array(
 				"user"
@@ -228,36 +196,25 @@ class Restore extends AppModel {
 			->result_array();
 
 		if ($query === false) {
-			$response->code = 1;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 		} elseif (!isset($query[0]["user"])) {
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("user", "restore.change.badKey");
+			return new Response(2, "danger", $this->_lang->get("user", "restore.change.badKey"));
 		} elseif (empty($password) || empty($password2)) {
-			$response->code = 3;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "emptyFields");
+			return new Response(3, "danger", $this->_lang->get("core", "emptyFields"));
 		} elseif ($password !== $password2) {
-			$response->code = 4;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("user", "restore.change.passwordsNotMatch");
-		} else {
-			$this->_user
-				->update($query[0]["user"], array (
-					"password" => $this->_user->passwordHash($password)
-				));
-
-			$this->_db
-				->delete_from(DBPREFIX . "user_restore")
-				->where("key", "=", $key)
-				->result();
-
-			$response->type = "success";
-			$response->message = $this->_lang->get("user", "restore.change.success");
+			return new Response(4, "danger", $this->_lang->get("user", "restore.change.passwordsNotMatch"));
 		}
 
-		return $response;
+		$this->_user
+			->update($query[0]["user"], array (
+				"password" => $this->_user->passwordHash($password)
+			));
+
+		$this->_db
+			->delete_from(DBPREFIX . "user_restore")
+			->where("key", "=", $key)
+			->result();
+
+		return new Response(0, "success", $this->_lang->get("user", "restore.change.success"));
 	}
 }

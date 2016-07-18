@@ -29,10 +29,9 @@ class Main extends AppModel {
 	 * @return Response
 	 */
 	public function page() {
-		$response = new Response();
-
 		$this->_core->addBreadcrumbs($this->_lang->get("core", "main.moduleName"), "core/main");
 
+		// Access denied
 		if (!$this->_user->hasPermission("core.main")) {
 			$this->_core->addBreadcrumbs($this->_lang->get("core", "accessDenied"));
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
@@ -53,7 +52,8 @@ class Main extends AppModel {
 				];
 			}
 		}
-		
+
+		$response = new Response();
 		$response->view = "core.main";
 		$response->tags = array(
 			"username" => $this->_user->get("login"),

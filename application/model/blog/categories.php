@@ -53,7 +53,9 @@ class Categories extends AppModel {
 		$cache = $this->_cache->get("blog", "categories." . $this->_lang->getLang());
 
 		// Load categories
-		if ($cache === false) {
+		if ($cache !== false) {
+			$this->_categories = $cache;
+		} else {
 			$array = $this->_db
 				->select(array(
 				   "id", "name"
@@ -93,8 +95,7 @@ class Categories extends AppModel {
 			}
 
 			$this->_cache->push("blog", "categories." . $this->_lang->getLang(), $this->_categories);
-		} else
-			$this->_categories = $cache;
+		}
 	}
 
 	/**
@@ -117,36 +118,26 @@ class Categories extends AppModel {
 	 * @return Response
 	 */
 	public function add($name) {
-		$response = new Response();
-
 		if (!$this->_user->hasPermission("blog.categories.add")) {
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "accessDenied");
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		} elseif (empty($name)) {
-			$response->code = 3;
-			$response->type = "warning";
-			$response->message = $this->_lang->get("core", "emptyFields");
-		} else {
-			$query = $this->_db
-				->insert_into(DBPREFIX . "blog_categories")
-				->values(array (
-					"name" => StringFilters::filterHtmlTags($name)
-				))
-				->result();
-
-			if ($query === false) {
-				$response->code = 1;
-				$response->type = "danger";
-				$response->message = $this->_lang->get("main", "internalError", [$this->_db->getError()]);
-			} else {
-				$response->type = "success";
-				$response->message = $this->_lang->get("blog", "categories.add.success");
-				$this->_cache->remove("blog"); // Clear categories cache
-			}
+			return new Response(3, "warning", $this->_lang->get("core", "emptyFields"));
 		}
 
-		return $response;
+		$query = $this->_db
+			->insert_into(DBPREFIX . "blog_categories")
+			->values(array (
+				"name" => StringFilters::filterHtmlTags($name)
+			))
+			->result();
+
+		if ($query === false) {
+			return new Response(1, "danger", $this->_lang->get("main", "internalError", [$this->_db->getError()]));
+		}
+
+		$this->_cache->remove("blog"); // Clear categories cache
+
+		return new Response(0, "success", $this->_lang->get("blog", "categories.add.success"));
 	}
 
 	/**
@@ -155,34 +146,24 @@ class Categories extends AppModel {
 	 * @return Response
 	 */
 	public function remove($id) {
-		$response = new Response();
-
+		// Access denied
 		if (!$this->_user->hasPermission("blog.categories.remove")) {
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "accessDenied");
-		} elseif ($this->exists($id)) {
-			$query = $this->_db
-				->delete_from(DBPREFIX . "blog_categories")
-				->where("id", "=", $id)
-				->result();
-
-			if ($query === false) {
-				$response->code = 1;
-				$response->type = "danger";
-				$response->message = $this->_lang->get("main", "internalError", [$this->_db->getError()]);
-			} else {
-				$response->type = "success";
-				$response->message = $this->_lang->get("blog", "categories.remove.success");
-				$this->_cache->remove("blog"); // Clear categories cache
-			}
-		} else {
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("blog", "categories.remove.notExists");
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
+		} elseif (!$this->exists($id)) {
+			return new Response(2, "danger", $this->_lang->get("blog", "categories.remove.notExists"));
 		}
 
-		return $response;
+		$query = $this->_db
+			->delete_from(DBPREFIX . "blog_categories")
+			->where("id", "=", $id)
+			->result();
+
+		if ($query === false) {
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		}
+
+		$this->_cache->remove("blog"); // Clear categories cache
+		return new Response(0, "success", $this->_lang->get("blog", "categories.remove.success"));
 	}
 
 	/**
@@ -223,36 +204,35 @@ class Categories extends AppModel {
 	 * @return Response
 	 */
 	public function getPage() {
-		$response = new Response();
-
 		$this->_core
 			->addBreadcrumbs($this->_lang->get("blog", "moduleName"), "blog")
 			->addBreadcrumbs($this->_lang->get("blog", "categories.moduleName"));
-			
+
+		// Access denied
 		if (!$this->_user->hasPermission("blog.categories.list")) {
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "accessDenied");
-		} else {
-			$response->view = "blog.categories";
-			$categories = self::get();
-			$tags = array ();
-	
-			$tags["num"] = count($categories);
-			$rows = [];
-	
-			foreach ($categories as $id => $row) {
-				$rows[] = [
-					"id" => $id,
-					"name" => $row["name"],
-					"posts-num" => $row["num"],
-					"category-link" => ADMIN_PATH . "blog/posts/cat/" . $id,
-				];
-			}
-	
-			$tags["rows"] = $rows;
-			$response->tags = $tags;
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
+
+		$categories = self::get();
+		$tags = array ();
+	
+		$tags["num"] = count($categories);
+		$rows = [];
+	
+		foreach ($categories as $id => $row) {
+			$rows[] = [
+				"id" => $id,
+				"name" => $row["name"],
+				"posts-num" => $row["num"],
+				"category-link" => ADMIN_PATH . "blog/posts/cat/" . $id,
+			];
+		}
+	
+		$tags["rows"] = $rows;
+
+		$response = new Response();
+		$response->view = "blog.categories";
+		$response->tags = $tags;
 		
 		return $response;
 	}

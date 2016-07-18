@@ -29,8 +29,6 @@ class Backup extends AppModel {
 	 * @return Response
 	 */
 	public function getPage() {
-		$response = new Response();
-
 		$this->_core->addBreadcrumbs($this->_lang->get("core", "backup.moduleName"), "core/backup");
 
 		// Access denied
@@ -54,9 +52,9 @@ class Backup extends AppModel {
 				"date" => $date
 			];
 		}
-		
-		$response->view = "core.backup";
 
+		$response = new Response();
+		$response->view = "core.backup";
 		$response->tags = [
 			"date" => date("c", time()),
 			"database-backups" => $database_backups

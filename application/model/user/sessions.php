@@ -33,99 +33,73 @@ class Sessions extends AppModel {
 	 * @return Response
 	 */
 	public function get($page) {
-		$response = new Response();
-
 		$page = intval($page);
 
-		$this->_core
-			->addBreadcrumbs($this->_lang->get("user", "sessions.moduleName"), "user/sessions");
+		$this->_core->addBreadcrumbs($this->_lang->get("user", "sessions.moduleName"), "user/sessions");
 
-		/**
-		 * Check permissions for show sessions
-		 */
-		if ($this->_user->isLogged() && $this->_user->hasPermission("user.sessions.show")) {
-			/**
-			 * Sessions num query
-			 */
-			$num = $this->_db
-				->select("count(*)")
-				->from(DBPREFIX . "user_sessions")
-				->where("user", "=", $this->_user->get("id"))
-				->result_array();
-
-			/**
-			 * Database error
-			 */
-			if ($num === false) {
-				return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
-			} else {
-				$num = $num[0][0];
-				$pagination = new Pagination($num, $page, SITE_PATH . "user/sessions/page/", $this->_config->get("user", "sessions.customPagination", array()));
-
-				/**
-				 * Sessions get query
-				 */
-				$array = $this->_db
-					->select(array(
-						"id", "token", "auth_agent", "auth_ip", array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false)
-					))
-					->from(DBPREFIX . "user_sessions")
-					->where("user", "=", $this->_user->get("id"))
-					->order_by("id", $this->_config->get("user", "sessions.sort", "DESC"))
-					->limit($pagination->getSqlLimits())
-					->result_array();
-
-				/**
-				 * Database error
-				 */
-				if ($array === false) {
-					$response->code = 1;
-					$response->type = "danger";
-					$response->message = $this->_lang->get("core", "internalError", [$this->_db->getError()]);
-				}
-
-				/**
-				 * Make page
-				 */
-				else {
-					$rows = [];
-
-					/**
-					 * Make list
-					 */
-					foreach ($array as $row) {
-						$current = ($row["token"] == $this->_user->getToken());
-
-						$rows[] = [
-							"id" => $row["id"],
-							"browser" => HTTP::getUserAgentBrowser($row["auth_agent"]),
-							"os" => HTTP::getUserAgentOS($row["auth_agent"]),
-							"ip" => $row["auth_ip"],
-							"create-date" => $this->_core->getDate($row["timestamp"]),
-							"create-time" => $this->_core->getTime($row["timestamp"]),
-
-							"current" => $current,
-							"not-current" => !$current
-						];
-					}
-
-					$response->view = "user.sessions";
-
-					$response->tags = array(
-						"num" => $num,
-						"rows" => $rows,
-						"pagination" => $pagination
-					);
-				}
-			}
-		} else {
-			$this->_core
-				->addBreadcrumbs($this->_lang->get("core", "accessDenied"));
-
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "accessDenied");
+		// Access denied
+		if (!$this->_user->isLogged() || !$this->_user->hasPermission("user.sessions.show")) {
+			$this->_core->addBreadcrumbs($this->_lang->get("core", "accessDenied"));
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
+
+		// Sessions num query
+		$num = $this->_db
+			->select("count(*)")
+			->from(DBPREFIX . "user_sessions")
+			->where("user", "=", $this->_user->get("id"))
+			->result_array();
+
+		// Database error
+		if ($num === false) {
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		}
+
+		$num = $num[0][0];
+		$pagination = new Pagination($num, $page, SITE_PATH . "user/sessions/page/", $this->_config->get("user", "sessions.customPagination", array()));
+
+		// Sessions get query
+		$array = $this->_db
+			->select([
+				"id", "token", "auth_agent", "auth_ip", array("UNIX_TIMESTAMP(`timestamp`)", "timestamp", false)
+			])
+			->from(DBPREFIX . "user_sessions")
+			->where("user", "=", $this->_user->get("id"))
+			->order_by("id", $this->_config->get("user", "sessions.sort", "DESC"))
+			->limit($pagination->getSqlLimits())
+			->result_array();
+
+		// Database error
+		if ($array === false) {
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		}
+
+		$rows = [];
+
+		// Make list
+		foreach ($array as $row) {
+			$current = ($row["token"] == $this->_user->getToken());
+
+			$rows[] = [
+				"id" => $row["id"],
+				"browser" => HTTP::getUserAgentBrowser($row["auth_agent"]),
+				"os" => HTTP::getUserAgentOS($row["auth_agent"]),
+				"ip" => $row["auth_ip"],
+				"create-date" => $this->_core->getDate($row["timestamp"]),
+				"create-time" => $this->_core->getTime($row["timestamp"]),
+
+				"current" => $current,
+				"not-current" => !$current
+			];
+		}
+
+		$response = new Response();
+		$response->view = "user.sessions";
+		$response->tags = [
+			"num" => $num,
+			"rows" => $rows,
+			"pagination" => $pagination
+		];
 
 		return $response;
 	}
@@ -141,63 +115,38 @@ class Sessions extends AppModel {
 	 * @return Response
 	 */
 	public function close($id, $user = null, $closeType = 0) {
-		$response = new Response();
+		// Access denied
+		if (!$this->_user->isLogged() || !$this->_user->hasPermission("user.sessions.close")) {
+			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
+		}
 		
 		if ($user === null) {
 			$user = $this->_user->get("id");
 		}
 
-		// Check permissions for close session
-		if ($this->_user->hasPermission("user.sessions.close")) {
-			// Check session for exists
-			$this->_db->select(["token"])
-				->from(DBPREFIX . "user_sessions")			
-				->where("user", "=", $user);
+		// Check session for exists
+		$this->_db->select(["token"])
+			->from(DBPREFIX . "user_sessions")
+			->where("user", "=", $user);
 			
-			switch ($closeType) {
-				case 0: $this->_db->and_where("id", "=", $id); break;
-				case 1: $this->_db->and_where("token", "!=", $this->_user->getToken());
-			}
+		switch ($closeType) {
+			case 0: $this->_db->and_where("id", "=", $id); break;
+			case 1: $this->_db->and_where("token", "!=", $this->_user->getToken());
+		}
 			
-			$find = $this->_db->result_array();
+		$find = $this->_db->result_array();
 
-			// Database error
-			if ($find === false) {
-				return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
-			}
-
-			/**
-			 * Session not exists
-			 */
-			elseif (count($find) == 0) {
-				return new Response(3, "danger", $this->_lang->get("user", "sessions.badToken"));
-			}
-
-			/**
-			 * Close session
-			 */
-			else {
-				if ($this->_user->sessionClose($find[0]["token"]) === false) {
-					$response->code = 1;
-					$response->type = "danger";
-					$response->message = $this->_lang->get("core", "internalError");
-				} else {
-					$response->code = 0;
-					$response->type = "success";
-					$response->message = $this->_lang->get("user", "sessions.success");
-				}
-			}
+		if ($find === false) { // Database error
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
+		} elseif (count($find) == 0) { // Session not exists
+			return new Response(3, "danger", $this->_lang->get("user", "sessions.badToken"));
 		}
 
-		/**
-		 * Access denied
-		 */
-		else {
-			$response->code = 2;
-			$response->type = "danger";
-			$response->message = $this->_lang->get("core", "accessDenied");
+
+		if ($this->_user->sessionClose($find[0]["token"]) === false) {
+			return new Response(1, "danger", $this->_lang->get("core", "internalError", [$this->_db->getError()]));
 		}
 
-		return $response;
+		return new Response(0, "success", $this->_lang->get("user", "sessions.success"));
 	}
 }
