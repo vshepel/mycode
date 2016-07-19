@@ -134,6 +134,9 @@ class Blog extends AppController {
 		if (isset($args[0]) && $args[0] == "cat") {
 			$category = $args[1];
 			$page = isset($args[2]) ? $args[2] : 1;
+
+			// Active Category
+			Categories::getInstance()->activeCategory = $category;
 		} else {
 			$category = null;
 			$page = isset($args[0]) ? $args[0] : 1;

@@ -275,7 +275,6 @@ class Edit extends AppModel {
 
 						if ($year >= 1900 && $year <= date("Y") && $mouth > 0 && $mouth <= 12 && $day > 0 && $day <= 31) {
 						$db_values["birth_date"] = date("Y-m-d", mktime(0, 0, 0, $mouth, $day, $year));
-						echo $db_values["birth_date"];
 					} else {
 						$db_values["birth_date"] = null;
 					}

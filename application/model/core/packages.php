@@ -268,7 +268,7 @@ class Packages extends AppModel {
 			];
 
 			// Dependences compare
-			$deps = explode(",", $tags["dependence"]);
+			$deps = ($tags["dependence"] == "") ? [] : explode(",", $tags["dependence"]);
 			$tags["dependence-uncompare"] = false;
 			if (count($deps) > 0) {
 				$check = $this->checkDependences($deps);
@@ -490,7 +490,7 @@ class Packages extends AppModel {
 			if (is_file($dir . DS . "menu.json") && $menu = file_get_contents($dir . DS . "menu.json")) {
 				$model = new Menu();
 				foreach (json_decode($menu) as $row) {
-					$model->add($row[0], null, $row[1], SITE_PATH . $row[2], $row[3]);
+					$model->add($row[0], null, $row[1], $row[2], $row[3]);
 				}
 			}
 

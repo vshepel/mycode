@@ -220,7 +220,7 @@ class Categories extends AppModel {
 				$rows[] = [
 					"id" => $id,
 					"name" => $row["name"],
-					"link" => SITE_PATH . "blog/cat/" . $id,
+					"link" => (SIDETYPE == BACKEND ? ADMIN_PATH . "blog/posts" : SITE_PATH . "blog") . "/cat/" . $id,
 					"num" => $row["num"],
 					"active" => ($this->activeCategory == $id)
 				];

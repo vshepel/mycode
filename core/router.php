@@ -136,6 +136,14 @@ class Router {
 	}
 
 	/**
+	 * Get request
+	 * @return string
+	 */
+	public function getRequest() {
+		return $this->_request;
+	}
+
+	/**
 	 * Check controller for exists
 	 * @param string $module Module name
 	 * @param string $type Side type

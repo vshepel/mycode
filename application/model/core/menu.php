@@ -29,18 +29,10 @@ class Menu extends AppModel{
 	/**
 	 * Get menu by type
 	 * @param string $type = null Side type
-	 * @param bool $array = false Get menu array
-	 * @return string|array Menu string or array
+	 * @return array Menu array
 	 * @throws Exception
 	 */
-	public function get($type = null, $array = false) {
-		$path = $type . DOT . LOCALE;
-		$cache = $this->_cache->get("core.menu", $path);
-
-		if ($cache !== false && !$array) {
-			return $cache;
-		}
-
+	public function get($type = null) {
 		$this->_db
 			->select(array(
 				"id", "type", "icon", "title", "link"
@@ -58,18 +50,24 @@ class Menu extends AppModel{
 			throw new Exception("Menu get error: " . $this->_db->getError());
 		}
 
-		if ($array) { // Return menu array
-			return $query;
-		}
-
 		$menu = "";
+		$pkg = new Packages();
+		$mod = $this->_registry->get("Router")->getModule();
+		$url = $this->_registry->get("Router")->getRequest();
 
 		foreach ($query as $row) {
-			$row["title"] = $this->_lang->parseString($row["title"]);
-			$menu .= $this->_view->parse("core.menu.tag", $row);
-		}
+			$module = "";
 
-		$this->_cache->push("core.menu", $path, $menu);
+			$row["title"] = $this->_lang->parseString($row["title"]);
+			$row["link"] = preg_replace_callback("#\\{(.*)}#isU", function ($args) use ($pkg, &$module) {
+				$module = $args[1];
+				return $pkg->get($module)[SIDETYPE . "-link"];
+			}, $row["link"]);
+
+			$row["active"] = ($mod == $module || $url == $row["link"]);
+
+			$menu[] = $row;
+		}
 
 		return $menu;
 	}

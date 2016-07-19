@@ -3,6 +3,7 @@
 <head>
 	{meta}
 	<title>{title}</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	{link}
@@ -17,30 +18,34 @@
 	<script src="{PATH}vendor/bootstrap/js/bootstrap.min.js"></script>
 	<script src="{PATH}vendor/bootstrap-switch/js/bootstrap-switch.min.js"></script>
 	<script src="{VIEW}scripts.js"></script>
-</head>
-<body>
+
+	<!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+	<!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+	<script src="../../assets/js/ie-emulation-modes-warning.js"></script>
+
+	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+	<!--[if lt IE 9]>
+	<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+	<![endif]-->
+</head><body>
 {ajax}
 
-<header class="navbar navbar-inverse navbar-fixed-top">
+<nav class="navbar navbar-inverse navbar-fixed-top">
 	<div class="container-fluid">
 		<div class="navbar-header">
-			<a class="navbar-brand" href="{PATH}">
-				<img alt="LOGO" src="{PATH}images/harmony-fav.png" height="20">
-			</a>
-			<a class="navbar-brand" href="{PATH}">[b:core:controlPanel]</a>
-			<button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
 				<span class="sr-only">Toggle navigation</span>
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
+			<a class="navbar-brand" href="{ADMIN_PATH}">
+				<img alt="LOGO" src="{PATH}images/harmony-fav.png" height="20">
+			</a>
+			<a class="navbar-brand" href="{ADMIN_PATH}">[b:core:controlPanel]</a>
 		</div>
-
-		<nav class="collapse navbar-collapse">
-			<ul class="nav navbar-nav">
-				[if has-permission:core.main]<li><a href="{ADMIN_PATH}"><span class="fa fa-lg fa-home"></span> [b:core:main.moduleName]</a></li>[/if]
-			</ul>
-
+		<div id="navbar" class="navbar-collapse collapse">
 			<ul class="nav navbar-nav navbar-right">
 				<li>
 					<a href="{notifications-link}" id="notifications-dropdown" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -62,61 +67,45 @@
 					</ul>
 				</li>
 				<li><a href="{PATH}">
-					<span class="fa fa-lg fa-globe"></span>
-					[f:main:menu.siteLink]
-				</a></li>
+						<span class="fa fa-lg fa-globe"></span>
+						[f:main:menu.siteLink]
+					</a></li>
 			</ul>
-		</nav>
+		</div>
 	</div>
-</header>
+</nav>
 
-<main class="container">
-	<ol class="breadcrumb">
-		{breadcrumbs}
-	</ol>
+<div class="container-fluid">
 	<div class="row">
-		<aside class="col-md-3 col-sm-3">
-			<div class="media well well-sm">
-				<a class="pull-left" href="{profile-link}">
-					<img class="media-object img-rounded" src="{avatar-link}" alt="{username}" style="max-width: 50px">
-				</a>
-				<div class="media-body">
-					<h4 class="media-heading"><b>{username}</b></h4>
-					{group-name}
-				</div>
-			</div>
-
-			<div class="list-group">
-				{menu}
-			</div>
-		</aside>
-
-		<section class="col-md-9 col-sm-9">
+		<div class="col-sm-3 col-md-2 sidebar">
+			<ul class="nav nav-sidebar">
+				[foreach menu]
+				<li role="presentation"[active] class="active"[/active]><a href="{link}"><span class="fa fa-fw fa-{icon}"></span>&nbsp; {title}</a></li>
+				[/foreach]
+			</ul>
+		</div>
+		<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+			<ol class="breadcrumb">{breadcrumbs}</ol>
 			<div class="flash">{alerts}</div>
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h3 class="panel-title">{title}</h3>
-				</div>
-				<div class="panel-body">{content}</div>
-			</div>
-		</section>
+			<div>{content}</div>
+		</div>
 	</div>
-</main>
+</div>
 
 <footer>
 	<br><br>
 	<div class="text-center">
 		Copyright &copy; 2016. HarmonyCMS. All Rights Reserved
 		<br><br>
-		
+
 		<form method="post" action="{SITE_PATH}core/lang" onchange="submit();" style="width:300px;margin:0 auto;">
 			<select class="form-control" name="lang">
 				[foreach languages]
-					<option value="{value}"[active] selected[/active]>{name}</option>
+				<option value="{value}"[active] selected[/active]>{name}</option>
 				[/foreach]
 			</select>
 		</form>
-		
+
 	</div>
 	<br><br>
 </footer>
