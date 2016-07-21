@@ -103,6 +103,10 @@ class Blog extends AppController {
 	}
 
 	public function action_list($args) {
+		if ($args[0] == "blog" && $this->_registry->get("Config")->get("core", "moduleFrontend") == "blog") {
+			HTTP::redirect(SITE_PATH);
+		}
+
 		$category = null;
 		$page = 1;
 		$tag = null;

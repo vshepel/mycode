@@ -139,12 +139,19 @@ class Core extends AppController {
 		
 		if (isset($_POST["item_id"])) {
 			if (isset($_POST["edit"])) $edit_id = $_POST["item_id"];
-			if (isset($_POST["remove"])) $menu->remove($_POST["item_id"]);
+			if (isset($_POST["remove"])) {
+				$menu->remove($_POST["item_id"]);
+				HTTP::update();
+			}
 			
 			if (isset($_POST["edit"]["icon"], $_POST["edit"]["pos"], $_POST["edit"]["title"], $_POST["edit"]["link"], $_POST["edit"]["type"])) {
 				$result = $menu->edit($edit_id, $_POST["edit"]["icon"], $_POST["edit"]["pos"], $_POST["edit"]["title"], $_POST["edit"]["link"], $_POST["edit"]["type"]);
-				$this->_view->alert($result->type, $result->message);
-				if ($result->code == 0) $edit_id = 0;
+
+				if ($result->code == 0) {
+					HTTP::update();
+				} else {
+					$this->_view->alert($result->type, $result->message);
+				}
 			}
 		}
 		
