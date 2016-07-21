@@ -224,6 +224,12 @@ class Router {
 
 				if ($method_action === null) {
 					if ($this->_action === null) {
+						if ($this->get(0) == $this->_module && $this->_config->get("core", "moduleFrontend") == $this->_module) {
+							header("HTTP/1.1 301 Moved Permanently");
+							header("Location: " . SITE_PATH);
+							exit;
+						}
+
 						$this->_action = $controller->__default;
 					} else {
 						throw new NotFoundException();
