@@ -1,6 +1,6 @@
 <?php
 /**
- * View HarmonyCMS Parser class
+ * View Simple Engine class
  * @copyright Copyright (C) 2016 al3xable <al3xable@yandex.com>. All rights reserved.
  * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License version 3
  *
@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-namespace harmony\view\parsers;
+namespace harmony\view\engines;
 
 use Exception;
 use model\core\Packages;
@@ -26,10 +26,10 @@ use NotFoundException;
 use Registry;
 
 use harmony\strings\StringConverters;
-use harmony\view\Parser;
+use harmony\view\Engine;
 use harmony\lang\Lang;
 
-class HarmonyCMS extends Parser {
+class Simple extends Engine {
 	/**
 	 * @var string Template extension
 	 */
@@ -188,7 +188,7 @@ class HarmonyCMS extends Parser {
 					$this->_models[$name] = $cc;
 				}
 
-				return $cc->getProperty($args[2], (isset($args[3]) ? $args[3] : null));
+				return $cc->getProperty($args[2], (isset($args[3]) ? StringConverters::toArray($args[3]) : []));
 			} catch (NotFoundException $e) {
 				return "Module '{$args[1]}' not found";
 			}
@@ -238,7 +238,7 @@ class HarmonyCMS extends Parser {
 
 			// Load file and cache
 			if (!$view) {
-				$file = VIEW . DS . $this->_type . DS . $this->_view . DS . "tpl" . DS .  $name . "." . $this->_extension;
+				$file = VIEW . DS . $this->_type . DS . $this->_view . DS . "simple" . DS .  $name . "." . $this->_extension;
 
 				if (!file_exists($file)) {
 					if (defined("DEBUG")) {

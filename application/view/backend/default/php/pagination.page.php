@@ -1,0 +1,1 @@
+<li<?php if($tags["current"]) { echo " class=\"active\""; } ?>><a href="<?=$tags["link"]?>"><?=$tags["num"]?></a></li>

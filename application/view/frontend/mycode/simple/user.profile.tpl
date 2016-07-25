@@ -6,16 +6,16 @@
 			<small>[online][f:user:profile.online][/online][offline][f:user:profile.offline] {last-online-date} [f:user:profile.in] {last-online-time}[/offline]</small>
 		</div>
 		<div class="rating">
-			<i class="mdi mdi-fire"></i> {blog:user-rating:{id}}
+			<i class="mdi mdi-fire"></i> {blog:user-rating:user={id}}
 		</div>
 	</div>
 	<div class="information">
 		<div class="counter">
-			<span>{blog:user-posts-count:{id}}</span>
+			<span>{blog:user-posts-count:user={id}}</span>
 			[f:user:profile.count.posts]
 		</div>
 		<div class="counter">
-			<span>{blog:user-comments-count:{id}}</span>
+			<span>{blog:user-comments-count:user={id}}</span>
 			[f:user:profile.count.comments]
 		</div>
 		<ul class="about">

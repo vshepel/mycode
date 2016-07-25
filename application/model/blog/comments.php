@@ -31,14 +31,16 @@ use harmony\strings\Strings;
 class Comments extends AppModel {
 	/**
 	 * Get User comments count by User ID
-	 * @param int $uid User ID
+	 * @param array $args
 	 * @return int
 	 */
-	public function getUserCommentsCount($uid) {
+	public function getUserCommentsCount($args) {
+		if (!isset($args["user"])) return -1;
+
 		$count = $this->_db
 			->select("count(*)")
 			->from(DBPREFIX . "blog_comments")
-			->where("user", "=", intval($uid))
+			->where("user", "=", intval($args["user"]))
 			->result_array();
 
 		return isset($count[0][0]) ? $count[0][0] : 0;

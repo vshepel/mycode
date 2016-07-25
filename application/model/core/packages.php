@@ -438,7 +438,7 @@ class Packages extends AppModel {
 			// Backend view	
 			$this->_move(
 				$dir . DS . "view" . DS . "backend",
-				VIEW . DS . "backend" . DS . $bview . DS . "tpl"
+				VIEW . DS . "backend" . DS . $bview
 			);
 
 			// Backend view langs
@@ -453,7 +453,7 @@ class Packages extends AppModel {
 			$view = "default";
 			$this->_move(
 				$dir . DS . "view" . DS . "frontend",
-				VIEW . DS . "frontend" . DS . $view . DS . "tpl"
+				VIEW . DS . "frontend" . DS . $view
 			);
 
 			// Frontend view langs
@@ -545,6 +545,7 @@ class Packages extends AppModel {
 
 			$response->view = "core.packages.remove";
 			$response->tags["name"] = $name;
+			$response->tags["action"] = "remove";
 		} else {
 			$response->code = 3;
 			$response->type = "danger";

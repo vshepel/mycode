@@ -22,7 +22,7 @@
 		<span class="status">[online]<span class="online">[f:user:profile.online]</span>[/online][offline][f:user:profile.offline] {last-online-date} [f:user:profile.in] {last-online-time}[/offline]</span>
 		[logged]
 		<div class="panel">
-			<span><i class="mdi mdi-fire"></i> {blog:user-rating:{id}}</span> <a href="{message-send-link}" class="btn-primary"><i class="mdi mdi-email"></i></a>
+			<span><i class="mdi mdi-fire"></i> {blog:user-rating:user={id}}</span> <a href="{message-send-link}" class="btn-primary"><i class="mdi mdi-email"></i></a>
 		</div>
 		[/logged]
 	</article>

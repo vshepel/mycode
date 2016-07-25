@@ -22,6 +22,26 @@ namespace harmony\strings;
 
 class StringConverters {
 	/**
+	 * Parse string like 'aaa=bbb;foo=bar' to array
+	 * @param string $str
+	 * @return array
+	 */
+	public static function toArray($str) {
+		$array = [];
+
+		foreach (explode(";", $str) as &$var) {
+			$ex = explode("=", $var, 2);
+			if (count($ex) == 2) {
+				$array[$ex[0]] = $ex[1];
+			} else {
+				$array[] = $ex[0];
+			}
+		}
+
+		return $array;
+	}
+
+	/**
 	 * Converter to Translit
 	 * @param string $string Russian text
 	 * @return string Translit text

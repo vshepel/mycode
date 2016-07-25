@@ -77,22 +77,22 @@ class Edit extends AppModel {
 
 	/**
 	 * Edit user info page
-	 * @param string $name Page name
+	 * @param string $editName Page name
 	 * @param int|null $userId = null User ID (null, if edit self profile) 
 	 * @return Response
 	 * @throws \Exception
 	 */
-	public function page($name, $userId = null) {
+	public function page($editName, $userId = null) {
 		$response = new Response();
 
-		if ($this->_user->isLogged() && $this->_user->hasPermission("user.edit." . $name)) {
+		if ($this->_user->isLogged() && $this->_user->hasPermission("user.edit." . $editName)) {
 			if ($userId == null) $userId = $this->_user->get("id");
 			$this->_updateVars($userId);
 			
-			if ($name === false) $name = "main";
+			if ($editName === false) $editName = "main";
 
 			// Pages
-			switch($name) {
+			switch($editName) {
 				// Main
 				case "main":
 					$title = $this->_lang->get("user", "edit.main.title");
@@ -196,7 +196,7 @@ class Edit extends AppModel {
 			}
 
 			$response->tags["user-id"] = $userId;
-			$response->tags["edit-name"] = $name;
+			$response->tags["edit-name"] = $editName;
 			
 			if (SIDETYPE == BACKEND)
 				$response->tags["edit-link"] = ADMIN_PATH . "user/edit/" . $userId;

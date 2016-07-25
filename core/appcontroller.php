@@ -56,7 +56,7 @@ abstract class AppController {
 	 * @return string Property value
      */
 	public function getProperty($name, $arg) {
-		return "Property '{$name}' with argument '{$arg}' not exists";
+		return "Property '{$name}' with argument '" . print_r($arg, 1) . "' not exists";
 	}
 
 	/**

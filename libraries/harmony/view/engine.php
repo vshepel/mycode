@@ -20,7 +20,7 @@
 
 namespace harmony\view;
 
-abstract class Parser {
+abstract class Engine {
 	/**
 	 * @var array Global tags
 	 */
@@ -99,7 +99,7 @@ abstract class Parser {
 		return $this;
 	}
 
-	public abstract function parse($name, $tags = array());
+	public abstract function parse($name, $tags = []);
 
 	public abstract function alert($type, $message);
 

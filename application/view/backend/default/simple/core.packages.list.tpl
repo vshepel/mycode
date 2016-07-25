@@ -1,6 +1,6 @@
 [include "core.packages.tabs"]
 
-[if num!="0"]<ul class="nav nav-pills">
+<ul class="nav nav-pills">
 	<li id="toggle-all" class="toggle active"><a href="#" onclick="showAll(); return false;">
 		<span class="main-row-icon fa fa-home"></span>
 		[f:core:packages.list.toggle.all]
@@ -124,6 +124,4 @@ function showAll() {
 }
 
 show('module');
-</script>[/if][if num="0"]<div class="alert alert-info" role="alert">
-	[f:core:packages.noRows]
-</div>[/if]
+</script>

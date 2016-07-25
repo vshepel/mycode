@@ -43,20 +43,7 @@ class Bootstrap {
 	public function __construct(array $args) {
 		try {
 			$this->_args = $args;
-			
-			function errorHandler($errno, $errstr, $errfile, $errline) {
-				if (E_RECOVERABLE_ERROR === $errno) {
-					throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
-				} elseif (defined("DEBUG")) {
-					echo "<pre>" . $errstr . "\n\n";
-					debug_print_backtrace();
-					echo "</pre>";
-				}
-				return false;
-			}
-			
-			set_error_handler('errorHandler');
-			
+
 			define ("FRONTEND", "frontend");
 			define ("BACKEND", "backend");
 			define ("DS", DIRECTORY_SEPARATOR);
@@ -187,7 +174,7 @@ HTML;
 			->add("Database", harmony\database\DataBase::getInstance()->driver($config->get("database", "driver")))
 			->add("User", new model\user\User())
 			->add("Router", new Router())
-			->add("View", harmony\view\View::getInstance()->parser($config->get("view", "parser", "HarmonyCMS")))
+			->add("View", harmony\view\View::getInstance()->parser($config->get("view", "engine", "Simple")))
 			->add("Captcha", harmony\captcha\Captcha::getInstance()->driver($config->get("captcha", "generator", "HarmonyCMS")))
 			->add("SendMail", harmony\sendmail\SendMail::getInstance()
 				->driver($config->get("sendmail", "driver", "SMTP"),

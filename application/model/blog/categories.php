@@ -209,9 +209,14 @@ class Categories extends AppModel {
 
 	/**
 	 * Get Categories list
-	 * @return string
+	 * @param array $args = []
+	 * @return string|array
 	 */
-	public function getList() {
+	public function getList($args = []) {
+		$args = array_merge([
+			"template" => "blog.tag.category"
+		], $args);
+
 		$notEmptyCategories = $this->_config->get("blog", "main.not_empty_categories", false);
 		$rows = [];
 
@@ -227,9 +232,13 @@ class Categories extends AppModel {
 			}
 		}
 
-		return $this->_view->parse("blog.tag.category", [
-			"rows" => $rows
-		]);
+		if ($args["template"] === false) {
+			return $rows;
+		} else {
+			return $this->_view->parse($args["template"], [
+				"rows" => $rows
+			]);
+		}
 	}
 
 	/**

@@ -168,15 +168,17 @@ class Posts extends AppModel {
 
 	/**
 	 * Get user rating
-	 * @param int $uid User ID
+	 * @param array $args
 	 * @return int
 	 */
-	public function getUserRating($uid) {
+	public function getUserRating($args) {
+		if (!isset($args["user"])) return -1;
+
 		$array = $this->_db
 			->select("rating")
 			->from(DBPREFIX . "blog_posts")
 			->where("show", "=", 1)
-			->and_where("author", "=", intval($uid))
+			->and_where("author", "=", intval($args["user"]))
 			->result_array();
 
 		$rating = 0;
@@ -192,15 +194,17 @@ class Posts extends AppModel {
 
 	/**
 	 * Get User posts count by User ID
-	 * @param int $uid User ID
+	 * @param array $args
 	 * @return int
 	 */
-	public function getUserPostsCount($uid) {
+	public function getUserPostsCount($args) {
+		if (!isset($args["user"])) return -1;
+
 		$count = $this->_db
 			->select("count(*)")
 			->from(DBPREFIX . "blog_posts")
 			->where("show", "=", 1)
-			->and_where("author", "=", intval($uid))
+			->and_where("author", "=", intval($args["user"]))
 			->result_array();
 
 		return isset($count[0][0]) ? $count[0][0] : 0;
@@ -828,7 +832,7 @@ class Posts extends AppModel {
 				"categories" => $categories,
 				"langs" => $langs,
 
-				"list-link" => ADMIN_PATH . "blog/list",
+				"list-link" => ADMIN_PATH . "blog/posts",
 				"remove-link" => ADMIN_PATH . "blog/remove/" . $postId
 			));
 		} else {
@@ -1288,9 +1292,14 @@ class Posts extends AppModel {
 
 	/**
 	 * Get archive list
+	 * @param array $args = []
 	 * @return string
 	 */
-	public function getPopular() {
+	public function getPopular($args = []) {
+		$args = array_merge([
+			"template" => "blog.tag.popular"
+		], $args);
+
 		$array = $this->_db
 			->select(["id", "title", "url", "rating"])
 			->from(DBPREFIX . "blog_posts")
@@ -1315,20 +1324,29 @@ class Posts extends AppModel {
 			];
 		}
 
-		return $this->_view->parse("blog.tag.popular", [
-			"rows" => $rows
-		]);
+		if ($args["template"] === false) {
+			return $rows;
+		} else {
+			return $this->_view->parse($args["template"], [
+				"rows" => $rows
+			]);
+		}
 	}
 
 	/**
 	 * Get archive list
+	 * @param array $args = []
 	 * @return string
 	 */
-	public function getArchive() {
-		$cache_name = "archive." . $this->_lang->getLang();
+	public function getArchive($args = []) {
+		$args = array_merge([
+			"template" => "blog.tag.archive"
+		], $args);
+
+		$cache_name = "archive." . $this->_lang->getLang() . "-" . $args["template"];
 		$cache = $this->_cache->get("blog", $cache_name);
 
-		if ($cache !== false) {
+		if ($cache !== false && $args["template"] !== false) {
 			return $cache;
 		}
 
@@ -1368,26 +1386,35 @@ class Posts extends AppModel {
 			];
 		}
 
-		$list = $this->_view->parse("blog.tag.archive", [
-			"rows" => $rows
-		]);
+		if ($args["template"] === false) {
+			return $rows;
+		} else {
+			$result = $this->_view->parse($args["template"], [
+				"rows" => $rows
+			]);
 
-		$this->_cache->push("blog", $cache_name, $list);
-
-		return $list;
+			$this->_cache->push("blog", $cache_name, $result);
+			return $result;
+		}
 	}
 
 	/**
 	 * Get last posts list
-	 * @return string
+	 * @param array $args = []
+	 * @return string|array
 	 */
-	public function getLast() {
+	public function getLast($args = []) {
+		$args = array_merge([
+			"template" => "blog.tag.last",
+			"count" => 10
+		], $args);
+
 		$array = $this->_db
 			->select(["id", "title", "url", "rating"])
 			->from(DBPREFIX . "blog_posts")
 			->where("show", "=", 1)
 			->order_by("id")->desc()
-			->limit([0, $this->_config->get("blog", "last.count", 10)])
+			->limit([0, $args["count"]])
 			->result_array();
 
 		if (!is_array($array)) {
@@ -1406,9 +1433,13 @@ class Posts extends AppModel {
 			];
 		}
 
-		return $this->_view->parse("blog.tag.last", [
-			"rows" => $rows
-		]);
+		if ($args["template"] === false) {
+			return $rows;
+		} else {
+			return $this->_view->parse($args["template"], [
+				"rows" => $rows
+			]);
+		}
 	}
 
 	/**
@@ -1602,11 +1633,18 @@ class Posts extends AppModel {
 
 	/**
 	 * Get tags cloud
+	 * @param array $args = []
 	 * @return string
 	 */
-	public function getTagsCloud() {
-		$cache = $this->_cache->get("blog", "tagscloud");
-		if ($cache !== false) {
+	public function getTagsCloud($args = []) {
+		$args = array_merge([
+			"template" => "blog.tag.tagscloud",
+			"count" => 40
+		], $args);
+
+		$cache_name = "tagscloud-" . $args["template"];
+		$cache = $this->_cache->get("blog", $cache_name);
+		if ($cache !== false && $args["template"] !== false) {
 			return $cache;
 		}
 
@@ -1622,7 +1660,7 @@ class Posts extends AppModel {
 		});
 
 		// Splice array
-		array_splice($tags, 40);
+		array_splice($tags, $args["count"]);
 
 		// Sorting tags by name
 		usort($tags, function ($a, $b) {
@@ -1651,13 +1689,16 @@ class Posts extends AppModel {
 			$rows[] = $tag;
 		}
 
-		$result = $this->_view->parse("blog.tag.tagscloud", [
-			"rows" => $rows
-		]);
+		if ($args["template"] === false) {
+			return $rows;
+		} else {
+			$result = $this->_view->parse($args["template"], [
+				"rows" => $rows
+			]);
 
-		$this->_cache->push("blog", "tagscloud", $result);
-
-		return $result;
+			$this->_cache->push("blog", $cache_name, $result);
+			return $result;
+		}
 	}
 
 	/**

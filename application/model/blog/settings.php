@@ -102,9 +102,9 @@ class Settings extends AppModel {
 				"posts.related" => isset($values["posts_related"]),
 				"posts.only_local_language" => isset($values["posts_only_local_language"]),
 
-				"comments.interval" => $values["comments_interval"],
-				"comments.length.min" => $values["comments_length_min"],
-				"comments.length.max" => $values["comments_length_max"]
+				"comments.interval" => intval($values["comments_interval"]),
+				"comments.length.min" => intval($values["comments_length_min"]),
+				"comments.length.max" => intval($values["comments_length_max"])
 			]);
 
 			$this->_cache->remove("blog");

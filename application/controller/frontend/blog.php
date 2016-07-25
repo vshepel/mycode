@@ -83,22 +83,22 @@ class Blog extends AppController {
 		);
 	}
 
-	public function getProperty($name, $arg) {
+	public function getProperty($name, $args) {
 		switch ($name) {
-			case "categories": return Categories::getInstance()->getList();
-			case "archive": return $this->_posts->getArchive();
+			case "categories": return Categories::getInstance()->getList($args);
+			case "archive": return $this->_posts->getArchive($args);
 			case "calendar": return $this->_posts->getCalendar();
-			case "popular": return $this->_posts->getPopular();
-			case "last": return $this->_posts->getLast();
-			case "tags-cloud": return $this->_posts->getTagsCloud();
-			case "user-rating": return $this->_posts->getUserRating($arg);
-			case "user-posts-count": return $this->_posts->getUserPostsCount($arg);
+			case "popular": return $this->_posts->getPopular($args);
+			case "last": return $this->_posts->getLast($args);
+			case "tags-cloud": return $this->_posts->getTagsCloud($args);
+			case "user-rating": return $this->_posts->getUserRating($args);
+			case "user-posts-count": return $this->_posts->getUserPostsCount($args);
 			case "user-comments-count":
 				$comments_model = new Comments();
-				return $comments_model->getUserCommentsCount($arg);
+				return $comments_model->getUserCommentsCount($args);
 
 			default:
-				return parent::getProperty($name, $arg);
+				return parent::getProperty($name, $args);
 		}
 	}
 

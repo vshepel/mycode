@@ -161,7 +161,9 @@ class Router {
 		try {
 			// Site disable
 			if ($this->_config->get("site", "disabled", false) && !$this->_user->hasPermission("admin")) {
-				$this->page("disabled", "HTTP/1.1 503 Service Temporarily Unavailable");
+				$this->_type = FRONTEND;
+				define("SIDETYPE", $this->_type);
+				$this->page("disabled", "503 Service Temporarily Unavailable");
 				return;
 			}
 			
@@ -171,6 +173,7 @@ class Router {
 			if ($type == BACKEND) {
 				if (!$this->_user->hasPermission("admin")) {
 					$this->_type = FRONTEND;
+					define("SIDETYPE", $this->_type);
 					throw new NotFoundException();
 				} else {
 					Registry::getInstance()->get("Core")
@@ -247,18 +250,19 @@ class Router {
 				throw new NotFoundException();
 			}
 		} catch (NotFoundException $e) {
-			$this->page("404", "HTTP/1.1 404 Not Found");
+			$this->page("404", "404 Not Found");
 		}
 	}
 
 	/**
 	 * Render page
 	 * @param string $name Page name
+	 * @param string $header HTTP header
 	 * @throws Exception
 	 */
 	public function page($name, $header) {
 		$this->_type = FRONTEND;
-		header($header);
+		header("HTTP/1.1 " . $header);
 		Registry::getInstance()->get("View")->render(null, "main.page." . $name);
 		exit;
 	}

@@ -31,7 +31,7 @@ class View {
 	/**
 	 * @var string Driver prefix
 	 */
-	private $_parser_class_prefix = "\\harmony\\view\\parsers\\";
+	private $_parser_class_prefix = "\\harmony\\view\\engines\\";
 
 	/**
 	 * Get singleton instance
@@ -47,7 +47,7 @@ class View {
 	/**
 	 * Get parser
 	 * @param $parser
-	 * @return Parser
+	 * @return Engine
 	 * @throws Exception
 	 */
 	public function parser($parser) {
@@ -56,7 +56,7 @@ class View {
 		if (class_exists($parser_class)) {
 			$parser_object = new $parser_class;
 
-			if (!$parser_object instanceof Parser)
+			if (!$parser_object instanceof Engine)
 				throw new Exception("View error: parser {$parser} is not instance of main parser");
 
 			return $parser_object;

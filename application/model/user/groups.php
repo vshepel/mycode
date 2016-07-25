@@ -144,7 +144,7 @@ class Groups extends AppModel {
 			->addBreadcrumbs($this->_lang->get("user", "groups.moduleName"), "user/groups");
 
 		// Access denied
-		if ($this->_user->hasPermission("user.groups.edit")) {
+		if (!$this->_user->hasPermission("user.groups.edit")) {
 			return new Response(2, "danger", $this->_lang->get("core", "accessDenied"));
 		}
 
